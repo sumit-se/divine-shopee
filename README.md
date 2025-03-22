@@ -1,12 +1,10 @@
-# Shopizer 3 (for java 1.8 +) (tested with Java 11)
+# Shopizer 3 (for java 17 +) (tested with Java 11, 17)
 
 3.2.7
 
 
-### Shopizer 2.X (for java 1.8 +) is still available
 
-
-[![last_version](https://img.shields.io/badge/last_version-v3.2.3-blue.svg?style=flat)](https://github.com/shopizer-ecommerce/shopizer/tree/3.2.3)
+[![last_version](https://img.shields.io/badge/last_version-v3.2.7-blue.svg?style=flat)](https://github.com/shopizer-ecommerce/shopizer/tree/3.2.7)
 [![Official site](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=official%20site)](http://www.shopizer.com/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/shopizerecomm/shopizer.svg)](https://hub.docker.com/r/shopizerecomm/shopizer)
 [![stackoverflow](https://img.shields.io/badge/shopizer-stackoverflow-orange.svg?style=flat)](http://stackoverflow.com/questions/tagged/shopizer)
@@ -27,10 +25,8 @@ Headless commerce and Rest api for ecommerce
 
 Shopizer Headless commerce consists of the following components:
 
-- Spring boot Java / Spring boot backend
-- Angular administration web application
-- React JS front end application
 
+Access the headless api: http://localhost:8080/swagger-ui.html
 
 
 See the demo: [**New demo on the way 2023]
@@ -70,7 +66,6 @@ docker run \
 API documentation:
 -------------------
 
-https://app.swaggerhub.com/apis-docs/shopizer/shopizer-rest-api/3.0.1#/
 
 Get the source code:
 -------------------
@@ -78,13 +73,6 @@ Clone the repository:
      
 	 $ git clone git://github.com/shopizer-ecommerce/shopizer.git
 	 
-	 $ git clone git://github.com/shopizer-ecommerce/shopizer-admin.git
-	 
-	 $ git clone git://github.com/shopizer-ecommerce/shopizer-shop-reactjs.git
-
-If this is your first time using Github, review http://help.github.com to learn the basics.
-
-You can also download the zip file containing the code from https://github.com/shopizer-ecommerce for each of the the projects above
 
 To build the application:
 -------------------
@@ -151,16 +139,6 @@ Clone from fork repository
 
 Build application according to steps provided above
 
-Synchronize lastest version with the upstream
--------------------
-
-<<<<<<< HEAD
-       $ git remote add upstream https://github.com/yourusername/shopizer.git
-	  $ git pull upstream 3.2.3
-=======
-      $ git remote add upstream https://github.com/yourusername/shopizer.git
-	  $ git pull upstream 3.2.5
->>>>>>> refs/remotes/origin/3.2.7
 
 Create new branch in your repository
 -------------------
