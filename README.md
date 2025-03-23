@@ -111,12 +111,7 @@ Please read the instructions on how to connect to MySQL, configure an email serv
 
 Documentation available [<https://shopizer-ecommerce.github.io/documentation/>](http://localhost:8080/swagger-ui/index.html)
 
-
-
-ChatOps <https://shopizer.slack.com>  - Join our Slack channel https://shopizer-slackin.herokuapp.com/
-=======
 ChatOps <https://shopizer.slack.com>  - Join our Slack channel <https://communityinviter.com/apps/shopizer/shopizer>
->>>>>>> refs/remotes/origin/3.2.7
 
 More information is available on shopizer web site here <http://www.shopizer.com>
 
