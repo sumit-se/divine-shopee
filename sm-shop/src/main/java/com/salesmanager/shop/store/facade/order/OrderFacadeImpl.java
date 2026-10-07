@@ -60,6 +60,9 @@ public class OrderFacadeImpl implements OrderFacade {
 		Validate.notNull(store, "MerchantStore cannot be null");
 		
 		ReadableOrderConfirmation orderConfirmation = new ReadableOrderConfirmation();
+		// the confirmation carried the entity default of 0, so the storefront's
+		// "your order id is" line had no order number to show
+		orderConfirmation.setId(order.getId());
 		
 		ReadableCustomer readableCustomer = readableCustomerMapper.convert(customer, store, language);
 		orderConfirmation.setBilling(readableCustomer.getBilling());

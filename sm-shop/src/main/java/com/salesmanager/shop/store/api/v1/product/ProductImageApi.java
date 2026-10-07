@@ -2,8 +2,10 @@ package com.salesmanager.shop.store.api.v1.product;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -270,6 +273,7 @@ public class ProductImageApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void imageDetails(@PathVariable Long id, @PathVariable Long imageId,
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
+			@RequestParam(value = "defaultImage", required = false) Boolean defaultImage,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws IOException {
 
 		try {
@@ -290,6 +294,10 @@ public class ProductImageApi {
 
 			if (productImage.isPresent()) {
 				productImage.get().setSortOrder(position);
+				// one image at a time; use /images/order to arrange the whole set
+				if (defaultImage != null) {
+					productImage.get().setDefaultImage(defaultImage.booleanValue());
+				}
 				productImageService.updateProductImage(p, productImage.get());
 			} else {
 				throw new ResourceNotFoundException("Product image [" + imageId + "] not found for product id [" + id
@@ -301,6 +309,61 @@ public class ProductImageApi {
 		} catch (Exception e) {
 			LOGGER.error("Error while deleting ProductImage", e);
 			throw new ServiceRuntimeException("ProductImage [" + imageId + "] cannot be edited");
+		}
+	}
+
+	/**
+	 * Arrange a product's images: the body is the image ids in the order they
+	 * should appear, first one first.
+	 *
+	 * One request for the whole set, because saving them one by one raced --
+	 * each call worked from its own copy of the product and could write back a
+	 * position another call had just changed. The first image also becomes the
+	 * product's main picture, and the others stop being it, so exactly one is
+	 * flagged.
+	 */
+	@ResponseStatus(HttpStatus.OK)
+	@RequestMapping(value = { "/private/product/{id}/images/order" }, method = RequestMethod.PATCH)
+	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
+			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	public void imagesOrder(@PathVariable Long id, @RequestBody List<Long> imageIds,
+			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+
+		Product p = productService.getById(id);
+
+		if (p == null || p.getMerchantStore().getId() != merchantStore.getId()) {
+			throw new ResourceNotFoundException("Product [" + id + "] not found for merchant ["
+					+ merchantStore.getCode() + "]");
+		}
+
+		if (CollectionUtils.isEmpty(imageIds)) {
+			return;
+		}
+
+		Map<Long, ProductImage> byId = new HashMap<Long, ProductImage>();
+		for (ProductImage image : p.getImages()) {
+			byId.put(image.getId(), image);
+		}
+
+		int position = 0;
+		for (Long imageId : imageIds) {
+			ProductImage image = byId.get(imageId);
+			if (image == null) {
+				throw new ResourceNotFoundException("Product image [" + imageId + "] not found for product id [" + id
+						+ "]");
+			}
+			position++;
+			image.setSortOrder(position);
+			image.setDefaultImage(position == 1);
+			productImageService.updateProductImage(p, image);
+		}
+
+		// anything the caller did not name keeps its place but is not the main one
+		for (ProductImage image : p.getImages()) {
+			if (!imageIds.contains(image.getId()) && image.isDefaultImage()) {
+				image.setDefaultImage(false);
+				productImageService.updateProductImage(p, image);
+			}
 		}
 	}
 

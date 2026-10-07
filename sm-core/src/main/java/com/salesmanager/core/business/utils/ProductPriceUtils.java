@@ -571,8 +571,18 @@ public class ProductPriceUtils {
 		}
 
 		if (CollectionUtils.isEmpty(availabilities)) {
-			availabilities = product.getAvailabilities();
-			availabilities = this.applicableAvailabilities(availabilities);
+			// A variant's inventory row hangs off the same product, so
+			// product.getAvailabilities() returns the variants' rows as well as
+			// the product's own. Taking a price from one of those made the
+			// product show whichever variant the set happened to yield first --
+			// a product priced 100 was advertised at one of its variants' 32500.
+			// The product's own price comes from its own inventory only.
+			Set<ProductAvailability> ownAvailabilities = product.getAvailabilities() == null
+					? null
+					: new HashSet<ProductAvailability>(product.getAvailabilities().stream()
+							.filter(a -> a.getProductVariant() == null).collect(Collectors.toList()));
+			availabilities = this.applicableAvailabilities(
+					CollectionUtils.isEmpty(ownAvailabilities) ? product.getAvailabilities() : ownAvailabilities);
 		}
 
 		for (ProductAvailability availability : availabilities) {

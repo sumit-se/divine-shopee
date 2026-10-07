@@ -53,7 +53,14 @@ public class ReadableProductPricePopulator extends
 		    
 		    target.setDefaultPrice(source.isDefaultPrice());
 			
-			FinalPrice finalPrice = pricingService.calculateProductPrice(source.getProductAvailability().getProduct());
+			/*
+			 * Priced from the availability this price belongs to, not from the
+			 * product. A variant keeps its own inventory row, so pricing the
+			 * product here reported the parent's discount state: a variant with
+			 * its own special amount came back discounted=false with the
+			 * undiscounted final price.
+			 */
+			FinalPrice finalPrice = pricingService.calculateProductPrice(source.getProductAvailability());
 			
 			target.setOriginalPrice(pricingService.getDisplayAmount(source.getProductPriceAmount(), store));
 			if(finalPrice.isDiscounted()) {
@@ -61,6 +68,17 @@ public class ReadableProductPricePopulator extends
 				target.setFinalPrice(pricingService.getDisplayAmount(source.getProductPriceSpecialAmount(), store));
 			} else {
 				target.setFinalPrice(pricingService.getDisplayAmount(finalPrice.getOriginalPrice(), store));
+			}
+
+			// the discount window, in the same yyyy-MM-dd the persistable side
+			// parses, so a client can read it back and save it unchanged
+			if (source.getProductPriceSpecialStartDate() != null) {
+				target.setDiscountStartDate(
+						com.salesmanager.shop.utils.DateUtil.formatDate(source.getProductPriceSpecialStartDate()));
+			}
+			if (source.getProductPriceSpecialEndDate() != null) {
+				target.setDiscountEndDate(
+						com.salesmanager.shop.utils.DateUtil.formatDate(source.getProductPriceSpecialEndDate()));
 			}
 			
 		    if(source.getDescriptions()!=null && source.getDescriptions().size()>0) {

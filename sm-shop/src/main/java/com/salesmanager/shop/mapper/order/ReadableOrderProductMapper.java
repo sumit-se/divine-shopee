@@ -69,6 +69,9 @@ public class ReadableOrderProductMapper implements Mapper<OrderProduct, Readable
 		}
 		target.setProductName(source.getProductName());
 		target.setSku(source.getSku());
+		// which variant was sold, so an order shows the actual item
+		target.setVariant(source.getVariant());
+		target.setVariantSku(source.getVariantSku());
 
 		// subtotal = price * quantity
 		BigDecimal subTotal = source.getOneTimeCharge();

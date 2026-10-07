@@ -106,8 +106,10 @@ public class PersistableInventoryMapper implements Mapper<PersistableInventory, 
 			}
 
 			destination.setProductQuantity(source.getQuantity());
-			destination.setProductQuantityOrderMin(source.getProductQuantityOrderMax());
-			destination.setProductQuantityOrderMax(source.getProductQuantityOrderMin());
+			// these were crossed over: min was set from max and max from min, so a
+			// saved min/max pair came back swapped
+			destination.setProductQuantityOrderMin(source.getProductQuantityOrderMin());
+			destination.setProductQuantityOrderMax(source.getProductQuantityOrderMax());
 			destination.setAvailable(source.isAvailable());
 			destination.setOwner(source.getOwner());
 
@@ -212,6 +214,16 @@ public class PersistableInventoryMapper implements Mapper<PersistableInventory, 
 			if (CollectionUtils.isNotEmpty(price.getDescriptions())) {
 				for (ProductPriceDescription d : price.getDescriptions()) {
 					if (isPositive(desc.getId()) && desc.getId().equals(d.getId())) {
+						desc.setId(d.getId());
+					} else if (!isPositive(desc.getId()) && d.getLanguage() != null && desc.getLanguage() != null
+							&& desc.getLanguage().equals(d.getLanguage().getCode())) {
+						/*
+						 * A description sent without an id, for a language the price
+						 * already has one in. Only one description per price and
+						 * language is allowed, so inserting a second one failed with
+						 * "Duplicate entry ... for key product_price_description".
+						 * Take over the existing row instead.
+						 */
 						desc.setId(d.getId());
 					}
 				}

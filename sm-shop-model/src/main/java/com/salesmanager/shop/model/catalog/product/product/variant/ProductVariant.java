@@ -1,6 +1,7 @@
 package com.salesmanager.shop.model.catalog.product.product.variant;
 
 import com.salesmanager.shop.model.catalog.product.Product;
+import com.salesmanager.shop.model.catalog.product.product.ProductSpecification;
 
 public class ProductVariant extends Product {
 
@@ -15,6 +16,9 @@ public class ProductVariant extends Product {
 	private int sortOrder;
 	
 	private boolean defaultSelection;
+
+	/** weight / width / height / length of this variant; a null value means the product's own is used **/
+	private ProductSpecification productSpecifications;
 	
 	public String getStore() {
 		return store;
@@ -58,7 +62,11 @@ public class ProductVariant extends Product {
 	public void setSortOrder(int sortOrder) {
 		this.sortOrder = sortOrder;
 	}
-	
-	
 
+	public ProductSpecification getProductSpecifications() {
+		return productSpecifications;
+	}
+	public void setProductSpecifications(ProductSpecification productSpecifications) {
+		this.productSpecifications = productSpecifications;
+	}
 }

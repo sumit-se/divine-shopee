@@ -78,6 +78,14 @@ public interface OrderService extends SalesManagerEntityService<Long, Order> {
 
     Order getOrder(Long id, MerchantStore store);
 
+    /**
+     * Permanently removes an order with everything recorded against it: lines,
+     * totals, status history, attributes, payment transactions, recurring
+     * accounts and shipping quotes. A cart the order was placed from is kept.
+     * @param restock put the ordered quantities back into inventory
+     */
+    void deleteOrder(Order order, boolean restock) throws ServiceException;
+
     
     /**
      * For finding orders. Mainly used in the administration tool

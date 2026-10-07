@@ -76,7 +76,12 @@ public class CategoryApi {
 		return category;
 	}
 
-	@GetMapping(value = "/category/{friendlyUrl}", produces = { APPLICATION_JSON_VALUE })
+	// Was "/category/{friendlyUrl}", which collides with "/category/{id}" above:
+	// Spring cannot disambiguate two handlers on the same pattern and throws
+	// IllegalStateException: Ambiguous handler methods, so EVERY request to
+	// /api/v1/category/* returned 500 -- by id and by slug alike. Moved to a
+	// distinct path, matching how ProductApi exposes /product/friendly/{slug}.
+	@GetMapping(value = { "/category/friendly/{friendlyUrl}" }, produces = { APPLICATION_JSON_VALUE })
 	@ApiOperation(httpMethod = "GET", value = "Get category list for an given Category code", notes = "List current Category and child category")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "List of category found", response = ReadableCategory.class) })

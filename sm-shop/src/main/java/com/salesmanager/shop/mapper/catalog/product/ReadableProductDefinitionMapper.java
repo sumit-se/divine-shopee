@@ -17,6 +17,7 @@ import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.availability.ProductAvailability;
 import com.salesmanager.core.model.catalog.product.description.ProductDescription;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
+import com.salesmanager.core.model.catalog.product.price.ProductPrice;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.mapper.Mapper;
@@ -36,6 +37,7 @@ import com.salesmanager.shop.model.references.DimensionUnitOfMeasure;
 import com.salesmanager.shop.model.references.WeightUnitOfMeasure;
 import com.salesmanager.shop.utils.DateUtil;
 import com.salesmanager.shop.utils.ImageFilePath;
+import com.salesmanager.shop.utils.YouTubeVideos;
 
 @Component
 public class ReadableProductDefinitionMapper implements Mapper<Product, ReadableProductDefinition> {
@@ -168,6 +170,20 @@ public class ReadableProductDefinitionMapper implements Mapper<Product, Readable
 			returnDestination.setCanBePurchased(availability.getProductStatus());
 			ReadableInventory inventory = readableInventoryMapper.convert(availability, store, language);
 			returnDestination.setInventory(inventory);
+
+			/*
+			 * The same stock and the default price's two amounts again, as raw
+			 * numbers. The inventory above carries them only as formatted text,
+			 * which is no use to an editor that has to put them back into number
+			 * fields -- and these are exactly the fields the persistable form
+			 * accepts, so a product reads back the way it is written.
+			 */
+			returnDestination.setQuantity(availability.getProductQuantity());
+			ProductPrice defaultPrice = defaultPrice(availability);
+			if(defaultPrice != null) {
+				returnDestination.setPrice(defaultPrice.getProductPriceAmount());
+				returnDestination.setDiscountedPrice(defaultPrice.getProductPriceSpecialAmount());
+			}
 		}
 		
 
@@ -181,6 +197,25 @@ public class ReadableProductDefinitionMapper implements Mapper<Product, Readable
 		return returnDestination;
 	}
 	
+	/**
+	 * The price an availability sells at. A row can carry several, so the one
+	 * marked default is the one the shop quotes; older rows seeded without that
+	 * flag fall back to whichever is there, which is what the storefront does
+	 * with them too.
+	 */
+	private ProductPrice defaultPrice(ProductAvailability availability) {
+		ProductPrice first = null;
+		for(ProductPrice price : availability.getPrices()) {
+			if(price.isDefaultPrice()) {
+				return price;
+			}
+			if(first == null) {
+				first = price;
+			}
+		}
+		return first;
+	}
+
 	private ReadableImage convertImage(Product product, ProductImage image, MerchantStore store) {
 		ReadableImage prdImage = new ReadableImage();
 		prdImage.setImageName(image.getProductImage());
@@ -197,6 +232,8 @@ public class ReadableProductDefinitionMapper implements Mapper<Product, Readable
 		}
 		if(image.getImageType()==1 && image.getProductImageUrl()!=null) {//video
 			prdImage.setVideoUrl(image.getProductImageUrl());
+			// the video's YouTube still, not a file path that does not exist
+			prdImage.setImageUrl(YouTubeVideos.thumbnailUrl(image.getProductImageUrl()));
 		}
 		
 		if(prdImage.isDefaultImage()) {

@@ -961,7 +961,17 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
     ReadableCustomerList readableCustomerList = new ReadableCustomerList();
     readableCustomerList.setCustomers(readableCustomers);
-    readableCustomerList.setTotalPages(Math.toIntExact(customerList.getTotalCount()));
+    /*
+     * The record count used to be reported as the number of pages, and the
+     * record counts were left at zero -- the opposite of what the other listing
+     * endpoints return. Both are filled in now; totalPages keeps carrying the
+     * count as well so an older client still paginates as it did.
+     */
+    int totalRecords = Math.toIntExact(customerList.getTotalCount());
+    readableCustomerList.setRecordsTotal(totalRecords);
+    readableCustomerList.setRecordsFiltered(totalRecords);
+    readableCustomerList.setNumber(readableCustomers.size());
+    readableCustomerList.setTotalPages(totalRecords);
     return readableCustomerList;
   }
 

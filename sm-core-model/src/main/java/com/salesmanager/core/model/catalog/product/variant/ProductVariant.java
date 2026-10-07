@@ -1,5 +1,6 @@
 package com.salesmanager.core.model.catalog.product.variant;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -98,6 +99,23 @@ public class ProductVariant extends SalesManagerEntity<Long, ProductVariant> imp
 	
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="productVariant")
 	private Set<ProductAvailability> availabilities = new HashSet<ProductAvailability>();
+
+	/*
+	 * Own shipping dimensions, in the store's units. Each is optional: null
+	 * means the variant uses the product's value (see ShippingProduct.getShippingWeight()
+	 * etc.).
+	 */
+	@Column(name = "VARIANT_WEIGHT")
+	private BigDecimal variantWeight;
+
+	@Column(name = "VARIANT_WIDTH")
+	private BigDecimal variantWidth;
+
+	@Column(name = "VARIANT_HEIGHT")
+	private BigDecimal variantHeight;
+
+	@Column(name = "VARIANT_LENGTH")
+	private BigDecimal variantLength;
 
 
 	@Override
@@ -206,8 +224,37 @@ public class ProductVariant extends SalesManagerEntity<Long, ProductVariant> imp
 	public void setAvailabilities(Set<ProductAvailability> availabilities) {
 		this.availabilities = availabilities;
 	}
-	
 
+	public BigDecimal getVariantWeight() {
+		return variantWeight;
+	}
 
+	public void setVariantWeight(BigDecimal variantWeight) {
+		this.variantWeight = variantWeight;
+	}
+
+	public BigDecimal getVariantWidth() {
+		return variantWidth;
+	}
+
+	public void setVariantWidth(BigDecimal variantWidth) {
+		this.variantWidth = variantWidth;
+	}
+
+	public BigDecimal getVariantHeight() {
+		return variantHeight;
+	}
+
+	public void setVariantHeight(BigDecimal variantHeight) {
+		this.variantHeight = variantHeight;
+	}
+
+	public BigDecimal getVariantLength() {
+		return variantLength;
+	}
+
+	public void setVariantLength(BigDecimal variantLength) {
+		this.variantLength = variantLength;
+	}
 
 }

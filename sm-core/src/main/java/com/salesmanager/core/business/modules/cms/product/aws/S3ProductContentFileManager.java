@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
@@ -214,8 +215,6 @@ public class S3ProductContentFileManager
 
       PutObjectRequest request = new PutObjectRequest(bucketName,
           nodePath + productImage.getProductImage(), contentImage.getFile(), metadata);
-      request.setCannedAcl(CannedAccessControlList.PublicRead);
-
 
       s3.putObject(request);
 
@@ -265,17 +264,15 @@ public class S3ProductContentFileManager
     return b;
   }
 
-  /**
-   * Builds an amazon S3 client
-   * 
-   * @return
-   */
   private AmazonS3 s3Client() {
-
-    return AmazonS3ClientBuilder.standard().withRegion(regionName()) // The first region to
-                                                                            // try your request
-                                                                            // against
-        .build();
+    String endpoint = getCmsManager().getEndpoint();
+    if (!StringUtils.isBlank(endpoint)) {
+      return AmazonS3ClientBuilder.standard()
+          .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, regionName()))
+          .withPathStyleAccessEnabled(true)
+          .build();
+    }
+    return AmazonS3ClientBuilder.standard().withRegion(regionName()).build();
   }
 
   private String bucketName() {

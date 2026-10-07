@@ -148,7 +148,12 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 			
 			if(!StringUtils.isBlank(source.getComments())) {
 				OrderStatusHistory statusHistory = new OrderStatusHistory();
-				statusHistory.setStatus(null);
+				// dateAdded is not nullable and the status was left null: an order
+				// placed through the API with a comment failed to save with
+				// "not-null property references a null or transient value:
+				// OrderStatusHistory.dateAdded". Same values the web checkout uses.
+				statusHistory.setStatus(com.salesmanager.core.model.order.orderstatus.OrderStatus.ORDERED);
+				statusHistory.setDateAdded(new java.util.Date());
 				statusHistory.setOrder(target);
 				statusHistory.setComments(source.getComments());
 				target.getOrderHistory().add(statusHistory);

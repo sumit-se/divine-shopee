@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +26,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ServiceException;
@@ -99,6 +102,9 @@ public class OrderServiceImpl  extends SalesManagerEntityServiceImpl<Long, Order
     private OrderTotalService orderTotalService;
 
     private final OrderRepository orderRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Inject
     public OrderServiceImpl(OrderRepository orderRepository) {
@@ -193,20 +199,26 @@ public class OrderServiceImpl  extends SalesManagerEntityServiceImpl<Long, Order
     	LOGGER.debug( "Update inventory" );
         Set<OrderProduct> products = order.getOrderProducts();
         for(OrderProduct orderProduct : products) {
-            orderProduct.getProductQuantity();
-            Product p = productService.getById(orderProduct.getId());
+            /*
+             * Resolved by sku. This used to call getById(orderProduct.getId()) --
+             * the id of the order line, not of the product -- so checkout died
+             * with "Unable to find Product with id 1" as soon as the line id did
+             * not happen to match a product id.
+             */
+            Product p = productService.getBySku(orderProduct.getSku(), order.getMerchant());
             if(p == null)
                 throw new ServiceException(ServiceException.EXCEPTION_INVENTORY_MISMATCH);
-            for(ProductAvailability availability : p.getAvailabilities()) {
-                int qty = availability.getProductQuantity();
+
+            ProductAvailability target = inventoryTarget(p, orderProduct);
+
+            if(target != null) {
+                int qty = target.getProductQuantity() == null ? 0 : target.getProductQuantity();
                 if(qty < orderProduct.getProductQuantity()) {
-                    //throw new ServiceException(ServiceException.EXCEPTION_INVENTORY_MISMATCH);
                 	LOGGER.error("APP-BACKEND [" + ServiceException.EXCEPTION_INVENTORY_MISMATCH + "]");
                 }
-                qty = qty - orderProduct.getProductQuantity();
-                availability.setProductQuantity(qty);
+                target.setProductQuantity(qty - orderProduct.getProductQuantity());
+                productService.update(p);
             }
-            productService.update(p);
         }
 
 
@@ -516,6 +528,75 @@ public class OrderServiceImpl  extends SalesManagerEntityServiceImpl<Long, Order
             return caculateShoppingCart(shoppingCart, null, store, language);
         } catch (Exception e) {
             LOGGER.error( "Error while calculating shopping cart total" +e );
+            throw new ServiceException(e);
+        }
+    }
+
+    /**
+     * The inventory row an order line draws from.
+     *
+     * A product's availabilities include a row per variant, so taking the
+     * quantity off every one of them would decrement every variant for a
+     * single item sold. Only the row for the sku ordered is touched, and
+     * failing that the product's own row.
+     */
+    private ProductAvailability inventoryTarget(Product p, OrderProduct orderProduct) {
+        ProductAvailability target = null;
+        for(ProductAvailability availability : p.getAvailabilities()) {
+            // the variant sold, when the line carries one
+            if(orderProduct.getVariant() != null && availability.getProductVariant() != null
+                    && orderProduct.getVariant().equals(availability.getProductVariant().getId())) {
+                return availability;
+            }
+            if(orderProduct.getVariant() == null && orderProduct.getSku() != null
+                    && orderProduct.getSku().equals(availability.getSku())) {
+                return availability;
+            }
+            // otherwise the product's own row
+            if(orderProduct.getVariant() == null && availability.getProductVariant() == null) {
+                target = availability;
+            }
+        }
+        return target;
+    }
+
+    @Override
+    @Transactional
+    public void deleteOrder(final Order order, final boolean restock) throws ServiceException {
+        Validate.notNull(order, "Order cannot be null");
+        Long orderId = order.getId();
+        try {
+            if(restock) {
+                for(OrderProduct orderProduct : order.getOrderProducts()) {
+                    Product p = productService.getBySku(orderProduct.getSku(), order.getMerchant());
+                    ProductAvailability target = p == null ? null : inventoryTarget(p, orderProduct);
+                    if(target == null) {
+                        // the product was deleted since; nothing to put back
+                        LOGGER.warn("Order " + orderId + ": no inventory to restock for sku " + orderProduct.getSku());
+                        continue;
+                    }
+                    int qty = target.getProductQuantity() == null ? 0 : target.getProductQuantity();
+                    target.setProductQuantity(qty + orderProduct.getProductQuantity());
+                    productService.update(p);
+                }
+            }
+
+            // rows that point at the order without being mapped on it, so no cascade reaches them
+            entityManager.createQuery("delete from Transaction t where t.order.id = :id")
+                    .setParameter("id", orderId).executeUpdate();
+            entityManager.createQuery("delete from OrderAccountProduct p where p.orderAccount.id in "
+                    + "(select a.id from OrderAccount a where a.order.id = :id)")
+                    .setParameter("id", orderId).executeUpdate();
+            entityManager.createQuery("delete from OrderAccount a where a.order.id = :id")
+                    .setParameter("id", orderId).executeUpdate();
+            entityManager.createQuery("delete from Quote q where q.orderId = :id")
+                    .setParameter("id", orderId).executeUpdate();
+
+            // lines, totals, history and attributes cascade
+            delete(order);
+        } catch (ServiceException e) {
+            throw e;
+        } catch (Exception e) {
             throw new ServiceException(e);
         }
     }

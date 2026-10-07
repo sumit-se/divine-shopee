@@ -29,6 +29,10 @@ import com.salesmanager.shop.store.controller.store.facade.StoreFacade;
 @Component
 public class LanguageUtils {
 
+  /** see MerchantStoreArgumentResolver: the store assumed when none is given */
+  @org.springframework.beans.factory.annotation.Autowired
+  private org.springframework.core.env.Environment environment;
+
   protected final Log logger = LogFactory.getLog(getClass());
   public static final String REQUEST_PARAMATER_STORE = "store";
 
@@ -152,7 +156,7 @@ public class LanguageUtils {
       if (StringUtils.isBlank(lang)) {
         if (language == null) {
     	    String storeValue = Optional.ofNullable(webRequest.getParameter(REQUEST_PARAMATER_STORE))
-    				.filter(StringUtils::isNotBlank).orElse(DEFAULT_STORE);
+    				.filter(StringUtils::isNotBlank).orElse(environment.getProperty("shopizer.store.default", DEFAULT_STORE));
     	    if(!StringUtils.isBlank(storeValue)) {
     	      try {
     	    	  MerchantStore storeModel = storeFacade.get(storeValue);

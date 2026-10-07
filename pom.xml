@@ -227,6 +227,18 @@
 				<artifactId>kie-spring</artifactId>
 				<version>${drools.version}</version>
 			</dependency>
+			<!--
+				Drools 7.32 drags in XStream 1.4.11.1, which cannot initialise on
+				JDK 17: XStream.setupConverters throws ExceptionInInitializerError
+				reflecting into JDK internals, and every shipping quote came back
+				500 because the quote runs through the rules engine. 1.4.20 keeps
+				the same API and works on 17.
+			-->
+			<dependency>
+				<groupId>com.thoughtworks.xstream</groupId>
+				<artifactId>xstream</artifactId>
+				<version>1.4.20</version>
+			</dependency>
 			<!-- end rules engine -->
 
 			<!-- Infinispan -->

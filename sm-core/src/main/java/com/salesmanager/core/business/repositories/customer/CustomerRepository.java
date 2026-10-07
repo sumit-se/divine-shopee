@@ -18,6 +18,14 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, Custo
 	
 	@Query("select c from Customer c join fetch c.merchantStore cm left join fetch c.defaultLanguage cl left join fetch c.attributes ca left join fetch ca.customerOption cao left join fetch ca.customerOptionValue cav left join fetch cao.descriptions caod left join fetch cav.descriptions left join fetch c.groups  where c.nick = ?1")
 	Customer findByNick(String nick);
+
+	/**
+	 * Customers of a store with this email. A list, not a single result: guest
+	 * checkout used to insert a new customer row every time, so existing data can
+	 * hold several rows for one address.
+	 */
+	@Query("select distinct c from Customer c join fetch c.merchantStore cm left join fetch c.defaultLanguage cl left join fetch c.attributes ca left join fetch ca.customerOption cao left join fetch ca.customerOptionValue cav left join fetch cao.descriptions caod left join fetch cav.descriptions left join fetch c.groups where c.emailAddress = ?1 and cm.id = ?2 order by c.id")
+	List<Customer> findByEmailAddress(String email, Integer storeId);
 	
 	@Query("select c from Customer c "
 			+ "join fetch c.merchantStore cm "

@@ -130,10 +130,19 @@
 			class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 			<beans:property name="ignoreUnresolvablePlaceholders"
 				value="false" />
+			<!-- the private mail file below is optional -->
+			<beans:property name="ignoreResourceNotFound" value="true" />
 			<beans:property name="locations">
 				<beans:list>
 					<beans:value>classpath:profiles/local/database.properties</beans:value>
 					<beans:value>classpath:email.properties</beans:value>
+					<!--
+						The real mail account, kept out of the source tree: its values
+						override email.properties, which only holds a sample. The
+						password there is a Gmail app password, never the account's
+						own password.
+					-->
+					<beans:value>file:#{systemProperties['user.home']}/.divineshopee/email.properties</beans:value>
 					<beans:value>classpath:profiles/local/shopizer-core.properties</beans:value>
 					<beans:value>classpath:authentication.properties</beans:value>
 				</beans:list>

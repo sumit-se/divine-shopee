@@ -684,6 +684,23 @@ public class OrderFacadeImpl implements OrderFacade {
 	public ShippingSummary getShippingSummary(ShippingQuote quote, MerchantStore store, Language language) {
 
 		ShippingSummary summary = new ShippingSummary();
+
+		/*
+		 * A free-shipping quote comes back with no options at all -- the service
+		 * returns as soon as the order total passes the threshold -- so copying
+		 * the flag only inside the branch below left the client seeing
+		 * freeShipping=false with no shipping line, and nothing to label.
+		 */
+		if (quote.isFreeShipping()) {
+			summary.setFreeShipping(true);
+			summary.setShipping(java.math.BigDecimal.ZERO);
+			summary.setHandling(quote.getHandlingFees());
+			if (quote.getDeliveryAddress() != null) {
+				summary.setDeliveryAddress(quote.getDeliveryAddress());
+			}
+			return summary;
+		}
+
 		if (quote.getSelectedShippingOption() != null) {
 			summary.setShippingQuote(true);
 			summary.setFreeShipping(quote.isFreeShipping());
@@ -1218,6 +1235,14 @@ public class OrderFacadeImpl implements OrderFacade {
 			Set<ShoppingCartItem> shoppingCartItems = cart.getLineItems();
 
 			List<ShoppingCartItem> items = new ArrayList<ShoppingCartItem>(shoppingCartItems);
+
+			// special offers: the cart enforces this as it is filled; this covers
+			// a cart filled some other way (cash on delivery is refused by CODPayment)
+			com.salesmanager.core.model.catalog.product.Product overLimit =
+					com.salesmanager.core.business.utils.SpecialProducts.overLimit(items);
+			if (overLimit != null) {
+				throw new ServiceException(com.salesmanager.core.business.utils.SpecialProducts.overLimitMessage(overLimit));
+			}
 
 			Set<OrderProduct> orderProducts = new LinkedHashSet<OrderProduct>();
 

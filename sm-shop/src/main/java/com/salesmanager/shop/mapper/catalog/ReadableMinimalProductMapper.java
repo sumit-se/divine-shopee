@@ -25,6 +25,7 @@ import com.salesmanager.shop.model.entity.ReadableDescription;
 import com.salesmanager.shop.store.api.exception.ConversionRuntimeException;
 import com.salesmanager.shop.utils.DateUtil;
 import com.salesmanager.shop.utils.ImageFilePath;
+import com.salesmanager.shop.utils.YouTubeVideos;
 
 @Component
 public class ReadableMinimalProductMapper implements Mapper<Product, ReadableMinimalProduct> {
@@ -130,6 +131,8 @@ public class ReadableMinimalProductMapper implements Mapper<Product, ReadableMin
 				}
 				if(img.getImageType()==1 && img.getProductImageUrl()!=null) {//video
 					prdImage.setVideoUrl(img.getProductImageUrl());
+					// the video's YouTube still, not a file path that does not exist
+					prdImage.setImageUrl(YouTubeVideos.thumbnailUrl(img.getProductImageUrl()));
 				}
 				
 				if(prdImage.isDefaultImage()) {

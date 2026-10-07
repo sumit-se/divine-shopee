@@ -90,6 +90,21 @@ public class OrderProductPopulator extends
 			target.setProductName(source.getProduct().getDescriptions().iterator().next().getName());
 			target.setProductQuantity(source.getQuantity());
 			target.setSku(source.getProduct().getSku());
+
+			/*
+			 * Carry the chosen variant onto the order line. Without it the order
+			 * recorded only the parent sku: which bead was sold was lost, and the
+			 * stock came off the parent's inventory rather than the variant's.
+			 */
+			if (source.getVariant() != null) {
+				target.setVariant(source.getVariant());
+				if (source.getProduct().getVariants() != null) {
+					source.getProduct().getVariants().stream()
+							.filter(v -> source.getVariant().equals(v.getId()))
+							.findFirst()
+							.ifPresent(v -> target.setVariantSku(v.getSku()));
+				}
+			}
 			
 			FinalPrice finalPrice = source.getFinalPrice();
 			if(finalPrice==null) {

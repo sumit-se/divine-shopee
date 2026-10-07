@@ -30,4 +30,12 @@ sm-shop/.project
 sm-shop/src/main/resources/database.properties
 .DS_Store
 
+# Infinispan / local CMS binary stores — media now lives in Cloudflare R2
+sm-shop/files/
+sm-core/files/
+
+# Build/run logs
+build.log
+run.log
+
 .mvnw/*.jar

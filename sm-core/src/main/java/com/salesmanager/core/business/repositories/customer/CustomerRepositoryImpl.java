@@ -130,9 +130,9 @@ public class CustomerRepositoryImpl implements CustomerRepositoryCustom {
         
         
     	if(max>0) {
-    			int maxCount = first + max;
-
-			objectQ.setMaxResults(Math.min(maxCount, count.intValue()));
+			// max is the page size; adding the offset to it returned up to two
+			// pages' worth of rows on every page after the first
+			objectQ.setMaxResults(max);
     	}
 		
 		customerList.setCustomers(objectQ.getResultList());

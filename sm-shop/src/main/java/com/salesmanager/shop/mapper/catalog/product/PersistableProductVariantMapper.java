@@ -112,6 +112,15 @@ public class PersistableProductVariantMapper implements Mapper<PersistableProduc
 		}
 		
 		destination.setSortOrder(source.getSortOrder());
+
+		// absent leaves the dimensions as they are; present sets all four, and a
+		// blank one goes back to using the product's value
+		if(source.getProductSpecifications() != null) {
+			destination.setVariantWeight(source.getProductSpecifications().getWeight());
+			destination.setVariantWidth(source.getProductSpecifications().getWidth());
+			destination.setVariantHeight(source.getProductSpecifications().getHeight());
+			destination.setVariantLength(source.getProductSpecifications().getLength());
+		}
 		
 		
 		/**

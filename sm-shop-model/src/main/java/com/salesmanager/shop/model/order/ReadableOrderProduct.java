@@ -17,6 +17,22 @@ public class ReadableOrderProduct extends OrderProductEntity implements
 	private List<ReadableOrderProductAttribute> attributes = null;
 	
 	private String sku;
+	/** the variant sold and its own sku, when the line is for a variant */
+	private Long variant;
+	private String variantSku;
+
+	public Long getVariant() {
+		return variant;
+	}
+	public void setVariant(Long variant) {
+		this.variant = variant;
+	}
+	public String getVariantSku() {
+		return variantSku;
+	}
+	public void setVariantSku(String variantSku) {
+		this.variantSku = variantSku;
+	}
 	private String image;
 	public String getProductName() {
 		return productName;

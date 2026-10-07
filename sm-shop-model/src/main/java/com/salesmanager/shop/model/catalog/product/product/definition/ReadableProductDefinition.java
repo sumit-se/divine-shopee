@@ -1,5 +1,6 @@
 package com.salesmanager.shop.model.catalog.product.product.definition;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +25,19 @@ public class ReadableProductDefinition extends ProductDefinition {
 	private List<PersistableProductAttribute> properties = new ArrayList<PersistableProductAttribute>();
 	private List<ReadableImage> images = new ArrayList<ReadableImage>();
 	private ReadableInventory inventory;
-	
-	
+	/**
+	 * The default price's two amounts and the stock, as plain numbers.
+	 *
+	 * They are all readable off `inventory` already, but only as text the
+	 * store has formatted ("Rs 7,321.00"), which an editor cannot put back in
+	 * a number field. These are the same three values this product's
+	 * persistable form accepts, so what is read back is what can be sent in.
+	 */
+	private BigDecimal price;
+	private BigDecimal discountedPrice;
+	private Integer quantity;
+
+
 	public ReadableProductType getType() {
 		return type;
 	}
@@ -70,4 +82,23 @@ public class ReadableProductDefinition extends ProductDefinition {
 	}
 
 
+
+	public BigDecimal getPrice() {
+		return price;
+	}
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+	public BigDecimal getDiscountedPrice() {
+		return discountedPrice;
+	}
+	public void setDiscountedPrice(BigDecimal discountedPrice) {
+		this.discountedPrice = discountedPrice;
+	}
+	public Integer getQuantity() {
+		return quantity;
+	}
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
+	}
 }

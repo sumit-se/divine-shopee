@@ -48,6 +48,8 @@
 		<beans:entry key="beanstream" value-ref="beanstream" />
 		<beans:entry key="paypal-express-checkout" value-ref="paypal-ec" />
 		<beans:entry key="moneyorder" value-ref="moneyorder" />
+		<!-- cash on delivery: PaymentType.COD existed with no module behind it -->
+		<beans:entry key="cod" value-ref="cod" />
 		<beans:entry key="stripe" value-ref="stripe" />
 		<beans:entry key="stripe3" value-ref="stripe3" />
 		<beans:entry key="braintree" value-ref="braintree" />
@@ -78,6 +80,11 @@
 		class="com.salesmanager.core.business.modules.integration.payment.impl.BeanStreamPayment" />
 	<beans:bean id="moneyorder"
 		class="com.salesmanager.core.business.modules.integration.payment.impl.MoneyOrderPayment" />
+	<beans:bean id="cod"
+		class="com.salesmanager.core.business.modules.integration.payment.impl.CODPayment">
+		<!-- the list of postcodes the store will not send cash on delivery to -->
+		<beans:property name="codRestrictedPostalCodeService" ref="codRestrictedPostalCodeService" />
+	</beans:bean>
 	<beans:bean id="paypal-ec"
 		class="com.salesmanager.core.business.modules.integration.payment.impl.PayPalExpressCheckoutPayment" />
 	<beans:bean id="stripe"
@@ -133,6 +140,8 @@
 			<beans:props>
 				<beans:prop key="mail.smtp.auth">${mailSender.mail.smtp.auth}</beans:prop>
 				<beans:prop key="mail.smtp.starttls.enable">${mail.smtp.starttls.enable}</beans:prop>
+				<beans:prop key="mail.smtp.ssl.protocols">${mailSender.mail.ssl.protocols}</beans:prop>
+				<beans:prop key="mail.smtps.ssl.protocols">${mailSender.mail.ssl.protocols}</beans:prop>
 			</beans:props>
 		</beans:property>
 	</beans:bean>

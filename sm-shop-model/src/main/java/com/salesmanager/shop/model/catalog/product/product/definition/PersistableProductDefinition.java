@@ -21,6 +21,12 @@ public class PersistableProductDefinition extends ProductDefinition {
 	private String type;
 	private String manufacturer;
 	private BigDecimal price;
+	/**
+	 * What the item actually sells for, when it sells for less than `price`.
+	 * `price` is then the list price the shop strikes through. Null, or zero,
+	 * means there is no discount and the item sells at `price`.
+	 */
+	private BigDecimal discountedPrice;
 	private int quantity;
 	public List<ProductDescription> getDescriptions() {
 		return descriptions;
@@ -57,6 +63,12 @@ public class PersistableProductDefinition extends ProductDefinition {
 	}
 	public void setPrice(BigDecimal price) {
 		this.price = price;
+	}
+	public BigDecimal getDiscountedPrice() {
+		return discountedPrice;
+	}
+	public void setDiscountedPrice(BigDecimal discountedPrice) {
+		this.discountedPrice = discountedPrice;
 	}
 	public int getQuantity() {
 		return quantity;

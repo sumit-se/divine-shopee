@@ -195,11 +195,12 @@
 		<beans:constructor-arg value="${config.cms.http.path.location}"/><!-- where files are copied on disk -->
 	</beans:bean>
 
-    <!-- aws -->
-	<beans:bean id="awsAssetsManager" 
+    <!-- aws / r2 -->
+	<beans:bean id="awsAssetsManager"
 		class="com.salesmanager.core.business.modules.cms.impl.S3CacheManagerImpl">
 		<beans:constructor-arg value="${config.cms.aws.bucket}"/>
 		<beans:constructor-arg value="${config.cms.aws.region}"/>
+		<beans:constructor-arg value="${config.cms.aws.endpoint:}"/>
 	</beans:bean>
 
 	

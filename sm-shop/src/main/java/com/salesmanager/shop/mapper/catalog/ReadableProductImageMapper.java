@@ -11,6 +11,7 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.mapper.Mapper;
 import com.salesmanager.shop.model.catalog.product.ReadableImage;
 import com.salesmanager.shop.utils.ImageFilePath;
+import com.salesmanager.shop.utils.YouTubeVideos;
 
 @Component
 public class ReadableProductImageMapper implements Mapper<ProductImage, ReadableImage> {
@@ -36,7 +37,8 @@ public class ReadableProductImageMapper implements Mapper<ProductImage, Readable
 		destination.setOrder(source.getSortOrder() != null ? source.getSortOrder().intValue() : 0);
 
 		if (source.getImageType() == 1 && source.getProductImageUrl()!=null) {
-			destination.setImageUrl(source.getProductImageUrl());
+			// a video: its YouTube still stands in for the picture (videoUrl below)
+			destination.setImageUrl(YouTubeVideos.thumbnailUrl(source.getProductImageUrl()));
 		} else {
 			StringBuilder imgPath = new StringBuilder();
 			imgPath.append(contextPath).append(imageUtils.buildProductImageUtils(store, source.getProduct().getSku(), source.getProductImage()));

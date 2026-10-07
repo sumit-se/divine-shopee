@@ -12,4 +12,8 @@ public interface CMSManager {
 
   String getLocation();
 
+  default String getEndpoint() {
+    return null;
+  }
+
 }

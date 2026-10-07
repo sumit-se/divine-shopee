@@ -1,6 +1,7 @@
 package com.salesmanager.shop.store.api.v1.order;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.salesmanager.core.business.services.customer.CustomerService;
+import com.salesmanager.core.business.services.shipping.DeliveryRestrictedPostalCodeService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -73,6 +75,9 @@ public class OrderApi {
 
 	@Inject
 	private CustomerService customerService;
+
+	@Inject
+	private DeliveryRestrictedPostalCodeService deliveryRestrictedPostalCodeService;
 
 	@Inject
 	private OrderFacade orderFacade;
@@ -340,6 +345,36 @@ public class OrderApi {
 	 * @return
 	 * @throws Exception
 	 */
+	/**
+	 * The store does not ship everywhere. Both addresses are looked at, since a
+	 * saved profile can hold a delivery address whose postcode field is not a
+	 * postcode at all, and an order bound for a place the courier does not serve
+	 * is refused before it is taken.
+	 */
+	private void assertDeliverableTo(Customer customer, MerchantStore merchantStore) {
+		if (customer == null) {
+			return;
+		}
+		List<String> postalCodes = new ArrayList<String>();
+		if (customer.getDelivery() != null && customer.getDelivery().getPostalCode() != null) {
+			postalCodes.add(customer.getDelivery().getPostalCode());
+		}
+		if (customer.getBilling() != null && customer.getBilling().getPostalCode() != null) {
+			postalCodes.add(customer.getBilling().getPostalCode());
+		}
+		for (String postalCode : postalCodes) {
+			if (deliveryRestrictedPostalCodeService.isRestricted(merchantStore, postalCode)) {
+				/*
+				 * The message has to travel in getMessage(): the checkout handler
+				 * reads that and falls back to a bare "APP-BACKEND" when it is
+				 * empty, which is what GenericRuntimeException(code, message)
+				 * leaves behind -- it files both strings in fields of its own.
+				 */
+				throw new ServiceRuntimeException("We do not deliver to postal code " + postalCode);
+			}
+		}
+	}
+
 	@RequestMapping(value = { "/auth/cart/{code}/checkout" }, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
@@ -372,6 +407,8 @@ public class OrderApi {
 			order.setShoppingCartId(cart.getId());
 			order.setCustomerId(customer.getId());//That is an existing customer purchasing
 
+			assertDeliverableTo(customer, merchantStore);
+
 			Order modelOrder = orderFacade.processOrder(order, customer, merchantStore, language, locale);
 			Long orderId = modelOrder.getId();
 			modelOrder.setId(orderId);
@@ -383,11 +420,21 @@ public class OrderApi {
 
 		} catch (Exception e) {
 			LOGGER.error("Error while processing checkout", e);
-			try {
-				response.sendError(503, "Error while processing checkout " + e.getMessage());
-			} catch (Exception ignore) {
+			/*
+			 * A signed-in shopper used to get a bare 503 with "null" attached:
+			 * this exception family hides its text in a field of its own, and a
+			 * rule the shopper can do something about -- an address we do not
+			 * deliver to, a payment method the order is too large for -- is not a
+			 * server breakdown. Same answer as the guest checkout gives.
+			 */
+			String message = e.getMessage();
+			if (StringUtils.isBlank(message) && e instanceof GenericRuntimeException) {
+				message = ((GenericRuntimeException) e).getErrorMessage();
 			}
-			return null;
+			if (StringUtils.isBlank(message)) {
+				message = "APP-BACKEND";
+			}
+			throw new ServiceRuntimeException("Error during checkout [" + message + "]", e);
 		}
 	}
 
@@ -427,6 +474,23 @@ public class OrderApi {
 				credentialsService.validateCredentials(presistableCustomer.getPassword(), presistableCustomer.getRepeatPassword(), merchantStore, language);
 			}
 
+			/*
+			 * Guest checkout with an email the store already knows: reuse that
+			 * customer instead of inserting another row. Every guest order used to
+			 * create a new customer, so one shopper -- registered or not --
+			 * accumulated a record per order. The address typed at checkout still
+			 * applies: the existing record is updated, not the stored one reused
+			 * blindly.
+			 */
+			if (StringUtils.isBlank(presistableCustomer.getPassword())
+					&& (presistableCustomer.getId() == null || presistableCustomer.getId() == 0)
+					&& !StringUtils.isBlank(presistableCustomer.getEmailAddress())) {
+				Customer existing = customerService.getByEmail(presistableCustomer.getEmailAddress(), merchantStore);
+				if (existing != null) {
+					presistableCustomer.setId(existing.getId());
+				}
+			}
+
 			Customer customer = new Customer();
 			customer = customerFacade.populateCustomerModel(customer, order.getCustomer(), merchantStore, language);
 
@@ -442,6 +506,8 @@ public class OrderApi {
 
 
 			order.setShoppingCartId(cart.getId());
+
+			assertDeliverableTo(customer, merchantStore);
 
 			Order modelOrder = orderFacade.processOrder(order, customer, merchantStore, language,
 					LocaleUtils.getLocale(language));
@@ -459,6 +525,15 @@ public class OrderApi {
 				throw new GenericRuntimeException("412","Credentials creation Failed [" + e.getMessage() + "]");
 			}
 			String message = e.getMessage();
+			/*
+			 * This family of exceptions keeps its text in a field of its own and
+			 * never hands it to the Throwable, so getMessage() is null and a
+			 * perfectly clear reason -- "we do not deliver to postal code X" --
+			 * used to reach the shopper as "APP-BACKEND".
+			 */
+			if (StringUtils.isBlank(message) && e instanceof GenericRuntimeException) {
+				message = ((GenericRuntimeException) e).getErrorMessage();
+			}
 			if(StringUtils.isBlank(message)) {//exception type
 				message = "APP-BACKEND";
 				if(e.getCause() instanceof com.salesmanager.core.modules.integration.IntegrationException) {
@@ -517,4 +592,36 @@ public class OrderApi {
 		orderFacade.updateOrderStatus(order, statusEnum, merchantStore);
 		return;
 	}
+
+	/**
+	 * Permanently deletes an order. Admin only.
+	 * @param restock put the ordered quantities back into inventory
+	 */
+	@RequestMapping(value = { "/private/orders/{id}" }, method = RequestMethod.DELETE)
+	@ResponseStatus(HttpStatus.OK)
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
+			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	public void deleteOrder(
+			@PathVariable final Long id,
+			@RequestParam(value = "restock", required = false, defaultValue = "false") boolean restock,
+			@ApiIgnore MerchantStore merchantStore,
+			@ApiIgnore Language language) {
+
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_ADMIN_ORDER, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
+
+		Order order = orderService.getOrder(id, merchantStore);
+		if (order == null) {
+			throw new ResourceNotFoundException("Order [" + id + "] not found for store [" + merchantStore.getCode() + "]");
+		}
+		try {
+			orderService.deleteOrder(order, restock);
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting order " + id, e);
+			throw new ServiceRuntimeException("Error while deleting order [" + id + "]", e);
+		}
+	}
+
 }

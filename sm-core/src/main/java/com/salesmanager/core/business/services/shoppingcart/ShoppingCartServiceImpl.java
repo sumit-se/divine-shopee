@@ -22,10 +22,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,6 +42,9 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		implements ShoppingCartService {
 
 	private ShoppingCartRepository shoppingCartRepository;
+
+	@PersistenceContext
+	private EntityManager entityManager;
 
 	@Inject
 	private ProductService productService;
@@ -349,7 +356,22 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		}
 
 		// set item price
-		FinalPrice price = pricingService.calculateProductPrice(product, attributesList);
+		//
+		// A line that sells a variant is priced from that variant, not from the
+		// product: the cart is re-priced every time it is read, so without this
+		// the variant price set when the item was added was overwritten by the
+		// product's price on the next fetch.
+		FinalPrice price = null;
+		if (item.getVariant() != null && !CollectionUtils.isEmpty(product.getVariants())) {
+			com.salesmanager.core.model.catalog.product.variant.ProductVariant variant = product.getVariants().stream()
+					.filter(v -> item.getVariant().equals(v.getId())).findFirst().orElse(null);
+			if (variant != null) {
+				price = pricingService.calculateProductPrice(variant);
+			}
+		}
+		if (price == null) {
+			price = pricingService.calculateProductPrice(product, attributesList);
+		}
 		item.setItemPrice(price.getFinalPrice());
 		item.setFinalPrice(price);
 
@@ -372,6 +394,10 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 					shippingProducts = new ArrayList<ShippingProduct>();
 				}
 				ShippingProduct shippingProduct = new ShippingProduct(product);
+				if (item.getVariant() != null && !CollectionUtils.isEmpty(product.getVariants())) {
+					product.getVariants().stream().filter(v -> item.getVariant().equals(v.getId())).findFirst()
+							.ifPresent(shippingProduct::setVariant);
+				}
 				shippingProduct.setQuantity(item.getQuantity());
 				shippingProduct.setFinalPrice(item.getFinalPrice());
 				shippingProducts.add(shippingProduct);
@@ -508,6 +534,96 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 
 		}
 
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Page<ShoppingCart> listByStore(MerchantStore store, String status, int page, int count)
+			throws ServiceException {
+		Validate.notNull(store, "MerchantStore should not be null");
+		try {
+			Page<ShoppingCart> carts = shoppingCartRepository.listByStore(store.getId(), status,
+					PageRequest.of(page, count));
+			// callers read the items outside this transaction
+			carts.forEach(c -> c.getLineItems().size());
+			return carts;
+		} catch (Exception e) {
+			throw new ServiceException(e);
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ShoppingCart getReadOnly(Long id, MerchantStore store) throws ServiceException {
+		Validate.notNull(store, "MerchantStore should not be null");
+		try {
+			ShoppingCart cart = shoppingCartRepository.findById(store.getId(), id);
+			if (cart == null) {
+				return null;
+			}
+			for (ShoppingCartItem item : cart.getLineItems()) {
+				priceReadOnly(item, store);
+			}
+			return cart;
+		} catch (Exception e) {
+			throw new ServiceException(e);
+		}
+	}
+
+	/**
+	 * Same pricing as getPopulatedItem, without touching the persisted item.
+	 */
+	private void priceReadOnly(ShoppingCartItem item, MerchantStore store) throws Exception {
+
+		Product product = productService.getBySku(item.getSku(), store, store.getDefaultLanguage());
+		if (product == null) {
+			item.setObsolete(true);
+			return;
+		}
+		item.setProduct(product);
+
+		List<ProductAttribute> attributesList = new ArrayList<ProductAttribute>();
+		if (item.getAttributes() != null && product.getAttributes() != null) {
+			for (ShoppingCartAttributeItem attribute : item.getAttributes()) {
+				product.getAttributes().stream()
+						.filter(a -> a.getId().equals(attribute.getProductAttributeId()))
+						.findFirst().ifPresent(attributesList::add);
+			}
+		}
+
+		FinalPrice price = null;
+		if (item.getVariant() != null && !CollectionUtils.isEmpty(product.getVariants())) {
+			com.salesmanager.core.model.catalog.product.variant.ProductVariant variant = product.getVariants().stream()
+					.filter(v -> item.getVariant().equals(v.getId())).findFirst().orElse(null);
+			if (variant != null) {
+				price = pricingService.calculateProductPrice(variant);
+			}
+		}
+		if (price == null) {
+			price = pricingService.calculateProductPrice(product, attributesList);
+		}
+		item.setItemPrice(price.getFinalPrice());
+		item.setFinalPrice(price);
+		item.setSubTotal(item.getItemPrice().multiply(new BigDecimal(item.getQuantity())));
+	}
+
+	@Override
+	@Transactional
+	public boolean deleteCart(Long id, MerchantStore store) throws ServiceException {
+		Validate.notNull(store, "MerchantStore should not be null");
+		try {
+			ShoppingCart cart = shoppingCartRepository.findById(store.getId(), id);
+			if (cart == null) {
+				return false;
+			}
+			entityManager.createQuery("delete from Quote q where q.cartId = :id")
+					.setParameter("id", id).executeUpdate();
+			// items and their attributes cascade
+			shoppingCartRepository.delete(cart);
+			return true;
+		} catch (Exception e) {
+			throw new ServiceException(e);
+		}
 	}
 
 }

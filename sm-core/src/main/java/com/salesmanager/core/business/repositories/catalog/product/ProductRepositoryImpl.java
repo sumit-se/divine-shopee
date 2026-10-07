@@ -259,7 +259,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 				LOGGER.error("Found multiple products for list of criterias with main criteria [" + seUrl + "]");
 			}
 			// p = (Product)q.getSingleResult();
-			p = products.get(0);
+			// none when the slug is unknown or the product is unlisted
+			// (switched off in the admin): the caller answers 404
+			p = products.isEmpty() ? null : products.get(0);
 		} catch (javax.persistence.NoResultException ignore) {
 
 		}
@@ -669,7 +671,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			if (criteria.getAvailable()) {
 				countBuilderWhere.append(" and p.available=true and p.dateAvailable<=:dt");
 			} else {
-				countBuilderWhere.append(" and p.available=false or p.dateAvailable>:dt");
+				countBuilderWhere.append(" and (p.available=false or p.dateAvailable>:dt)");
 			}
 		}
 		
@@ -680,8 +682,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		countQ.setParameter("mId", store.getId());
 
 		/**/
-		if (criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP) 
-				&& !CollectionUtils.isEmpty(criteria.getCategoryIds())) {
+		// the clause above is added for every origin, so bind it for every origin
+		// (admin filtering by category failed with "Named parameter not bound : cid")
+		if (!CollectionUtils.isEmpty(criteria.getCategoryIds())) {
 			countQ.setParameter("cid", criteria.getCategoryIds());
 		}
 		
@@ -747,6 +750,49 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		if (count.intValue() == 0)
 			return productList;
 
+		/**
+		 * Page the ids first, then fetch only that page.
+		 *
+		 * The query below join-fetches collections (inventory, prices, images,
+		 * categories, variants and each variant's own inventory and prices), and
+		 * Hibernate cannot page a query that fetches collections in SQL: it reads
+		 * every matching row and pages in memory. The rows multiply with the
+		 * number of variants a product has -- once variants carried inventory and
+		 * prices, a 41 product category took 23 seconds, and 3 products carrying
+		 * 35 variants took 3.5.
+		 *
+		 * The count query above already encodes every criterion and fetches
+		 * nothing, so the same shape gives the ids for the wanted page cheaply.
+		 * Its bound parameters are copied rather than rebuilt.
+		 */
+		StringBuilder idQs = new StringBuilder();
+		idQs.append("select distinct p.id, p.sortOrder ")
+				.append(countBuilderSelect.toString().replaceFirst("select count\\(distinct p\\) ", ""))
+				.append(countBuilderWhere.toString())
+				.append(" order by p.sortOrder asc");
+
+		Query idQ = this.em.createQuery(idQs.toString());
+		for (javax.persistence.Parameter<?> parameter : countQ.getParameters()) {
+			idQ.setParameter(parameter.getName(), countQ.getParameterValue(parameter.getName()));
+		}
+
+		@SuppressWarnings("rawtypes")
+		GenericEntityList idEntityList = new GenericEntityList();
+		idEntityList.setTotalCount(count.intValue());
+		idQ = RepositoryHelper.paginateQuery(idQ, count, idEntityList, criteria);
+
+		@SuppressWarnings("unchecked")
+		List<Object[]> idRows = idQ.getResultList();
+		List<Long> pageIds = new ArrayList<Long>();
+		for (Object[] row : idRows) {
+			pageIds.add(((Number) row[0]).longValue());
+		}
+
+		if (pageIds.isEmpty()) {
+			productList.setProducts(new ArrayList<Product>());
+			return productList;
+		}
+
 		StringBuilder qs = new StringBuilder();
 		qs.append("select distinct p from Product as p ");
 		qs.append("join fetch p.merchantStore merch ");
@@ -791,30 +837,19 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		
 		/**
 		 * variants
+		 *
+		 * Not fetched for a listing. The listing is converted by
+		 * ReadableProductPopulator, which reads neither variants nor the options
+		 * built from them -- a listing payload carries "variants": [] and
+		 * "options": [] whatever this fetches.
+		 *
+		 * What it cost: every variant joined its own inventory, prices and price
+		 * descriptions, and the product's own inventory collection contains the
+		 * variants' rows as well, so the two multiplied. A product with 27
+		 * variants produced ~750 rows before images and categories multiplied it
+		 * again. Anything that does need variants from this result loads them on
+		 * demand.
 		 */
-		if(criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP)) {
-			qs.append(" left join fetch p.variants pinst ");
-			qs.append(" left join fetch pinst.variation pv ");
-			qs.append( "left join fetch pv.productOption pvpo ");
-			qs.append(" left join fetch pv.productOptionValue pvpov ");
-			qs.append(" left join fetch pvpo.descriptions pvpod ");
-			qs.append(" left join fetch pvpov.descriptions pvpovd ");
-			
-			qs.append(" left join fetch pinst.variationValue pvv ");
-			qs.append(" left join fetch pvv.productOption pvvpo ");
-			qs.append(" left join fetch pvv.productOptionValue pvvpov ");
-			qs.append(" left join fetch pvvpo.descriptions povvpod ");
-			qs.append(" left join fetch pvpov.descriptions povvpovd ");	
-			
-			//variant availability and price
-			qs.append(" left join fetch pinst.availabilities pinsta ");
-			qs.append(" left join fetch pinsta.prices pinstap ");
-			qs.append(" left join fetch pinstap.descriptions pinstapdesc ");
-			qs.append(" left join fetch pinst.productVariantGroup pinstg ");
-			qs.append(" left join fetch pinstg.images pinstgimg ");
-			qs.append(" left join fetch pinstgimg.descriptions ");
-		//end variants
-		}
 
 		/** not required at list level **/
 		//qs.append(" left join fetch p.relationships pr");
@@ -841,7 +876,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			if (criteria.getAvailable()) {
 				qs.append(" and p.available=true and p.dateAvailable<=:dt");
 			} else {
-				qs.append(" and p.available=false and p.dateAvailable>:dt");
+				qs.append(" and (p.available=false or p.dateAvailable>:dt)");
 			}
 		}
 
@@ -883,11 +918,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		}
 		
 		/**/
-		if(criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP) 
+		if(criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP)
 				&& CollectionUtils.isNotEmpty(criteria.getOptionValueIds())) {
 			qs.append(" and pov.id in (:povid)");
 		}
-		
+
+		// only the page of ids resolved above; this is what bounds the fetch
+		qs.append(" and p.id in (:pageIds)");
+
 		qs.append(" order by p.sortOrder asc");
 
 		String hql = qs.toString();
@@ -955,16 +993,28 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 					.append("%").toString());
 		}
 
-	    @SuppressWarnings("rawtypes")
-	    GenericEntityList entityList = new GenericEntityList();
-	    entityList.setTotalCount(count.intValue());
+		q.setParameter("pageIds", pageIds);
 
-		q = RepositoryHelper.paginateQuery(q, count, entityList, criteria);
-
-
+		// No paginateQuery here any more: the page was decided by the id query,
+		// and asking Hibernate to page a collection-fetching query is exactly
+		// what made it read the whole catalogue for every request.
 		@SuppressWarnings("unchecked")
 		List<Product> products = q.getResultList();
-		productList.setProducts(products);
+
+		// keep the order the id query returned
+		java.util.Map<Long, Product> byId = new java.util.HashMap<Long, Product>();
+		for (Product product : products) {
+			byId.put(product.getId(), product);
+		}
+		List<Product> ordered = new ArrayList<Product>();
+		for (Long id : pageIds) {
+			Product product = byId.get(id);
+			if (product != null) {
+				ordered.add(product);
+			}
+		}
+
+		productList.setProducts(ordered);
 
 		return productList;
 

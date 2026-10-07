@@ -50,6 +50,7 @@ import com.salesmanager.shop.model.catalog.product.type.ProductTypeDescription;
 import com.salesmanager.shop.model.catalog.product.type.ReadableProductType;
 import com.salesmanager.shop.utils.DateUtil;
 import com.salesmanager.shop.utils.ImageFilePath;
+import com.salesmanager.shop.utils.ProductStock;
 
 
 
@@ -499,12 +500,24 @@ public class ReadableProductPopulator extends
 					target.setQuantity(availability.getProductQuantity() == null ? 1:availability.getProductQuantity());
 					target.setQuantityOrderMaximum(availability.getProductQuantityOrderMax() == null ? 1:availability.getProductQuantityOrderMax());
 					target.setQuantityOrderMinimum(availability.getProductQuantityOrderMin()==null ? 1:availability.getProductQuantityOrderMin());
-					if(availability.getProductQuantity().intValue() > 0 && target.isAvailable()) {
+					/*
+					 * A product whose type forbids adding to a cart is shown but not
+					 * sold -- the shopper sends an enquiry. The listing has to say so
+					 * too, or its tiles keep offering an Add to cart the API refuses.
+					 */
+					boolean purchasableType = source.getType() == null
+							|| source.getType().getAllowAddToCart() == null
+							|| source.getType().getAllowAddToCart().booleanValue();
+					if(availability.getProductQuantity().intValue() > 0 && target.isAvailable()
+							&& purchasableType) {
 							target.setCanBePurchased(true);
 					}
 				//}
 			}
 
+
+			// the real stock, beads included, for "price on request" and "notify me"
+			target.setSoldOut(ProductStock.soldOut(source));
 
 			target.setSku(source.getSku());
 

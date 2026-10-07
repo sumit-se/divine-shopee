@@ -40,6 +40,31 @@ public class OrderProduct extends SalesManagerEntity<Long, OrderProduct> {
 	@Column (name="PRODUCT_QUANTITY")
 	private int productQuantity;
 
+	/**
+	 * The variant sold, when the line is for one. The order line used to record
+	 * only the parent product's sku, so the shop could not tell which variant a
+	 * customer bought, and stock came off the parent instead of the variant.
+	 */
+	@Column (name="PRODUCT_VARIANT")
+	private Long variant;
+
+	/** sku of that variant, for display and for stock matching */
+	@Column (name="PRODUCT_VARIANT_SKU")
+	private String variantSku;
+
+	public Long getVariant() {
+		return variant;
+	}
+	public void setVariant(Long variant) {
+		this.variant = variant;
+	}
+	public String getVariantSku() {
+		return variantSku;
+	}
+	public void setVariantSku(String variantSku) {
+		this.variantSku = variantSku;
+	}
+
 	@Column (name="ONETIME_CHARGE" , nullable=false )
 	private BigDecimal oneTimeCharge;
 

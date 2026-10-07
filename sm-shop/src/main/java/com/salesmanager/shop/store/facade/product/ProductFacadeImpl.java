@@ -61,6 +61,13 @@ public class ProductFacadeImpl implements ProductFacade {
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 
+	// The legacy ReadableProductPopulator knows nothing about product variants,
+	// so the storefront's product page never saw them. This mapper is the newer
+	// conversion the v2 facade uses: it carries the variants and folds them into
+	// the product's selectable options.
+	@Inject
+	private com.salesmanager.shop.mapper.catalog.product.ReadableProductMapper readableProductMapper;
+
 	public void updateProduct(MerchantStore store, PersistableProduct product, Language language) {
 
 		Validate.notNull(product, "Product must not be null");
@@ -212,15 +219,10 @@ public class ProductFacadeImpl implements ProductFacade {
 			return null;
 		}
 
-		ReadableProduct readableProduct = new ReadableProduct();
-
-		ReadableProductPopulator populator = new ReadableProductPopulator();
-
-		populator.setPricingService(pricingService);
-		populator.setimageUtils(imageUtils);
-		populator.populate(product, readableProduct, store, language);
-
-		return readableProduct;
+		// Mapped, not populated: the legacy populator drops variants, and the
+		// options built from them, which is what the product page needs in
+		// order to offer a variant as a choice.
+		return readableProductMapper.convert(product, store, language);
 	}
 
 	/**

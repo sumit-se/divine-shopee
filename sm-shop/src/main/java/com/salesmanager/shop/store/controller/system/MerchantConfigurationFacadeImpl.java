@@ -41,6 +41,16 @@ public class MerchantConfigurationFacadeImpl implements MerchantConfigurationFac
   public Configs getMerchantConfig(MerchantStore merchantStore, Language language) {
 
     MerchantConfig configs = getMerchantConfig(merchantStore);
+    if (configs == null) {
+      /*
+       * A store only has a CONFIG row once someone has saved the store's
+       * configuration; a store created later has none, and reading the flags off
+       * null made this public endpoint answer 500. The entity's own defaults --
+       * purchasing allowed, search box and pages menu shown -- stand in until the
+       * row exists.
+       */
+      configs = new MerchantConfig();
+    }
 
     Configs readableConfig = new Configs();
     readableConfig.setAllowOnlinePurchase(configs.isAllowPurchaseItems());

@@ -37,6 +37,15 @@ public class ReadableCustomerPopulator extends
 			}
 			target.setEmailAddress(source.getEmailAddress());
 
+			/*
+			 * The customer's store was never carried over, so every row in the
+			 * admin's customer list showed an empty "Merchant store" column even
+			 * though each customer belongs to one.
+			 */
+			if (source.getMerchantStore() != null) {
+				target.setStoreCode(source.getMerchantStore().getCode());
+			}
+
 			if (StringUtils.isNotEmpty(source.getNick())) {
 				target.setUserName(source.getNick());
 			}

@@ -45,7 +45,9 @@ public class RestErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorEntity handleServiceException(ServiceRuntimeException exception) {
         log.error(exception.getErrorMessage(), exception);
-        Throwable rootCause = exception.getCause();
+        // A validation error raised by the API itself has no cause; walking the
+        // cause chain from null threw here, and the 400 became a 500.
+        Throwable rootCause = exception.getCause() != null ? exception.getCause() : exception;
         while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
             rootCause = rootCause.getCause();
         }

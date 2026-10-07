@@ -241,6 +241,10 @@ public class ProductApi {
 		if (available != null && available) {
 			criteria.setAvailable(available);
 		}
+		// the shop never lists products unlisted in the admin (available off)
+		if (ProductCriteria.ORIGIN_SHOP.equals(origin)) {
+			criteria.setAvailable(true);
+		}
 
 		if (manufacturer != null) {
 			criteria.setManufacturerId(manufacturer);
@@ -301,8 +305,12 @@ public class ProductApi {
 	 *                   <p>
 	 *                   /api/product/123
 	 */
-    /**
-	@RequestMapping(value = {"/product/{id}","/products/{id}"}, method = RequestMethod.GET)
+	// Re-enabled: the storefront PDP fetches /api/v1/products/{id}, and this was
+	// commented out upstream ("Removed in 3.2.5 in favor of /product/sku"), so
+	// every product page 404'd. Only the PLURAL path is restored --
+	// "/product/{id}" collides with "/product/{friendlyUrl}" below and makes
+	// Spring throw Ambiguous handler methods across the whole path.
+	@RequestMapping(value = {"/products/{id}"}, method = RequestMethod.GET)
 	@ApiOperation(httpMethod = "GET", value = "Get a product by id", notes = "For administration and shop purpose. Specifying ?merchant is required otherwise it falls back to DEFAULT")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Single product found", response = ReadableProduct.class) })
@@ -314,14 +322,14 @@ public class ProductApi {
 			throws Exception {
 		ReadableProduct product = productCommonFacade.getProduct(merchantStore, id, language);
 
-		if (product == null) {
+		// unlisted in the admin (available off): not on the site
+		if (product == null || !product.isAvailable()) {
 			response.sendError(404, "Product not fount for id " + id);
 			return null;
 		}
 
 		return product;
 	}
-	**/
 
 	/**
 	 * Price calculation

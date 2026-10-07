@@ -2,6 +2,8 @@ package com.salesmanager.core.business.services.shoppingcart;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.common.generic.SalesManagerEntityService;
 import com.salesmanager.core.model.catalog.product.Product;
@@ -63,5 +65,26 @@ public interface ShoppingCartService extends SalesManagerEntityService<Long, Sho
 	 * @param item
 	 */
 	void deleteShoppingCartItem(Long id);
+
+	/**
+	 * Admin listing of a store's carts, most recently modified first. Line items
+	 * are initialized; nothing is priced or modified.
+	 * @param status ACTIVE, ORDERED or ALL
+	 */
+	Page<ShoppingCart> listByStore(MerchantStore store, String status, int page, int count) throws ServiceException;
+
+	/**
+	 * Admin view of a cart: items are priced like the storefront prices them, but
+	 * unlike getById the cart is never updated, cleaned up or deleted. Items whose
+	 * product no longer exists are flagged obsolete and left unpriced.
+	 */
+	ShoppingCart getReadOnly(Long id, MerchantStore store) throws ServiceException;
+
+	/**
+	 * Admin removal of a cart with its items and any shipping quotes computed for
+	 * it. An order placed from the cart is not affected.
+	 * @return false when the store has no such cart
+	 */
+	boolean deleteCart(Long id, MerchantStore store) throws ServiceException;
 
 }

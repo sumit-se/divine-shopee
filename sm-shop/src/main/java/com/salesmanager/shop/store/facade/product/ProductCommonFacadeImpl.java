@@ -81,6 +81,10 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 
+	// variant-aware conversion; see getProduct below
+	@Inject
+	private com.salesmanager.shop.mapper.catalog.product.ReadableProductMapper readableProductMapper;
+
 	@Override
 	public Long saveProduct(MerchantStore store, PersistableProduct product, Language language) {
 
@@ -135,17 +139,12 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 			throw new ResourceNotFoundException("Product [" + id + "] not found for store [" + store.getId() + "]");
 		}
 
-		ReadableProduct readableProduct = new ReadableProduct();
-		ReadableProductPopulator populator = new ReadableProductPopulator();
-		populator.setPricingService(pricingService);
-		populator.setimageUtils(imageUtils);
-		try {
-			readableProduct = populator.populate(product, readableProduct, store, language);
-		} catch (ConversionException e) {
-			throw new ConversionRuntimeException("Error converting product [" + id + "]",e);
-		}
-
-		return readableProduct;
+		// Mapped, not populated, and for the same reason as getProductBySeUrl:
+		// the legacy populator drops variants and the options built from them.
+		// Both routes to a product -- /products/{id} and /product/friendly/{slug}
+		// -- have to answer with the same thing, or a product reached by id (from
+		// the cart, say) loses its variant choices.
+		return readableProductMapper.convert(product, store, language);
 	}
 
 

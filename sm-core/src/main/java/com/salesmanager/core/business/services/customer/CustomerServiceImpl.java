@@ -61,6 +61,15 @@ public class CustomerServiceImpl extends SalesManagerEntityServiceImpl<Long, Cus
 	public Customer getByNick(String nick, int storeId) {
 		return customerRepository.findByNick(nick, storeId);	
 	}
+
+	@Override
+	public Customer getByEmail(String email, MerchantStore store) {
+		if (email == null || store == null) {
+			return null;
+		}
+		List<Customer> customers = customerRepository.findByEmailAddress(email, store.getId());
+		return (customers == null || customers.isEmpty()) ? null : customers.get(0);
+	}
 	
 	@Override
 	public List<Customer> getListByStore(MerchantStore store) {

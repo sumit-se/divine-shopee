@@ -89,7 +89,11 @@ public class ReadableInventoryMapper implements Mapper<ProductAvailability, Read
 			FinalPrice price = null;
 			//try {
 				price = pricingService.calculateProductPrice(source);
-				destination.setPrice(price.getStringPrice());
+				// getStringPrice() has no currency on it ("32,000.00"), which
+				// read as a bare number next to the product's own "₹32,000.00".
+				// Same formatter the product uses, so a variant's price and a
+				// product's price look alike wherever they are shown together.
+				destination.setPrice(pricingService.getDisplayAmount(price.getFinalPrice(), store));
 			//} catch (ServiceException e) {
 			//	throw new ConversionRuntimeException("Unable to get product price", e);
 			//}

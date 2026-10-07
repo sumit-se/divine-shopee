@@ -13,6 +13,25 @@ public class ReadableProductPrice extends Entity implements Serializable {
 	private String finalPrice;
 	private boolean defaultPrice = false;
 	private boolean discounted = false;
+	/**
+	 * Discount window, so a client can show and re-save it. Without these the
+	 * admin could set a window but never read it back, and the next save wiped it.
+	 */
+	private String discountStartDate;
+	private String discountEndDate;
+
+	public String getDiscountStartDate() {
+		return discountStartDate;
+	}
+	public void setDiscountStartDate(String discountStartDate) {
+		this.discountStartDate = discountStartDate;
+	}
+	public String getDiscountEndDate() {
+		return discountEndDate;
+	}
+	public void setDiscountEndDate(String discountEndDate) {
+		this.discountEndDate = discountEndDate;
+	}
 	private ProductPriceDescription description;
 
 	public String getOriginalPrice() {

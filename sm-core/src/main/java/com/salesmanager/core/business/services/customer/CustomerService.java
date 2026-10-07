@@ -26,6 +26,13 @@ public interface CustomerService  extends SalesManagerEntityService<Long, Custom
 	CustomerList getListByStore(MerchantStore store, CustomerCriteria criteria);
 
 	Customer getByNick(String nick, int storeId);
+
+	/**
+	 * First customer of this store registered with that email, or null. Used so a
+	 * guest checkout attaches to the customer who already owns the address
+	 * instead of creating another record for them.
+	 */
+	Customer getByEmail(String email, MerchantStore store);
 	Customer getByNick(String nick, String code);
 	
 	/**

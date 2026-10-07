@@ -39,6 +39,8 @@ public class DefaultEmailSenderImpl implements EmailModule {
 
   private final static String TEMPLATE_PATH = "templates/email";
 
+  private final static String SSL_PROTOCOLS = "TLSv1.2 TLSv1.3";
+
   @Override
   public void send(Email email) throws Exception {
 
@@ -64,6 +66,16 @@ public class DefaultEmailSenderImpl implements EmailModule {
           Properties prop = new Properties();
           prop.put("mail.smtp.auth", emailConfig.isSmtpAuth());
           prop.put("mail.smtp.starttls.enable", emailConfig.isStarttls());
+          /*
+           * These properties replace the ones the mailSender bean was built with,
+           * so the TLS versions have to be named again here. JavaMail 1.4.7 offers
+           * only TLSv1 unless told otherwise, and JDK 17 refuses it: without this
+           * every send failed with "No appropriate protocol". Both prefixes are
+           * set because the protocol is a stored setting -- smtp with starttls or
+           * smtps on 465.
+           */
+          prop.put("mail.smtp.ssl.protocols", SSL_PROTOCOLS);
+          prop.put("mail.smtps.ssl.protocols", SSL_PROTOCOLS);
           impl.setJavaMailProperties(prop);
         }
 

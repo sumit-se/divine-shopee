@@ -89,6 +89,9 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	private ProductAttributeService productAttributeService;
 
 	@Inject
+	private com.salesmanager.core.business.services.catalog.product.variant.ProductVariantService productVariantService;
+
+	@Inject
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 
@@ -186,6 +189,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		return shoppingCartDataPopulator.populate(cartModel, store, language);
 	}
 
+	/** False when the product's type forbids selling it directly. */
+	private boolean allowsDirectPurchase(Product product) {
+		return product.getType() == null || product.getType().getAllowAddToCart() == null
+				|| product.getType().getAllowAddToCart().booleanValue();
+	}
+
 	private com.salesmanager.core.model.shoppingcart.ShoppingCartItem createCartItem(final ShoppingCart cartModel,
 			final ShoppingCartItem shoppingCartItem, final MerchantStore store) throws Exception {
 
@@ -198,6 +207,11 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		if (product.getMerchantStore().getId().intValue() != store.getId().intValue()) {
 			throw new Exception(
 					"Item with sku " + shoppingCartItem.getSku() + " does not belong to merchant " + store.getId());
+		}
+
+		if (!allowsDirectPurchase(product)) {
+			throw new Exception("Item with sku " + shoppingCartItem.getSku()
+					+ " is not available for direct purchase, please send an enquiry");
 		}
 
 		/**
@@ -275,6 +289,16 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 			throw new Exception("Product with sku " + product.getSku() + " is not available");
 		}
 
+		/*
+		 * Some products are not sold over the counter: their type forbids adding to
+		 * a cart and the shopper sends an enquiry instead. The storefront hides the
+		 * button; this is what makes it a rule rather than a suggestion.
+		 */
+		if (!allowsDirectPurchase(product)) {
+			throw new Exception("Item with sku " + product.getSku()
+					+ " is not available for direct purchase, please send an enquiry");
+		}
+
 		if (!DateUtil.dateBeforeEqualsDate(product.getDateAvailable(), new Date())) {
 			throw new Exception("Item with sku " + product.getSku() + " is not available");
 		}
@@ -283,12 +307,33 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		ProductVariant instance = null;
 		if (CollectionUtils.isNotEmpty(product.getVariants())) {
-			instance = product.getVariants().iterator().next();
+			/**
+			 * The shopper's choice decides the variant. This used to take
+			 * product.getVariants().iterator().next() -- the first variant on the
+			 * product, whatever was picked -- so every choice landed on the same
+			 * variant and was charged its price.
+			 *
+			 * Falls back to the default-selection variant, then to the first one,
+			 * so a client that sends no variant behaves as it did before.
+			 */
+			Long chosen = shoppingCartItem.getVariant();
+			// `product` is assigned above rather than declared final, so it cannot
+			// be captured by the lambda below
+			final String productSku = product.getSku();
+			if (chosen != null) {
+				instance = product.getVariants().stream().filter(v -> chosen.equals(v.getId())).findFirst()
+						.orElseThrow(() -> new ResourceNotFoundException("Variant [" + chosen
+								+ "] does not belong to product with sku " + productSku));
+			} else {
+				instance = product.getVariants().stream().filter(ProductVariant::isDefaultSelection).findFirst()
+						.orElse(product.getVariants().iterator().next());
+			}
+
 			Set<ProductAvailability> instanceAvailabilities = instance.getAvailabilities();
 			if(!CollectionUtils.isEmpty(instanceAvailabilities)) {
 				availabilities = instanceAvailabilities;
 			}
-			
+
 		}
 
 		if (CollectionUtils.isEmpty(availabilities)) {
@@ -318,6 +363,9 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		if (instance != null) {
 			item.setVariant(instance.getId());
+			// populateShoppingCartItem prices from the product; a variant carries
+			// its own price, which is what this line is actually selling.
+			item.setItemPrice(pricingService.calculateProductPrice(instance).getFinalPrice());
 		}
 
 		// set attributes
@@ -771,12 +819,32 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		try {
 			return readableShoppingCart(cartModel, item, store, language);
 		} catch (Exception e) {
+			if (e instanceof com.salesmanager.shop.store.api.exception.OperationNotAllowedException) {
+				throw (com.salesmanager.shop.store.api.exception.OperationNotAllowedException) e; // a rule the shopper can act on, e.g. the special offer limit
+			}
 			if (e instanceof ResourceNotFoundException) {
 				throw (ResourceNotFoundException) e;
 			} else {
 				throw new ServiceRuntimeException(e.getMessage(),e);
 			}
 		}
+	}
+
+	/**
+	 * A line answers to its variant's sku when it has one, and to the product's
+	 * sku otherwise. Naming the product sku on a product with variants matches
+	 * the first of its lines.
+	 */
+	private boolean matchesSku(com.salesmanager.core.model.shoppingcart.ShoppingCartItem item, String sku,
+			MerchantStore merchant) {
+		if (item.getVariant() != null) {
+			Optional<ProductVariant> variant = productVariantService
+					.getById(item.getVariant(), merchant);
+			if (variant.isPresent() && sku.equals(variant.get().getSku())) {
+				return true;
+			}
+		}
+		return item.getProduct() != null && sku.equals(item.getProduct().getSku());
 	}
 
 	@Override
@@ -794,15 +862,24 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 			throw new ResourceNotFoundException("Cart code [ " + cartCode + " ] not found");
 		}
 
+		/*
+		 * One line goes, the rest stay. This used to drop every line of the same
+		 * product from the cart while deleting only the last of them, so removing
+		 * one variant of a product took its siblings with it. The sku may name
+		 * the product or the variant: a product with variants has several lines
+		 * sharing its sku, and only the variant sku tells them apart.
+		 */
 		Set<com.salesmanager.core.model.shoppingcart.ShoppingCartItem> items = new HashSet<com.salesmanager.core.model.shoppingcart.ShoppingCartItem>();
 		com.salesmanager.core.model.shoppingcart.ShoppingCartItem itemToDelete = null;
 		for (com.salesmanager.core.model.shoppingcart.ShoppingCartItem shoppingCartItem : cart.getLineItems()) {
-			if (shoppingCartItem.getProduct().getSku().equals(sku)) {
+			boolean matches = itemToDelete == null && matchesSku(shoppingCartItem, sku, merchant);
+			if (matches) {
 				// get cart item
 				itemToDelete = getEntryToUpdate(shoppingCartItem.getId(), cart);
-
-				// break;
-
+				if (itemToDelete == null) {
+					// nothing to delete after all; keep the line
+					items.add(shoppingCartItem);
+				}
 			} else {
 				items.add(shoppingCartItem);
 			}
@@ -839,7 +916,10 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 			// get duplicate item from the cart
 			Set<com.salesmanager.core.model.shoppingcart.ShoppingCartItem> cartModelItems = cartModel.getLineItems();
 			for (com.salesmanager.core.model.shoppingcart.ShoppingCartItem cartItem : cartModelItems) {
-				if (cartItem.getProduct().getSku().equals(item.getProduct())) {
+				// the variant has to match too, or adding a second variant of the
+				// same product just increments the first one's quantity
+				if (cartItem.getProduct().getSku().equals(item.getProduct())
+						&& java.util.Objects.equals(cartItem.getVariant(), itemModel.getVariant())) {
 					if (CollectionUtils.isEmpty(cartItem.getAttributes())) {
 						if (!duplicateFound) {
 							if (!itemModel.isProductVirtual()) {
@@ -887,7 +967,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 			Set<com.salesmanager.core.model.shoppingcart.ShoppingCartItem> removeItems = new HashSet<com.salesmanager.core.model.shoppingcart.ShoppingCartItem>();
 			for (com.salesmanager.core.model.shoppingcart.ShoppingCartItem anItem : items) {// take care of existing
 																							// product
-				if (itemModel.getProduct().getId().longValue() == anItem.getProduct().getId()) {
+				// Same product AND same variant. Matching on the product alone
+				// meant a second variant of it overwrote the first line's
+				// quantity instead of being added, so a shopper could never have
+				// two beads of the same product in one cart.
+				if (itemModel.getProduct().getId().longValue() == anItem.getProduct().getId()
+						&& java.util.Objects.equals(itemModel.getVariant(), anItem.getVariant())) {
 					if (item.getQuantity() == 0) {
 						// left aside item to be removed
 						// don't add it to new list of item
@@ -1074,6 +1159,13 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	}
 
 	private void saveShoppingCart(ShoppingCart shoppingCart) throws Exception {
+		// special offers: at most SpecialProducts.MAX_ORDER_QUANTITY of each per order
+		com.salesmanager.core.model.catalog.product.Product overLimit =
+				com.salesmanager.core.business.utils.SpecialProducts.overLimit(shoppingCart.getLineItems());
+		if (overLimit != null) {
+			throw new com.salesmanager.shop.store.api.exception.OperationNotAllowedException(
+					com.salesmanager.core.business.utils.SpecialProducts.overLimitMessage(overLimit));
+		}
 		shoppingCartService.save(shoppingCart);
 	}
 

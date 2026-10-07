@@ -87,10 +87,10 @@ public class DefaultPackagingImpl implements Packaging {
 			Set<ProductAttribute> attrs = shippingProduct.getProduct().getAttributes();
 
 			// set attributes values
-			BigDecimal w = product.getProductWeight();
-			BigDecimal h = product.getProductHeight();
-			BigDecimal l = product.getProductLength();
-			BigDecimal wd = product.getProductWidth();
+			BigDecimal w = shippingProduct.getShippingWeight();
+			BigDecimal h = shippingProduct.getShippingHeight();
+			BigDecimal l = shippingProduct.getShippingLength();
+			BigDecimal wd = shippingProduct.getShippingWidth();
 			if(w==null) {
 				w = new BigDecimal(defaultWeight);
 			}
@@ -326,10 +326,10 @@ public class DefaultPackagingImpl implements Packaging {
 			//BigDecimal weight = product.getProductWeight();
 			Set<ProductAttribute> attributes = product.getAttributes();
 			// set attributes values
-			BigDecimal w = product.getProductWeight();
-			BigDecimal h = product.getProductHeight();
-			BigDecimal l = product.getProductLength();
-			BigDecimal wd = product.getProductWidth();
+			BigDecimal w = shippingProduct.getShippingWeight();
+			BigDecimal h = shippingProduct.getShippingHeight();
+			BigDecimal l = shippingProduct.getShippingLength();
+			BigDecimal wd = shippingProduct.getShippingWidth();
 			if(w==null) {
 				w = new BigDecimal(defaultWeight);
 			}

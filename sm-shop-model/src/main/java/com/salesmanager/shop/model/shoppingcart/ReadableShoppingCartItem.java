@@ -25,6 +25,20 @@ public class ReadableShoppingCartItem extends ReadableMinimalProduct implements 
 	
 	private ReadableProductVariation variant = null;
 	private ReadableProductVariation variantValue = null;
+	/**
+	 * The sku of the variant this line stands for, when it has one. Without it a
+	 * caller cannot tell two lines of the same product apart, which is what the
+	 * storefront needs in order to remove one of them.
+	 */
+	private String variantSku = null;
+
+	public String getVariantSku() {
+		return variantSku;
+	}
+
+	public void setVariantSku(String variantSku) {
+		this.variantSku = variantSku;
+	}
 
 	
 

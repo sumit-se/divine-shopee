@@ -123,10 +123,17 @@ public class CustomerApi {
 		return customerFacade.getListByStore(merchantStore, customerCriteria, language);
 	}
 
-	private CustomerCriteria createCustomerCriteria(Integer start, Integer count) {
+	/**
+	 * `page` is a page number here, as it is on every other listing endpoint.
+	 * It used to be handed straight to the criteria's start index -- a record
+	 * offset -- so page 1 skipped a single customer rather than a whole page,
+	 * and the admin's first page silently dropped the first customer.
+	 */
+	private CustomerCriteria createCustomerCriteria(Integer page, Integer count) {
 		CustomerCriteria customerCriteria = new CustomerCriteria();
-		Optional.ofNullable(start).ifPresent(customerCriteria::setStartIndex);
+		int pageSize = count != null ? count : customerCriteria.getMaxCount();
 		Optional.ofNullable(count).ifPresent(customerCriteria::setMaxCount);
+		Optional.ofNullable(page).ifPresent(p -> customerCriteria.setStartIndex(p * pageSize));
 		return customerCriteria;
 	}
 

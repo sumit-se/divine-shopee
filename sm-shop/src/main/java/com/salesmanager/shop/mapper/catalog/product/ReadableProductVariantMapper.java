@@ -25,6 +25,7 @@ import com.salesmanager.shop.mapper.catalog.ReadableProductVariationMapper;
 import com.salesmanager.shop.mapper.inventory.ReadableInventoryMapper;
 import com.salesmanager.shop.model.catalog.product.ReadableImage;
 import com.salesmanager.shop.model.catalog.product.inventory.ReadableInventory;
+import com.salesmanager.shop.model.catalog.product.product.ProductSpecification;
 import com.salesmanager.shop.model.catalog.product.product.variant.ReadableProductVariant;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.utils.DateUtil;
@@ -70,6 +71,14 @@ public class ReadableProductVariantMapper implements Mapper<ProductVariant, Read
 		destination.setSku(source.getSku());
 		destination.setSortOrder(source.getSortOrder());
 		destination.setCode(source.getCode());
+
+		// the variant's own values only; null means it uses the product's
+		ProductSpecification specifications = new ProductSpecification();
+		specifications.setWeight(source.getVariantWeight());
+		specifications.setWidth(source.getVariantWidth());
+		specifications.setHeight(source.getVariantHeight());
+		specifications.setLength(source.getVariantLength());
+		destination.setProductSpecifications(specifications);
 		
 		//get product
 		Product baseProduct = source.getProduct();
@@ -88,7 +97,11 @@ public class ReadableProductVariantMapper implements Mapper<ProductVariant, Read
 
 		if(source.getProductVariantGroup() != null) {
 			Set<String> nameSet = new HashSet<>();
-			List<ReadableImage> instanceImages = source.getProductVariantGroup().getImages().stream().map(i -> this.image(i, store, language))
+			// main image first, then in the order they were added
+			List<ReadableImage> instanceImages = source.getProductVariantGroup().getImages().stream()
+					.sorted(java.util.Comparator.comparing(ProductVariantImage::isDefaultImage).reversed()
+							.thenComparing(ProductVariantImage::getId))
+					.map(i -> this.image(i, store, language))
 					.filter(e -> nameSet.add(e.getImageUrl()))
 					.collect(Collectors.toList());
 			destination.setImages(instanceImages);

@@ -1,6 +1,7 @@
 package com.salesmanager.shop.mapper.catalog.product;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -55,6 +56,8 @@ import com.salesmanager.shop.model.references.WeightUnitOfMeasure;
 import com.salesmanager.shop.store.api.exception.ConversionRuntimeException;
 import com.salesmanager.shop.utils.DateUtil;
 import com.salesmanager.shop.utils.ImageFilePath;
+import com.salesmanager.shop.utils.YouTubeVideos;
+import com.salesmanager.shop.utils.ProductStock;
 
 /**
  * Works for product v2 model
@@ -154,9 +157,26 @@ public class ReadableProductMapper implements Mapper<Product, ReadableProduct> {
 		Set<ProductImage> images = source.getImages();
 		if (CollectionUtils.isNotEmpty(images)) {
 
+			/*
+			 * In the order the shop owner arranged them. The images live in a Set,
+			 * so without this the gallery showed them in whatever order they came
+			 * back from the database -- and PRODUCT_IMAGE.SORT_ORDER, which the
+			 * admin writes, counted for nothing. Ties fall back to the id, so the
+			 * sequence is stable for images left at the same position.
+			 */
 			List<ReadableImage> imageList = images.stream().map(i -> this.convertImage(source, i, store))
+					.sorted(Comparator.comparingInt(ReadableImage::getOrder)
+							.thenComparing(image -> image.getId() == null ? 0L : image.getId()))
 					.collect(Collectors.toList());
 			destination.setImages(imageList);
+
+			// The single `image` field, which the legacy populator set and
+			// clients still read for the thumbnail, Open Graph tag and product
+			// structured data. Without this it stayed null and those fell back
+			// to nothing. The flagged default image wins; failing that, the
+			// first one, so a product with no flag set still has a picture.
+			destination.setImage(imageList.stream().filter(ReadableImage::isDefaultImage).findFirst()
+					.orElse(imageList.get(0)));
 		}
 
 		if (!CollectionUtils.isEmpty(source.getAttributes())) {
@@ -335,6 +355,12 @@ public class ReadableProductMapper implements Mapper<Product, ReadableProduct> {
 
 		if (selectableOptions != null) {
 			List<ReadableProductOption> options = new ArrayList<ReadableProductOption>(selectableOptions.values());
+			// Options built from variants come out in whatever order the variant
+			// set iterated, so the same dropdown could list its values
+			// differently from one product to the next. Sort by the sort order
+			// the store set on each option value.
+			options.forEach(option -> option.getOptionValues()
+					.sort(java.util.Comparator.comparingInt(ReadableProductOptionValue::getSortOrder)));
 			destination.setOptions(options);
 		}
 		
@@ -360,7 +386,8 @@ public class ReadableProductMapper implements Mapper<Product, ReadableProduct> {
 					availability.getProductQuantityOrderMax() == null ? 1 : availability.getProductQuantityOrderMax());
 			destination.setQuantityOrderMinimum(
 					availability.getProductQuantityOrderMin() == null ? 1 : availability.getProductQuantityOrderMin());
-			if (availability.getProductQuantity().intValue() > 0 && destination.isAvailable()) {
+			if (availability.getProductQuantity().intValue() > 0 && destination.isAvailable()
+					&& purchasableType(source)) {
 				destination.setCanBePurchased(true);
 			}
 			
@@ -465,13 +492,30 @@ public class ReadableProductMapper implements Mapper<Product, ReadableProduct> {
 
 		destination.setSortOrder(source.getSortOrder());
 
+
+		// the real stock, beads included, for "price on request" and "notify me"
+		destination.setSoldOut(ProductStock.soldOut(source));
 		return destination;
+	}
+
+
+	/**
+	 * A product type can forbid selling: an "enquiry only" piece is shown and
+	 * described like any other, but the shopper asks about it rather than buying
+	 * it. Only a type that says so stops the sale -- a product with no type at
+	 * all is sold as normal.
+	 */
+	private boolean purchasableType(Product source) {
+		return source.getType() == null || source.getType().getAllowAddToCart() == null
+				|| source.getType().getAllowAddToCart().booleanValue();
 	}
 
 	private ReadableImage convertImage(Product product, ProductImage image, MerchantStore store) {
 		ReadableImage prdImage = new ReadableImage();
 		prdImage.setImageName(image.getProductImage());
 		prdImage.setDefaultImage(image.isDefaultImage());
+		// the position the admin gave it; every image used to come back as 0
+		prdImage.setOrder(image.getSortOrder() != null ? image.getSortOrder().intValue() : 0);
 
 		// TODO product variant image
 		StringBuilder imgPath = new StringBuilder();
@@ -486,6 +530,8 @@ public class ReadableProductMapper implements Mapper<Product, ReadableProduct> {
 		}
 		if (image.getImageType() == 1 && image.getProductImageUrl() != null) {// video
 			prdImage.setVideoUrl(image.getProductImageUrl());
+			// the video's YouTube still, not a file path that does not exist
+			prdImage.setImageUrl(YouTubeVideos.thumbnailUrl(image.getProductImageUrl()));
 		}
 
 		if (prdImage.isDefaultImage()) {

@@ -105,6 +105,9 @@ public class ShoppingCartApi {
 			return new ResponseEntity<>(cart, HttpStatus.CREATED);
 
 		} catch (Exception e) {
+			if (e instanceof com.salesmanager.shop.store.api.exception.OperationNotAllowedException) {
+				throw (com.salesmanager.shop.store.api.exception.OperationNotAllowedException) e; // a rule the shopper can act on, e.g. the special offer limit
+			}
 			if(e instanceof ResourceNotFoundException) {
 				throw (ResourceNotFoundException)e;
 			} else {
@@ -136,6 +139,9 @@ public class ShoppingCartApi {
 			return new ResponseEntity<>(cart, HttpStatus.CREATED);
 
 		} catch (Exception e) {
+			if (e instanceof com.salesmanager.shop.store.api.exception.OperationNotAllowedException) {
+				throw (com.salesmanager.shop.store.api.exception.OperationNotAllowedException) e; // a rule the shopper can act on, e.g. the special offer limit
+			}
 			if(e instanceof ResourceNotFoundException) {
 				throw (ResourceNotFoundException)e;
 			} else {
@@ -163,6 +169,9 @@ public class ShoppingCartApi {
 			return new ResponseEntity<>(cart, HttpStatus.CREATED);
 
 		} catch (Exception e) {
+			if (e instanceof com.salesmanager.shop.store.api.exception.OperationNotAllowedException) {
+				throw (com.salesmanager.shop.store.api.exception.OperationNotAllowedException) e; // a rule the shopper can act on, e.g. the special offer limit
+			}
 			if(e instanceof ResourceNotFoundException) {
 				throw (ResourceNotFoundException)e;
 			} else {
@@ -192,6 +201,9 @@ public class ShoppingCartApi {
 			return cart;
 
 		} catch (Exception e) {
+			if (e instanceof com.salesmanager.shop.store.api.exception.OperationNotAllowedException) {
+				throw (com.salesmanager.shop.store.api.exception.OperationNotAllowedException) e; // a rule the shopper can act on, e.g. the special offer limit
+			}
 			if(e instanceof ResourceNotFoundException) {
 				throw (ResourceNotFoundException)e;
 			} else {

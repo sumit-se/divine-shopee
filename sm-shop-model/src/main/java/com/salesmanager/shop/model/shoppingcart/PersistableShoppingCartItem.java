@@ -20,8 +20,21 @@ public class PersistableShoppingCartItem implements Serializable {
 	private int quantity;
 	private String promoCode;
 	private List<ProductAttribute> attributes;
-	
-	
+	/**
+	 * Id of the chosen product variant, when the shopper picked one. Without it
+	 * the cart had no way to tell which variant was meant and fell back to the
+	 * first one on the product, pricing every choice the same.
+	 */
+	private Long variant;
+
+	public Long getVariant() {
+		return variant;
+	}
+	public void setVariant(Long variant) {
+		this.variant = variant;
+	}
+
+
 	public String getPromoCode() {
 		return promoCode;
 	}

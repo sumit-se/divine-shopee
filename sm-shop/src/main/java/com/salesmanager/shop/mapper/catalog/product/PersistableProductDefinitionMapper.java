@@ -173,6 +173,7 @@ public class PersistableProductDefinitionMapper implements Mapper<PersistablePro
 			              productAvailability.setProductQuantity(source.getQuantity());
 			              productAvailability.setProductStatus(source.isCanBePurchased());
 			              p.setProductPriceAmount(source.getPrice());
+			              p.setProductPriceSpecialAmount(discount(source.getDiscountedPrice()));
 			              break;
 			            }
 			          }
@@ -205,6 +206,7 @@ public class PersistableProductDefinitionMapper implements Mapper<PersistablePro
 			    defaultPrice = new ProductPrice();
 			    defaultPrice.setDefaultPrice(true);
 			    defaultPrice.setProductPriceAmount(defaultPriceAmount);
+			    defaultPrice.setProductPriceSpecialAmount(discount(source.getDiscountedPrice()));
 			    defaultPrice.setCode(ProductPriceEntity.DEFAULT_PRICE_CODE);
 			    defaultPrice.setProductAvailability(productAvailability);
                 productAvailability.getPrices().add(defaultPrice);
@@ -292,6 +294,20 @@ public class PersistableProductDefinitionMapper implements Mapper<PersistablePro
 		} catch (Exception e) {
 			throw new ConversionRuntimeException("Error converting product mapper",e);
 		}
+	}
+
+	/**
+	 * A special amount only means something when there is one: the shop reads
+	 * any non-null value as "this item is discounted", so an editor clearing
+	 * the field -- which arrives as null, or as the zero a number input leaves
+	 * behind -- has to put the row back to no discount at all rather than to a
+	 * discount of nothing.
+	 */
+	private BigDecimal discount(BigDecimal discountedPrice) {
+		if (discountedPrice == null || discountedPrice.compareTo(BigDecimal.ZERO) <= 0) {
+			return null;
+		}
+		return discountedPrice;
 	}
 
 }

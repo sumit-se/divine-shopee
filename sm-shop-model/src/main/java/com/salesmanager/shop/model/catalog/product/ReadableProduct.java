@@ -35,6 +35,8 @@ public class ReadableProduct extends ProductEntity implements Serializable {
 	private List<ReadableCategory> categories = new ArrayList<ReadableCategory>();
 	private ReadableProductType type;
 	private boolean canBePurchased = false;
+	/** nothing left in stock: beads all sold, or no stock of its own (ProductStock) */
+	private boolean soldOut = false;
 
 	// RENTAL
 	private RentalOwner owner;
@@ -167,6 +169,12 @@ public class ReadableProduct extends ProductEntity implements Serializable {
 		this.variants = variants;
 	}
 
+	public boolean isSoldOut() {
+		return soldOut;
+	}
 
+	public void setSoldOut(boolean soldOut) {
+		this.soldOut = soldOut;
+	}
 
 }

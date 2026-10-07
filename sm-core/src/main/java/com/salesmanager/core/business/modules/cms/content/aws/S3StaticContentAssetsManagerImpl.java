@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
@@ -40,6 +41,8 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(S3StaticContentAssetsManagerImpl.class);
+
+	private static final String DEFAULT_REGION_NAME = "us-east-1";
 
 	private static S3StaticContentAssetsManagerImpl fileManager = null;
 
@@ -166,7 +169,6 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 			metadata.setContentType(inputStaticContentData.getMimeType());
 			PutObjectRequest request = new PutObjectRequest(bucketName, nodePath + inputStaticContentData.getFileName(),
 					inputStaticContentData.getFile(), metadata);
-			request.setCannedAcl(CannedAccessControlList.PublicRead);
 
 			s3.putObject(request);
 
@@ -264,24 +266,17 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 		return b;
 	}
 
-	/**
-	 * Builds an amazon S3 client
-	 * 
-	 * @return
-	 */
 	private AmazonS3 s3Client() {
 		String region = regionName();
+		String endpoint = getCmsManager().getEndpoint();
 		LOGGER.debug("AWS CMS Using region " + region);
-
-		return AmazonS3ClientBuilder.standard().withRegion(region) // The
-																			// first
-																			// region
-																			// to
-																			// try
-																			// your
-																			// request
-																			// against
-				.build();
+		if (!org.apache.commons.lang3.StringUtils.isBlank(endpoint)) {
+			return AmazonS3ClientBuilder.standard()
+					.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
+					.withPathStyleAccessEnabled(true)
+					.build();
+		}
+		return AmazonS3ClientBuilder.standard().withRegion(region).build();
 	}
 
 	private String regionName() {

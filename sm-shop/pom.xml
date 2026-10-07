@@ -149,6 +149,24 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<!--
+						Drools (the rules engine behind shipping quotes) defines classes
+						reflectively, which JDK 17 refuses by default: a quote failed with
+						"Unable to make ClassLoader.defineClass accessible: module java.base
+						does not opens java.lang". The add-opens arguments below let it
+						through, and the same arguments are needed when running the
+						packaged jar with java -jar.
+					-->
+					<jvmArguments>
+						--add-opens java.base/java.lang=ALL-UNNAMED
+						--add-opens java.base/java.lang.reflect=ALL-UNNAMED
+						--add-opens java.base/java.util=ALL-UNNAMED
+						--add-opens java.base/java.text=ALL-UNNAMED
+						--add-opens java.base/java.io=ALL-UNNAMED
+						--add-opens java.desktop/java.awt.font=ALL-UNNAMED
+					</jvmArguments>
+				</configuration>
 			</plugin>
 		</plugins>
 		<finalName>shopizer</finalName>

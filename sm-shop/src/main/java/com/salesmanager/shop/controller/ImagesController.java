@@ -86,6 +86,10 @@ public class ImagesController {
 		if(FileContentType.PROPERTY.name().equals(imageType)) {
 			imgType = FileContentType.PROPERTY;
 		}
+
+		if(FileContentType.VARIANT.name().equals(imageType)) {
+			imgType = FileContentType.VARIANT;
+		}
 		
 		OutputContentFile image =contentService.getContentFile(storeCode, imgType, new StringBuilder().append(imageName).append(".").append(extension).toString());
 		

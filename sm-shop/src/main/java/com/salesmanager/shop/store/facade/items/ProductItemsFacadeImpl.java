@@ -135,7 +135,9 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 			}
 			
 			ReadableProductList list = listItemsByIds(store, language, ids, 0, 0);
-			List<ReadableProduct> prds = list.getProducts().stream().sorted(Comparator.comparing(ReadableProduct::getSortOrder)).collect(Collectors.toList());
+			// groups (featured items...) are shown in the shop: leave out
+			// products unlisted in the admin (available off)
+			List<ReadableProduct> prds = list.getProducts().stream().filter(ReadableProduct::isAvailable).sorted(Comparator.comparing(ReadableProduct::getSortOrder)).collect(Collectors.toList());
 			list.setProducts(prds);
 			list.setTotalPages(1);//no paging
 			return list;
