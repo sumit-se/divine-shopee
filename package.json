@@ -3,8 +3,8 @@
   "scripts": {
     "ng": "ng",
     "conventional-changelog": "conventional-changelog",
-    "start": "ng serve",
-    "build": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build --prod",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider ng serve",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build --prod",
     "test": "ng test",
     "test:coverage": "rimraf coverage && npm run test -- --code-coverage",
     "lint": "ng lint",
