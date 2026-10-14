@@ -1,42 +1,12 @@
-# compiled output
-/dist
-/tmp
-/out-tsc
+# Dependency directory
+node_modules/
 
-# dependencies
-/node_modules
+# Production build output
+dist/
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# Local backup files from edits
+backups/
 
-# IDE - VSCode
-/.vscode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-testem.log
-/typings
-/docs
-
-# e2e
-/e2e/*.js
-/e2e/*.map
-
-# System Files
-.DS_Store
-Thumbs.db
+# Environment
+.env
+*.env.local
