@@ -108,3 +108,9 @@ dist
 .env
 .env.local
 .env.*.local
+
+# Production build output
+build/
+
+# Local backup files from edits
+backups/
