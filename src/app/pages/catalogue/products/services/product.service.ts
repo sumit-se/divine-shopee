@@ -35,16 +35,22 @@ export class ProductService {
 
   getProductById(id): Observable<any> {
     const params = {
-      lang: '_all'
+      lang: '_all',
+      // without store the request falls back to DEFAULT and 500s for any
+      // product belonging to another merchant
+      store: this.storageService.getMerchant()
     };
-    return this.crudService.get(`/v1/product/${id}`, params);
+    // /v1/product/{id} is commented out upstream ("Removed in 3.2.5 in favor
+    // of /product/sku"), so the path falls through to /product/{friendlyUrl}
+    // and 500s. v2 serves the same product and honours lang=_all.
+    return this.crudService.get(`/v2/private/product/${id}`, params);
   }
 
   getProductDefinitionById(id): Observable<any> {
     const params = {
       lang: '_all'
     };
-    return this.crudService.get(`/v2/private/product/definition/${id}`, params);
+    return this.crudService.get(`/v2/private/product/${id}`, params);
   }
 
   getProductDefinitionBySku(sku): Observable<any> {
@@ -58,7 +64,7 @@ export class ProductService {
     const params = {
       store: this.storageService.getMerchant()
     };
-    return this.crudService.post(`/v2/private/product/definition`, product, { params });
+    return this.crudService.post(`/v2/private/product`, product, { params });
   }
 
   deleteProduct(id): Observable<any> {

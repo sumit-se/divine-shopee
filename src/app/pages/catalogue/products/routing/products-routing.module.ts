@@ -8,9 +8,11 @@ import { ProductDetailsComponent } from '../product-details/product-details.comp
 import { ProductToCategoryComponent } from '../product-to-category/product-to-category.component';
 import { ProductsImagesComponent } from './../products-images/products-images.component';
 import { ProductDiscountComponent } from '../product-discount/product-discount.component';
+import { ProductStockAlertsComponent } from '../stock-alerts/stock-alerts.component';
 import { ProductOrderingComponent } from '../product-ordering/product-ordering.component';
 import { ProductAttributesComponent } from '../attribute/product-attributes/product-attributes.component';
 import { ProductProperties } from '../property/list/product-property.component';
+import { ProductVariantsComponent } from '../variant/product-variants/product-variants.component';
 
 
 
@@ -60,12 +62,20 @@ const routes: Routes = [
             component: ProductAttributesComponent,
           },
           {
+            path: 'variants',
+            component: ProductVariantsComponent,
+          },
+          {
             path: 'properties',
             component: ProductProperties,
           },
           {
             path: 'discount',
             component: ProductDiscountComponent,
+          },
+          {
+            path: 'stock-alerts',
+            component: ProductStockAlertsComponent,
           },
         ],
         

@@ -1,0 +1,56 @@
+<nb-card class="page-card inner_pages">
+  <nb-card-body [nbSpinner]="loadingList" nbSpinnerSize="large" nbSpinnerStatus="primary">
+    <div class="inner_pages_legacy">
+      <nb-card-header class="main_header">
+        <h1 class="page_title">{{ 'ENQUIRIES.TITLE' | translate }}</h1>
+        <div class="content_spacing_empty"></div>
+      </nb-card-header>
+
+      <ng2-smart-table [settings]="settings" [source]="source" (custom)="onAction($event)" class="home-table">
+      </ng2-smart-table>
+
+      <!-- the message and the reply details, opened from the row's action -->
+      <nb-card *ngIf="selected" class="enquiry-details">
+        <nb-card-header>
+          {{ 'ENQUIRIES.ENQUIRY' | translate }} #{{ selected.id }} — {{ selected.productName }}
+          <span class="sku">{{ selected.productSku }}</span>
+        </nb-card-header>
+        <nb-card-body>
+          <div class="row-line">
+            <label>{{ 'ORDER.CUSTOMER_NAME' | translate }}</label>
+            <span>{{ selected.customerName }}</span>
+          </div>
+          <div class="row-line">
+            <label>{{ 'ORDER.CUSTOMER_EMAIL' | translate }}</label>
+            <span><a href="mailto:{{ selected.customerEmail }}">{{ selected.customerEmail }}</a></span>
+          </div>
+          <div class="row-line" *ngIf="selected.customerPhone">
+            <label>{{ 'ORDER.CUSTOMER_PHONE' | translate }}</label>
+            <span>{{ selected.customerPhone }}</span>
+          </div>
+          <div class="row-line">
+            <label>{{ 'ORDER.ORDER_DATE' | translate }}</label>
+            <span>{{ selected.dateCreated }}</span>
+          </div>
+          <div class="message">
+            <label>{{ 'ENQUIRIES.MESSAGE' | translate }}</label>
+            <p>{{ selected.message }}</p>
+          </div>
+        </nb-card-body>
+        <nb-card-footer>
+          <button nbButton class="success_button" *ngIf="selected.status !== 'CLOSED'"
+            (click)="setStatus(selected, 'CLOSED')">
+            {{ 'ENQUIRIES.MARK_CLOSED' | translate }}
+          </button>
+          <button nbButton class="success_button" *ngIf="selected.status === 'CLOSED'"
+            (click)="setStatus(selected, 'NEW')">
+            {{ 'ENQUIRIES.REOPEN' | translate }}
+          </button>
+          <button nbButton class="cancel_button" (click)="closeDetails()">
+            {{ 'ORDER_FORM.CANCLE' | translate }}
+          </button>
+        </nb-card-footer>
+      </nb-card>
+    </div>
+  </nb-card-body>
+</nb-card>

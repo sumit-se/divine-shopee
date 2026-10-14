@@ -1,4 +1,14 @@
 <div [nbSpinner]="loading" nbSpinnerSize="large" nbSpinnerStatus="primary">
+<!-- YouTube videos sit in the gallery with the photos: reorder and remove them below like any image -->
+<form class="add-video top-20" *ngIf="loaded" (ngSubmit)="addVideo()">
+    <label for="productVideoUrl">{{ 'PRODUCT.ADD_VIDEO' | translate }}</label>
+    <div class="add-video__row">
+        <input id="productVideoUrl" name="videoUrl" type="url" class="form-control"
+            [(ngModel)]="videoUrl" placeholder="https://www.youtube.com/watch?v=… or https://youtu.be/…">
+        <button type="submit" nbButton status="primary" [disabled]="!videoUrl">{{ 'PRODUCT.ADD_VIDEO_BUTTON' | translate }}</button>
+    </div>
+    <small class="add-video__hint">{{ 'PRODUCT.ADD_VIDEO_HINT' | translate }}</small>
+</form>
 <p *ngIf="loaded" class="top-20">
     <ngx-image-uploading 
         [images]="images" 

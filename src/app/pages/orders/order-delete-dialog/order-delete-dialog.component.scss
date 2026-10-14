@@ -1,0 +1,12 @@
+.delete-dialog {
+    max-width: 480px;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+
+    button + button {
+        margin-left: 10px;
+    }
+}

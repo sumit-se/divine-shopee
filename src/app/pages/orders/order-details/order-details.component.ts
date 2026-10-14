@@ -6,6 +6,8 @@ import * as moment from 'moment';
 import { OrderInvoiceComponent } from '../order-invoice/order-invoice';
 import { OrderHistoryComponent } from '../order-history/order-history';
 import { OrderTransactionComponent } from '../order-transaction/order-transaction';
+import { OrderDeleteDialogComponent } from '../order-delete-dialog/order-delete-dialog.component';
+import { TranslateService } from '@ngx-translate/core';
 
 import { Router } from '@angular/router';
 import { parsePhoneNumberFromString, format, AsYouType } from 'libphonenumber-js';
@@ -71,7 +73,8 @@ export class OrderDetailsComponent implements OnInit {
   buttonText: any = 'Update Order'
   languages: Array<any> = [{ 'code': 'en', 'name': 'English' }, { 'code': 'fr', 'name': 'French' }]
   constructor(private ordersService: OrdersService, private toastr: ToastrService,
-    private dialogService: NbDialogService, private router: Router) {
+    private dialogService: NbDialogService, private router: Router,
+    private translate: TranslateService) {
     // console.log(this.router.getCurrentNavigation());
     this.getCountry();
 
@@ -262,6 +265,26 @@ export class OrderDetailsComponent implements OnInit {
   }
   goToback() {
     this.router.navigate(['pages/orders/order-list']);
+  }
+  onClickDelete() {
+    this.dialogService.open(OrderDeleteDialogComponent, {
+      context: { orderId: this.orderID, status: this.orderDetailsData.orderStatus }
+    }).onClose.subscribe(res => {
+      if (!res) {
+        return;
+      }
+      this.loadingList = true;
+      this.ordersService.deleteOrder(this.orderID, { restock: res.restock })
+        .subscribe(() => {
+          this.loadingList = false;
+          this.toastr.success(this.translate.instant('ORDER.DELETED'));
+          localStorage.removeItem('orderID');
+          this.goToback();
+        }, () => {
+          this.loadingList = false;
+          this.toastr.error(this.translate.instant('ORDER.DELETE_FAILED'));
+        });
+    });
   }
   onClickRefund() {
     this.loadingList = true;

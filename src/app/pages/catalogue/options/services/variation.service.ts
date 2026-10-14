@@ -25,7 +25,10 @@ export class VariationService {
   addVariations(param): Observable<any> {
     return this.crudService.post(`/v2/private/product/variation`, param);
   }
-  getListOfVariations(): Observable<any> {
-    return this.crudService.get(`/v2/private/product/variation`);
+  getListOfVariations(params?): Observable<any> {
+    // 'variations', plural: the singular path is mapped for POST only
+    // (ProductVariationApi), so a GET there came back 405 and the variations
+    // list -- and any dropdown built from it -- stayed empty.
+    return this.crudService.get(`/v2/private/product/variations`, params);
   }
 }

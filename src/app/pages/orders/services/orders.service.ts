@@ -55,4 +55,16 @@ export class OrdersService {
   getTransactions(orderID): Observable<any> {
     return this.crudService.get('/v1/private/orders/' + orderID + '/payment/transactions');
   }
+  getCarts(params): Observable<any> {
+    return this.crudService.get('/v1/private/carts', params);
+  }
+  getCartDetails(cartID, params): Observable<any> {
+    return this.crudService.get('/v1/private/carts/' + cartID, params);
+  }
+  deleteCart(cartID, params): Observable<any> {
+    return this.crudService.delete('/v1/private/carts/' + cartID, { params });
+  }
+  deleteOrder(orderID, params): Observable<any> {
+    return this.crudService.delete('/v1/private/orders/' + orderID, { params });
+  }
 }

@@ -161,9 +161,12 @@
                           'DESCRIPTION_FORM.HIGHLIGHT'
                           |
                           translate }} - {{('LANG.'+ currentLanguage) |translate }}</label>
+                        <!-- Rich text, not a plain input: this is the block the
+                             storefront prints under the Add to Cart button, so
+                             it needs the same editor the description uses. The
+                             column was widened to LONGTEXT to hold markup. -->
                         <div>
-                          <input type="text" class="form-control inputText" id="highlight" formControlName='highlights'
-                            placeholder="{{ 'DESCRIPTION_FORM.HIGHLIGHT' | translate }}">
+                          <div formControlName="highlights" [ngxSummernote]="highlightConfig"></div>
                         </div>
                       </div>
 
@@ -294,8 +297,13 @@
                   </nb-checkbox>
                 </div>
               </div>
+              <!--
+                Two amounts, as the catalogue stores them: the list price, and
+                what the item actually sells for while it is on offer. Leave
+                the second empty and the first is simply the price.
+              -->
               <div class="form-group">
-                <label class="col-form-label inputLabel">{{ 'PRICE.FINAL_PRICE' | translate}}<span
+                <label class="col-form-label inputLabel">{{ 'PRICE.ORIGINAL_PRICE' | translate}}<span
                     class="mandatory">*</span></label>
                 <div>
                   <input type="number" class="form-control inputText" formControlName='price'
@@ -304,6 +312,18 @@
                     <span *ngIf="price.errors.required">
                       {{ 'PRODUCT.PRICE' | translate}} {{ 'COMMON.IS_REQUIRED' | translate}}
                     </span>
+                  </span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="discountedPrice" class="col-form-label inputLabel">{{ 'PRICE.DISCOUNTED_PRICE'
+                  | translate}}</label>
+                <div>
+                  <input type="number" class="form-control inputText" id="discountedPrice"
+                    formControlName='discountedPrice' placeholder="{{ 'PRICE.DISCOUNTED_PRICE' | translate}}">
+                  <span *ngIf="discountedPrice.value && price.value && +discountedPrice.value >= +price.value"
+                    class="err-message">
+                    {{ 'PRICE.DISCOUNTED_PRICE' | translate}} &lt; {{ 'PRICE.ORIGINAL_PRICE' | translate}}
                   </span>
                 </div>
               </div>

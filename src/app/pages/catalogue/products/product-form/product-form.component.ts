@@ -71,6 +71,13 @@ export class ProductFormComponent implements OnInit {
       fragment: 'tab1',
     },
     {
+      // the individual SKUs behind this product; the backend has always had the
+      // endpoints, this admin simply never called them
+      title: this.translate.instant('COMPONENTS.PRODUCT_VARIANTS'),
+      route: 'variants',
+      fragment: 'tab1',
+    },
+    {
       title: this.translate.instant('COMPONENTS.PRODUCTS_PROPERTIES'),
       route: 'properties',
       fragment: 'tab1',
@@ -78,6 +85,12 @@ export class ProductFormComponent implements OnInit {
     {
       title: this.translate.instant('COMPONENTS.PRODUCTS_DISCOUNT'),
       route: 'discount',
+      fragment: 'tab1',
+    },
+    {
+      // shoppers who asked to be told when this is back in stock
+      title: this.translate.instant('COMPONENTS.STOCK_ALERTS'),
+      route: 'stock-alerts',
       fragment: 'tab1',
     }
    ];
@@ -101,6 +114,23 @@ export class ProductFormComponent implements OnInit {
     buttons: {
       'testBtn': this.customButton.bind(this)
     },
+    fontNames: ['Helvetica', 'Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Roboto', 'Times']
+  };
+  // Same editor for the Highlight field, which the storefront prints under the
+  // Add to Cart button. Shorter box and no custom image button: this block is a
+  // few lines of copy, not the full description.
+  highlightConfig = {
+    placeholder: '',
+    tabsize: 2,
+    height: 180,
+    toolbar: [
+      ['misc', ['codeview', 'undo', 'redo']],
+      ['style', ['bold', 'italic', 'underline', 'clear']],
+      ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+      ['fontsize', ['fontname', 'fontsize', 'color']],
+      ['para', ['style', 'ul', 'ol', 'paragraph']],
+      ['insert', ['link', 'hr']]
+    ],
     fontNames: ['Helvetica', 'Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Roboto', 'Times']
   };
   isCodeUnique = true;
@@ -132,7 +162,10 @@ export class ProductFormComponent implements OnInit {
       .subscribe(([manufacturers, productTypes, languages]) => {
 
         manufacturers.manufacturers.forEach((option) => {
-          this.manufacturers.push({ value: option.code, label: option.code });
+          // the form saves the code, but the list reads better with the brand's
+          // own name on it ("Divine Shopee", not "DShopee")
+          const name = option.description && option.description.name;
+          this.manufacturers.push({ value: option.code, label: name || option.code });
         });
 
         productTypes.list.forEach((option) => {
@@ -181,7 +214,10 @@ export class ProductFormComponent implements OnInit {
       timeBound: [false],
       price: ['', [Validators.required]],
       quantity: ['', [Validators.required, Validators.pattern(validators.number)]],
-      // discountedPrice: [Validators.pattern(validators.number)],
+      // What the item sells for when it is on offer; `price` is then the list
+      // price the shop strikes through. Optional -- left empty, the item sells
+      // at `price` and nothing is struck through.
+      discountedPrice: [''],
       // percentageOff: [Validators.pattern(validators.number)],
       // rebatePrice: [Validators.required, Validators.pattern(validators.number)],
       // startDate: [new Date()],
@@ -229,6 +265,9 @@ export class ProductFormComponent implements OnInit {
       manufacturer: this.product.manufacturer == null ? '' : this.product.manufacturer.code,
       type: this.product.type == null ? '' : this.product.type.code,
       price: this.product.price,
+      // null when the product carries no discount, and an empty field is how
+      // that has to read -- a 0 here would be saved as a 0 discount
+      discountedPrice: this.product.discountedPrice == null ? '' : this.product.discountedPrice,
       quantity: this.product.quantity,
       productSpecifications: {
         weight: this.product.productSpecifications.weight,
@@ -297,6 +336,10 @@ export class ProductFormComponent implements OnInit {
     //   console.log(val)
     // });
   }
+  get discountedPrice() {
+    return this.form.get('discountedPrice');
+  }
+
   get price() {
     return this.form.get('price');
   }
@@ -398,6 +441,22 @@ export class ProductFormComponent implements OnInit {
     this.loading = true;
     const productObject = this.form.value;
     productObject.dateAvailable = moment(productObject.dateAvailable).format('yyyy-MM-DD');
+
+    /*
+     * An empty discount field means "no offer", and the catalogue records that
+     * as no special amount at all: sent as '' it would be read as a price of
+     * nothing and the product would show as free.
+     */
+    if (productObject.discountedPrice === '' || productObject.discountedPrice === null) {
+      productObject.discountedPrice = null;
+    } else if (+productObject.discountedPrice >= +productObject.price) {
+      // a "discount" at or above the list price would strike through the
+      // smaller of the two and read as a price rise
+      this.toastr.error(this.translate.instant('PRICE.DISCOUNTED_PRICE') + ' < '
+        + this.translate.instant('PRICE.ORIGINAL_PRICE'));
+      this.loading = false;
+      return;
+    }
     // productObject.productSpecifications.manufacturer = productObject.manufacturer;
 
     // save important values for filling empty field in result object

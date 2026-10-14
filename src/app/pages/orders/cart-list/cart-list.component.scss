@@ -1,0 +1,19 @@
+.filter_section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .filter_left_section {
+        display: flex;
+        align-items: center;
+    }
+
+    .status_label {
+        font-weight: 600;
+        margin-right: 10px;
+    }
+
+    .status_select {
+        min-width: 160px;
+    }
+}

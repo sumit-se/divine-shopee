@@ -1,0 +1,25 @@
+<nb-card class="page-card inner_pages">
+  <nb-card-body class="product_attribute">
+    <div class="inner_pages_legacy">
+
+      <form class="form-inline filter_section">
+        <div class="filter_right_section">
+          <a class="createBtn" (click)="onClickAdd()">
+            <img class="pointer sda" src="../../../../assets/img/plus.png"
+              title="{{ 'PRODUCT_VARIANTS.CREATE_VARIANT' | translate}}" alt="">
+            <label>{{ 'PRODUCT_VARIANTS.CREATE_VARIANT' | translate}}</label>
+          </a>
+        </div>
+      </form>
+
+      <div [nbSpinner]="loading" nbSpinnerSize="large" nbSpinnerStatus="primary"></div>
+
+      <ng2-smart-table [settings]="settings" [source]="source" (custom)="route($event)" class="home-table">
+      </ng2-smart-table>
+
+      <ngx-paginator (changePage)="changePage($event)" [pagesToShow]="5" [currentPage]="currentPage"
+        [perPage]="perPage" [count]="totalCount"></ngx-paginator>
+
+    </div>
+  </nb-card-body>
+</nb-card>

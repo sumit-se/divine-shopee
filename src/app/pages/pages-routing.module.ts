@@ -22,6 +22,10 @@ const routes: Routes = [{
       loadChildren: 'app/pages/orders/orders.module#OrdersModule'
     },
     {
+      path: 'enquiries',
+      loadChildren: 'app/pages/enquiries/enquiries.module#EnquiriesModule'
+    },
+    {
       path: 'user-management',
       loadChildren: 'app/pages/user-management/user-management.module#UserManagementModule'
     },

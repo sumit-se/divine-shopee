@@ -1,0 +1,14 @@
+.email-config__intro {
+  margin-bottom: 1.5rem;
+  max-width: 48rem;
+}
+
+// Deliberately quiet: these sit under fields that are mostly self-explanatory,
+// and the one that matters (which port pairs with which protocol) should read
+// as a note rather than compete with the label.
+.email-config__hint {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  opacity: 0.75;
+}

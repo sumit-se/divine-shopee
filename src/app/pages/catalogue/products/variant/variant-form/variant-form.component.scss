@@ -1,0 +1,261 @@
+.label-row {
+    margin-bottom: 17px;
+
+    label {
+        font-size: 20px;
+    }
+}
+
+.variant_create_page {
+    width: 700px;
+
+    // The dialog grew from 4 fields to 13 and became taller than the screen,
+    // with nothing to scroll: Nebular centres the dialog and the overflow was
+    // simply unreachable. The box is capped below the viewport height and the
+    // form scrolls inside it, so the header -- which holds Save and Cancel --
+    // stays put and every field can be reached.
+    max-width: 94vw;
+    max-height: 88vh;
+
+    display: flex;
+    flex-direction: column;
+
+    .main_header {
+        flex: 0 0 auto;
+    }
+
+    form {
+        flex: 1 1 auto;
+        min-height: 0; // without this a flex child refuses to shrink and scroll
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        // slim scrollbar, as on the storefront's description panels
+        scrollbar-width: thin;
+
+        &::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            border-radius: 4px;
+            background-color: #c8cfdc;
+        }
+    }
+
+    .main_header {
+        margin-bottom: 0px !important;
+
+        .page_title {
+            margin-top: -25px;
+            font-weight: 600;
+        }
+
+        .back_button {
+            margin-top: 21px !important;
+        }
+
+        .content_spacing {
+            .success_button {
+                background-color: #36f;
+                border-color: #36f;
+                color: #fff;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+                text-transform: uppercase;
+                font-weight: 600;
+                font-size: 0.875rem;
+                height:40px;
+                &:disabled {
+                    background-color: #598bff96;
+
+                    &:hover {
+                        background-color: #598bff96;
+                        border-color: #598bff96;
+                    }
+                }
+
+                &:hover {
+                    background-color: #598bff;
+                    border-color: #598bff;
+                    box-shadow: 0px 7px 15px rgba(165, 162, 162, 0.25), 1px 3px 8px rgba(165, 162, 162, 0.25);
+                }
+            }
+
+            .cancel_button {
+                background-color: #ffaa00;
+                border-color: #ffaa00;
+                color: #ffffff;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+                margin-right: 10px;
+                text-transform: uppercase;
+                font-weight: 600;
+                font-size: 0.875rem;
+
+                &:hover {
+                    background-color: #ffc94d;
+                    border-color: #ffc94d;
+                    box-shadow: 0px 7px 15px rgba(165, 162, 162, 0.25), 1px 3px 8px rgba(165, 162, 162, 0.25);
+                }
+            }
+
+
+
+        }
+    }
+
+}
+
+:host ::ng-deep .variant_create_page {
+    .nb-card-header {
+        font-weight: 700;
+    }
+
+    .inputLabel {
+        font-size: 0.75rem;
+        color: #8f9bb3;
+        font-weight: 700;
+    }
+
+    .inputText {
+        border-radius: 0.17rem;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.5rem;
+        padding: 0.6875rem 1rem;
+        width: 100%;
+        background-color: #f7f9fc;
+        border-color: #e4e9f2;
+        color: #222b45;
+        transition-duration: 0.15s;
+        transition-property: border, background-color, color, box-shadow;
+        transition-timing-function: ease-in;
+        border-style: solid;
+        border-width: 1px;
+        -webkit-appearance: none;
+
+        &::-webkit-input-placeholder {
+            /* Chrome/Opera/Safari */
+            color: #8e9ab4;
+            font-weight: 200;
+        }
+
+        &::-moz-placeholder {
+            /* Firefox 19+ */
+            font-weight: 200;
+            color: #8e9ab4;
+        }
+
+        &:-ms-input-placeholder {
+            /* IE 10+ */
+            font-weight: 200;
+            color: #8e9ab4;
+        }
+
+        &:-moz-placeholder {
+            /* Firefox 18- */
+            font-weight: 200;
+            color: #8e9ab4;
+        }
+    }
+
+    .err-message {
+        margin-top: -8px;
+        color: #ff3d71;
+        font-size: 12px;
+    }
+}
+.variant-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .variant-image {
+        position: relative;
+        width: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 1px solid #e4e9f2;
+            border-radius: 4px;
+        }
+
+        &.main img {
+            border: 2px solid #3366ff;
+        }
+
+        .main-badge {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: #3366ff;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 3px;
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+    }
+
+    .add-image {
+        height: 120px;
+        justify-content: center;
+        border: 1px dashed #8f9bb3;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #3366ff;
+        font-weight: 600;
+        text-align: center;
+        margin: 0;
+
+        input {
+            display: none;
+        }
+
+        &.disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+    }
+}
+
+// Bootstrap's .form-row uses negative margins; keep the paired fields aligned
+// with the full-width ones above and below them.
+:host ::ng-deep .variant_create_page {
+    .form-row {
+        margin-right: 0;
+        margin-left: 0;
+        padding: 0 15px;
+
+        .form-group {
+            padding-right: 8px;
+            padding-left: 0;
+        }
+
+        .form-group + .form-group {
+            padding-right: 0;
+            padding-left: 8px;
+        }
+
+        .group-block {
+            display: flex;
+            align-items: center;
+        }
+    }
+}
+
+.dimensions-hint {
+    color: #8f9bb3;
+    font-size: 13px;
+    margin-bottom: 8px;
+}

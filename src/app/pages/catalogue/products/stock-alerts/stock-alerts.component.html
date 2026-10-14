@@ -1,0 +1,37 @@
+<div class="stock-alerts" [nbSpinner]="loading" nbSpinnerStatus="primary">
+  <div class="stock-alerts__head">
+    <div>
+      <h6>{{ 'STOCK_ALERTS.TITLE' | translate }} ({{ waiting.length }})</h6>
+      <p class="stock-alerts__hint">{{ 'STOCK_ALERTS.HINT' | translate }}</p>
+    </div>
+    <button type="button" nbButton status="primary" size="small"
+      [disabled]="!inStock || waiting.length === 0" (click)="notifyNow()"
+      [title]="(inStock ? 'STOCK_ALERTS.NOTIFY_NOW' : 'STOCK_ALERTS.STILL_OUT') | translate">
+      {{ 'STOCK_ALERTS.NOTIFY_NOW' | translate }}
+    </button>
+  </div>
+  <p class="stock-alerts__state" [class.in-stock]="inStock">
+    {{ (inStock ? 'STOCK_ALERTS.IN_STOCK' : 'STOCK_ALERTS.STILL_OUT') | translate }}
+  </p>
+
+  <p *ngIf="!loading && waiting.length === 0" class="stock-alerts__empty">{{ 'STOCK_ALERTS.NONE' | translate }}</p>
+
+  <table *ngIf="waiting.length" class="table stock-alerts__table">
+    <thead>
+      <tr>
+        <th>{{ 'STOCK_ALERTS.EMAIL' | translate }}</th>
+        <th>{{ 'STOCK_ALERTS.PHONE' | translate }}</th>
+        <th>{{ 'STOCK_ALERTS.SINCE' | translate }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of waiting">
+        <td>{{ row.email }}</td>
+        <td>{{ row.phone || '—' }}</td>
+        <td>{{ row.since }}</td>
+        <td class="actions"><i class="nb-trash" (click)="remove(row)" [title]="'STOCK_ALERTS.REMOVE' | translate"></i></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

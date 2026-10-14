@@ -1,0 +1,11 @@
+<nb-card class="delete-dialog">
+  <nb-card-header>{{ 'ORDER.DELETE_TITLE' | translate }} #{{ orderId }}</nb-card-header>
+  <nb-card-body>
+    <p>{{ 'ORDER.DELETE_WARNING' | translate }}</p>
+    <nb-checkbox [(ngModel)]="restock">{{ 'ORDER.DELETE_RESTOCK' | translate }}</nb-checkbox>
+  </nb-card-body>
+  <nb-card-footer class="dialog-footer">
+    <button nbButton status="basic" (click)="dismiss()">{{ 'COMMON.CANCEL' | translate }}</button>
+    <button nbButton status="danger" (click)="confirm()">{{ 'COMMON.DELETE' | translate }}</button>
+  </nb-card-footer>
+</nb-card>

@@ -54,8 +54,10 @@
         </div>
         <div cdkDropList *ngFor="let image of images; trackBy: itemTrackBy" (cdkDropListDropped)="dropListDropped()"
           (cdkDropListEntered)="cdkDropListEntered($event)">
-          <div cdkDrag class="example-box">
+          <div cdkDrag class="example-box" [class.has-video]="image?.videoUrl">
             <img [src]="image?.imageUrl" [alt]="image?.path" width="250">
+            <!-- a product video: its YouTube still, marked so it is not taken for a photo -->
+            <span class="video-badge" *ngIf="image?.videoUrl" title="YouTube video">&#9654;</span>
             <span id="clickableDeleteIcon">
               <span><i class="fas fa-times" (click)="removeImage(image)"></i></span>
             </span>

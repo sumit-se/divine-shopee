@@ -25,6 +25,9 @@
         translate}}</button>
     </div>
     <div class="content_spacing">
+      <button type="button" nbButton class="refund_button" (click)="onClickDelete()">{{ 'COMMON.DELETE' | translate }}</button>
+    </div>
+    <div class="content_spacing">
       <button type="button" nbButton class="cancel_button" (click)="goToback()">{{ 'ORDER_FORM.CANCLE'
         | translate}}</button>
     </div>
@@ -287,7 +290,7 @@
                       <tr *ngFor="let total of orderDetailsData.totals">
                         <td></td>
                         <td colspan="2">{{total.module}}</td>
-                        <td class="boldTxt">US${{total.value}}</td>
+                        <td class="boldTxt">{{total.value | currency: orderDetailsData.currency}}</td>
                       </tr>
                     </tbody>
                   </table>

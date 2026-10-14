@@ -1,0 +1,25 @@
+
+.add-video {
+  margin-bottom: 20px;
+}
+
+.add-video label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.add-video__row {
+  display: flex;
+  gap: 10px;
+}
+
+.add-video__row input {
+  flex: 1 1 auto;
+}
+
+.add-video__hint {
+  display: block;
+  margin-top: 6px;
+  color: #8f9bb3;
+}

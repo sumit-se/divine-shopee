@@ -169,3 +169,30 @@
     }
   }
 }
+/* marks a product video (a YouTube still) among the product's photos */
+.example-box {
+  position: relative;
+}
+
+.video-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 38px;
+  font-size: 18px;
+  color: #fff;
+  background: rgba(204, 0, 0, 0.9);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+/* the remove cross is dark; on a video's dark still it vanished */
+.example-box.has-video #clickableDeleteIcon i {
+  color: #fff;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.9);
+}

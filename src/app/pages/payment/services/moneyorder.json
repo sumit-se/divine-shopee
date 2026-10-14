@@ -40,8 +40,8 @@
     },
     {
         "type": "summernote",
-        "label": "Cheque to be made to this address",
-        "placeholder": "Cheque to be made to this address",
+        "label": "Bank account and UPI details shown to customers at checkout",
+        "placeholder": "e.g. Account name, account number, IFSC, bank; UPI ID",
         "name": "address",
         "objectKey": "integrationKeys",
         "isRequired": false,

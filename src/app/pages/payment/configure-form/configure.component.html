@@ -12,6 +12,15 @@
         nbSpinnerStatus="control" (click)="save()" [disabled]="!configureForm.form.valid">{{'COMMON.SAVE'|
         translate}}</button>
     </div>
+
+    <!--
+      Delete is only offered once something is stored: there is nothing to
+      remove from an unconfigured module, and the backend would 404.
+    -->
+    <div class="content_spacing" *ngIf="isConfigured">
+      <button type="button" class="cancel_button" [nbSpinner]="deleting" nbSpinnerSize="large"
+        nbSpinnerStatus="control" (click)="remove()">Remove configuration</button>
+    </div>
   </nb-card-header>
 
   <div class="row" *ngIf="error != null">
@@ -46,6 +55,13 @@
                   <label class="label inputLabel">{{data.label}}<span *ngIf="data.isRequired">*</span></label>
                   <input type="text" class="form-control inputText" placeholder="{{data.placeholder}}"
                     [(ngModel)]="data.value" name="{{data.name}}" required="{{data.isRequired}}">
+                </div>
+                <div class="form-group" *ngIf="data.type == 'password'">
+                  <label class="label inputLabel">{{data.label}}<span *ngIf="data.isRequired">*</span></label>
+                  <input type="password" autocomplete="off" class="form-control inputText"
+                    placeholder="{{data.placeholder}}" [(ngModel)]="data.value" name="{{data.name}}"
+                    required="{{data.isRequired}}">
+                  <small class="form-text text-muted" *ngIf="data.hint">{{data.hint}}</small>
                 </div>
                 <div class="form-group" *ngIf="data.type == 'summernote'">
                   <label class="label inputLabel">{{data.label}}<span *ngIf="data.isRequired">*</span></label>

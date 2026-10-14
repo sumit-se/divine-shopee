@@ -63,14 +63,17 @@ export class ListComponent implements OnInit {
     };
   }
   getCustomers() {
-    this.params.page = this.currentPage;
+    // the paginator counts from 1, the API from 0
+    this.params.page = this.currentPage - 1;
 
     this.loadingList = true;
     this.customersService.getCustomers(this.params)
       .subscribe(customer => {
         this.loadingList = false;
         this.source.load(customer.customers);
-        this.totalCount = customer.totalPages;
+        // the pager wants the number of records; this endpoint reports it as
+        // recordsTotal now and still echoes it in totalPages for older clients
+        this.totalCount = customer.recordsTotal || customer.totalPages;
       }, error => {
         this.errorService.error('ERROR.SYSTEM_ERROR', error);
       });
@@ -173,7 +176,15 @@ export class ListComponent implements OnInit {
     this.router.navigate(['/pages/customer/add']);
   }
   onSelectStore(e) {
-    this.params["store"] = e.value;
+    /*
+     * p-autoComplete emits the chosen suggestion, and the suggestions are plain
+     * store codes. Reading `.value` off a string gave undefined, the request
+     * went out as store=undefined, and the API's 404 emptied the list -- same
+     * bug the Orders screen had. An object is still honoured if one is emitted.
+     */
+    this.params["store"] = (e && e.value) ? e.value : e;
+    // another store starts at its own first page
+    this.currentPage = 1;
     this.getCustomers();
   }
 

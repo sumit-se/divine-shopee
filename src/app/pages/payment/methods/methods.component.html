@@ -15,6 +15,18 @@
         </div>
       </form>
 
+      <div class="row" *ngIf="loadError != null">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <nb-alert status="danger" closable="false">{{loadError}}</nb-alert>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="loadError == null && !loadingList && paymentData.length == 0">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <nb-alert status="info" closable="false">No payment modules are available for this store's country.</nb-alert>
+        </div>
+      </div>
+
       <div class="grid-body row" data-layout="fitRows">
         <div class="col-lg-3 col-md-3 col-sm-3 " *ngFor="let result of paymentData; let i = index">
           <div class="grid-product">

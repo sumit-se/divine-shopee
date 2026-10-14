@@ -7,8 +7,11 @@
   <META http-equiv=Content-Type content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.4.3/cropper.min.js" async>  </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.4.3/cropper.css"  />
+  <!-- The cropperjs script and stylesheet that used to sit here were loaded
+       from cdnjs on every page load. The stylesheet was render-blocking, so a
+       slow or unreachable CDN stalled the whole admin before first paint.
+       Nothing uses them: the only cropper reference in the app is
+       ngx-awesome-uploader with [enableCropper]="false", twice. -->
   <script src="assets/env.js"></script>
 </head>
 

@@ -102,7 +102,7 @@
       <td></td>
       <td>
         <div *ngFor="let total of orderData.totals" class="total_section">
-          <span class="total_module">{{total.module}} : </span> <span class="total_value">US${{total.value}}</span>
+          <span class="total_module">{{total.module}} : </span> <span class="total_value">{{total.value | currency: orderData.currency}}</span>
         </div>
       </td>
     </tr>

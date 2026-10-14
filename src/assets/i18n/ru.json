@@ -1,3 +1,15 @@
 {
-
+  "ENQUIRIES": {
+    "TITLE": "Запросы",
+    "ENQUIRY": "Запрос",
+    "PRODUCT": "Товар",
+    "MESSAGE": "Сообщение",
+    "MARK_CLOSED": "Закрыть",
+    "REOPEN": "Открыть снова",
+    "STATUS_UPDATED": "Запрос обновлён"
+  },
+  "PRICE": {
+    "ORIGINAL_PRICE": "Первоначальная цена",
+    "DISCOUNTED_PRICE": "Цена со скидкой"
+  }
 }

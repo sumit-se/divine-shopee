@@ -151,6 +151,14 @@ export const MENU_ITEMS: MenuItem[] = [
         link: '/pages/store-management/create-store',
         hidden: false,
         guards: [IsSuperadmin, IsAdminRetail]
+      },
+      {
+        // outgoing mail: every notification the shop sends goes through this
+        title: 'COMPONENTS.EMAIL_CONFIGURATION',
+        key: 'COMPONENTS.EMAIL_CONFIGURATION',
+        link: '/pages/store-management/email-configuration',
+        hidden: false,
+        guards: [IsSuperadmin, IsAdmin, IsAdminRetail, IsAdminStore]
       }
     ],
   },
@@ -492,6 +500,20 @@ export const MENU_ITEMS: MenuItem[] = [
         title: 'COMPONENTS.ORDERS',
         key: 'COMPONENTS.ORDERS',
         link: '/pages/orders',
+        guards: [IsOrderManagementVisible]
+      },
+      {
+        title: 'COMPONENTS.CARTS',
+        key: 'COMPONENTS.CARTS',
+        link: '/pages/orders/cart-list',
+        guards: [IsOrderManagementVisible]
+      },
+      {
+        // products that are not sold directly: the shopper asks, and the
+        // question lands here rather than only in a mailbox
+        title: 'ENQUIRIES.TITLE',
+        key: 'ENQUIRIES.TITLE',
+        link: '/pages/enquiries',
         guards: [IsOrderManagementVisible]
       }
     ]

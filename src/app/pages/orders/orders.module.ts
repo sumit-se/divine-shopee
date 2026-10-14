@@ -8,6 +8,9 @@ import { OrderDetailsComponent } from './order-details/order-details.component';
 import { OrderInvoiceComponent } from './order-invoice/order-invoice';
 import { OrderHistoryComponent } from './order-history/order-history';
 import { OrderTransactionComponent } from './order-transaction/order-transaction';
+import { CartListComponent } from './cart-list/cart-list.component';
+import { CartDetailsComponent } from './cart-details/cart-details.component';
+import { OrderDeleteDialogComponent } from './order-delete-dialog/order-delete-dialog.component';
 import { NbDialogModule } from '@nebular/theme';
 import { MalihuScrollbarModule } from 'ngx-malihu-scrollbar';
 import { CustomModule } from '../custom-component/custom.module';
@@ -18,9 +21,13 @@ import { CustomModule } from '../custom-component/custom.module';
     OrderDetailsComponent,
     OrderInvoiceComponent,
     OrderHistoryComponent,
-    OrderTransactionComponent
+    OrderTransactionComponent,
+    CartListComponent,
+    CartDetailsComponent,
+    OrderDeleteDialogComponent
   ],
   entryComponents: [
+    OrderDeleteDialogComponent,
     OrderInvoiceComponent,
     OrderHistoryComponent,
     OrderTransactionComponent

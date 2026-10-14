@@ -1,0 +1,55 @@
+[
+    {
+        "type": "checkbox",
+        "label": "Enabled",
+        "placeholder": "",
+        "name": "active",
+        "objectKey": "",
+        "isRequired": false,
+        "optionData": [],
+        "value": false
+    },
+    {
+        "type": "checkbox",
+        "label": "Default",
+        "placeholder": "",
+        "name": "defaultSelected",
+        "objectKey": "",
+        "isRequired": false,
+        "optionData": [],
+        "value": false
+    },
+    {
+        "type": "text",
+        "label": "Key ID",
+        "placeholder": "rzp_test_... or rzp_live_...",
+        "name": "key_id",
+        "objectKey": "integrationKeys",
+        "isRequired": true,
+        "optionData": [],
+        "hint": "The prefix decides the mode: rzp_test_ for the sandbox, rzp_live_ for real payments.",
+        "value": ""
+    },
+    {
+        "type": "password",
+        "label": "Key Secret",
+        "placeholder": "Enter the Razorpay key secret",
+        "name": "key_secret",
+        "objectKey": "integrationKeys",
+        "isRequired": true,
+        "optionData": [],
+        "hint": "Shown only once by the Razorpay dashboard when the key pair is generated.",
+        "value": ""
+    },
+    {
+        "type": "password",
+        "label": "Webhook signing secret",
+        "placeholder": "Enter the webhook signing secret",
+        "name": "webhook_secret",
+        "objectKey": "integrationKeys",
+        "isRequired": false,
+        "optionData": [],
+        "hint": "Chosen by you when adding the webhook in Razorpay. Not the same as the key secret.",
+        "value": ""
+    }
+]

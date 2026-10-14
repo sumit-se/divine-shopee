@@ -1,0 +1,90 @@
+<nb-card class="page-card inner_pages">
+  <nb-card-body [nbSpinner]="loading" nbSpinnerSize="large" nbSpinnerStatus="primary" class="cartDetails">
+    <div class="main_header">
+      <h1 class="cart_title">
+        {{ 'CART.DETAILS' | translate }}<span *ngIf="cart"> #{{ cart.id }}</span>
+      </h1>
+      <div class="header_actions">
+        <button nbButton status="danger" size="small" *ngIf="cart" (click)="deleteCart()">{{ 'COMMON.DELETE' | translate }}</button>
+        <button nbButton status="basic" size="small" (click)="back()">{{ 'CART.BACK' | translate }}</button>
+      </div>
+    </div>
+
+    <p *ngIf="notFound" class="not_found">{{ 'CART.NOT_FOUND' | translate }}</p>
+
+    <ng-container *ngIf="cart">
+      <div class="summary">
+        <div class="field">
+          <label>{{ 'ORDER.STATUS' | translate }}</label>
+          <span>
+            {{ 'CART.' + cart.status | translate }}
+            <a *ngIf="cart.orderId" class="order_link" (click)="goToOrder()">
+              {{ 'CART.ORDER' | translate }} #{{ cart.orderId }}
+            </a>
+          </span>
+        </div>
+        <div class="field">
+          <label>{{ 'CART.CUSTOMER' | translate }}</label>
+          <span *ngIf="cart.customerId">
+            {{ cart.customerName || ('#' + cart.customerId) }}
+            <span *ngIf="cart.customerEmail" class="muted">&lt;{{ cart.customerEmail }}&gt;</span>
+          </span>
+          <span *ngIf="!cart.customerId">{{ 'CART.GUEST' | translate }}</span>
+        </div>
+        <div class="field">
+          <label>{{ 'CART.CREATED' | translate }}</label>
+          <span>{{ cart.dateCreated }}</span>
+        </div>
+        <div class="field">
+          <label>{{ 'CART.LAST_MODIFIED' | translate }}</label>
+          <span>{{ cart.dateModified }}</span>
+        </div>
+        <div class="field" *ngIf="cart.promoCode">
+          <label>{{ 'CART.PROMO_CODE' | translate }}</label>
+          <span>{{ cart.promoCode }}</span>
+        </div>
+        <div class="field" *ngIf="cart.ipAddress">
+          <label>{{ 'CART.IP_ADDRESS' | translate }}</label>
+          <span>{{ cart.ipAddress }}</span>
+        </div>
+        <div class="field">
+          <label>{{ 'CART.CODE' | translate }}</label>
+          <span class="muted code">{{ cart.code }}</span>
+        </div>
+      </div>
+
+      <table class="table items">
+        <thead>
+          <tr>
+            <th>{{ 'CART.PRODUCT' | translate }}</th>
+            <th>{{ 'CART.SKU' | translate }}</th>
+            <th class="num">{{ 'ORDER_FORM.QUANTITY' | translate }}</th>
+            <th class="num">{{ 'ORDER_FORM.PRICE' | translate }}</th>
+            <th class="num">{{ 'ORDER_FORM.SUBTOTAL' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of cart.items" [class.unavailable]="!item.available">
+            <td>
+              {{ item.name || ('#' + item.productId) }}
+              <div *ngIf="!item.available" class="muted">{{ 'CART.UNAVAILABLE' | translate }}</div>
+            </td>
+            <td>{{ item.sku }}</td>
+            <td class="num">{{ item.quantity }}</td>
+            <td class="num">{{ item.displayPrice }}</td>
+            <td class="num">{{ item.displaySubTotal }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="2">{{ 'ORDER.TOTAL' | translate }}</th>
+            <th class="num">{{ cart.itemCount }}</th>
+            <th></th>
+            <th class="num">{{ cart.displayTotal }}</th>
+          </tr>
+        </tfoot>
+      </table>
+      <p class="muted note">{{ 'CART.TOTAL_NOTE' | translate }}</p>
+    </ng-container>
+  </nb-card-body>
+</nb-card>

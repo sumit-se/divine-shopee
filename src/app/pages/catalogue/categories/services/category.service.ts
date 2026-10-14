@@ -20,8 +20,14 @@ export class CategoryService {
   }
 
   getCategoryById(id): Observable<any> {
+    // lang=_all makes the facade take its "all languages" branch, which is
+    // store-scoped (getById(store, id)) unlike the single-language path. So
+    // without 'store' it looks in DEFAULT and 404s for any other merchant.
+    // This is a public path, so the auth interceptor's /private/ default
+    // does not cover it.
     const params = {
-      lang: '_all'
+      lang: '_all',
+      store: this.storageService.getMerchant()
     };
     return this.crudService.get(`/v1/category/${id}`, params);
   }

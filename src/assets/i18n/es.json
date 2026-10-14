@@ -1,3 +1,15 @@
 {
-
+  "ENQUIRIES": {
+    "TITLE": "Consultas",
+    "ENQUIRY": "Consulta",
+    "PRODUCT": "Producto",
+    "MESSAGE": "Mensaje",
+    "MARK_CLOSED": "Marcar como cerrada",
+    "REOPEN": "Reabrir",
+    "STATUS_UPDATED": "Consulta actualizada"
+  },
+  "PRICE": {
+    "ORIGINAL_PRICE": "Precio original",
+    "DISCOUNTED_PRICE": "Precio con descuento"
+  }
 }

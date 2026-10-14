@@ -24,7 +24,13 @@ export class StoreService {
   }
 
   getListOfStores(params): Observable<any> {
-    return this.crudService.get(`/v1/private/stores`, params);
+    // 'code' filters the result set; 'store' sets the authorization context.
+    // Without 'store' the API falls back to DEFAULT, and a non-superadmin who
+    // belongs to another merchant gets 401 -- which the auth interceptor turns
+    // into a forced sign-out. Superadmins are exempt, so this only shows up for
+    // ADMIN-level accounts.
+    const merged = { store: this.storageService.getMerchant(), ...(params || {}) };
+    return this.crudService.get(`/v1/private/stores`, merged);
   }
 
   getListOfMerchantStoreNames(params): Observable<any> {

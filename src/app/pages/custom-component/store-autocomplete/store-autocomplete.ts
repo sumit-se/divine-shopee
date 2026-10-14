@@ -1,4 +1,5 @@
 import { Component, forwardRef, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { StorageService } from '../../shared/services/storage.service';
 import { StoreService } from '../../store-management/services/store.service';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -17,12 +18,15 @@ export class storeAutoCompleteComponent implements OnInit {
 
     constructor(
         private storeService: StoreService,
+        private storageService: StorageService,
         private translate: TranslateService) { }
 
     ngOnInit() { }
 
     searchStore() {
-        this.storeService.getListOfStores({ code: 'DEFAULT' })
+        // same 401-then-signout trap as products-list: scope to the user's store
+        const storeCode = this.storageService.getMerchant() || 'DEFAULT';
+        this.storeService.getListOfStores({ code: storeCode })
             .subscribe(res => {
                 let storeData = []
                 res.data.forEach((store) => {

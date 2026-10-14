@@ -8,6 +8,8 @@ import { ProductCreationComponent } from './product-creation/product-creation.co
 import { ProductDetailsComponent } from './product-details/product-details.component';
 import { ProductFormComponent } from './product-form/product-form.component';
 import { AvailableButtonComponent } from './products-list/available-button.component';
+import { SpecialToggleComponent } from './products-list/special-toggle.component';
+import { OnSiteToggleComponent } from './products-list/on-site-toggle.component';
 import { NgxSummernoteModule } from 'ngx-summernote';
 import { ManageInventoryComponent } from './inventory/manage-inventory/manage-inventory.component';
 import { InventoryFormComponent } from './inventory/inventory-form/inventory-form.component';
@@ -29,10 +31,13 @@ import { ProductPropertyForm } from './property/form/product-property-form.compo
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { NbDialogModule } from '@nebular/theme';
 import { ProductDiscountComponent } from './product-discount/product-discount.component';
+import { ProductStockAlertsComponent } from './stock-alerts/stock-alerts.component';
 import { ProductOrderingComponent } from './product-ordering/product-ordering.component';
 
 
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { ProductVariantsComponent } from './variant/product-variants/product-variants.component';
+import { VariantFormComponent } from './variant/variant-form/variant-form.component';
 
 @NgModule({
 
@@ -45,6 +50,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     ProductToCategoryComponent,
 
     AvailableButtonComponent,
+    SpecialToggleComponent,
+    OnSiteToggleComponent,
 
     ManageInventoryComponent,
     InventoryDetailsComponent,
@@ -56,13 +63,19 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 
     ProductAttributesComponent,
     AttributeFormComponent,
+
+    ProductVariantsComponent,
+    VariantFormComponent,
     ProductsImagesComponent,
     ProductProperties,
     ProductPropertyForm,
     ProductDiscountComponent,
+    ProductStockAlertsComponent,
     ProductOrderingComponent,
   ],
-  entryComponents: [AvailableButtonComponent, AttributeFormComponent, ProductPropertyForm],
+  // Ivy is off for this build (tsconfig enableIvy: false), so every component
+  // opened through NbDialogService has to be listed here as well as declared.
+  entryComponents: [AvailableButtonComponent, SpecialToggleComponent, OnSiteToggleComponent, AttributeFormComponent, ProductPropertyForm, VariantFormComponent],
   imports: [
     ProductsRoutingModule,
     InventoryRoutingModule,

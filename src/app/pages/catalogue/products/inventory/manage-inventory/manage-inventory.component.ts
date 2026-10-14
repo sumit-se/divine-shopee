@@ -65,6 +65,23 @@ export class ManageInventoryComponent implements OnInit {
     });
   }
 
+  /**
+   * The heading read `product?.description.name`, which guarded the product but
+   * not the description -- and the product is fetched with lang=_all, which
+   * returns `descriptions` and leaves `description` null. So the heading threw
+   * on every change-detection pass and the title stayed empty.
+   */
+  get productName() {
+    if (!this.product) {
+      return '';
+    }
+    if (this.product.description && this.product.description.name) {
+      return this.product.description.name;
+    }
+    const descriptions = this.product.descriptions || [];
+    return (descriptions.length && descriptions[0].name) || this.product.sku || '';
+  }
+
   getList() {
     this.loadingList = true;
     const id = (this.product && this.product.id) || this.productId;
@@ -144,7 +161,7 @@ export class ManageInventoryComponent implements OnInit {
         this.dialogService.open(ShowcaseDialogComponent, {})
           .onClose.subscribe(res => {
             if (res) {
-              this.inventoryService.deleteProduct(event.data.id)
+              this.inventoryService.deleteInventory(this.product.id, event.data.id)
                 .subscribe((data) => {
                   this.toastr.success(this.translate.instant('INVENTORY.INVENTORY_REMOVED'));
                   this.getList();

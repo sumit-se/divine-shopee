@@ -1,0 +1,49 @@
+.stock-alerts {
+  padding: 16px 20px;
+  min-height: 120px;
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+
+    h6 {
+      margin: 0 0 4px;
+    }
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: 13px;
+    color: #8f9bb3;
+  }
+
+  &__state {
+    display: inline-block;
+    margin: 12px 0;
+    padding: 4px 10px;
+    font-size: 13px;
+    border-radius: 12px;
+    color: #8a4b00;
+    background: #fff4dc;
+
+    &.in-stock {
+      color: #2e7d32;
+      background: #eef7ee;
+    }
+  }
+
+  &__empty {
+    color: #8f9bb3;
+  }
+
+  &__table .actions {
+    text-align: right;
+
+    i {
+      cursor: pointer;
+      font-size: 20px;
+    }
+  }
+}

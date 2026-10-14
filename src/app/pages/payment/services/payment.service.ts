@@ -23,4 +23,9 @@ export class PaymentService {
   savePayment(param) {
     return this.crudService.post('/v1/private/modules/payment/', param);
   }
+  // Removes the stored configuration for a module, credentials included. The
+  // module stays registered and can be configured again.
+  deletePayment(code): Observable<any> {
+    return this.crudService.delete('/v1/private/modules/payment/' + code);
+  }
 }

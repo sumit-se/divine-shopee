@@ -128,6 +128,10 @@ export class ImageUploadingComponent implements OnInit {
 
     if (this.sourceIndex !== this.targetIndex) {
       moveItemInArray(this.images, this.sourceIndex, this.targetIndex);
+      // the sequence as it now reads, left to right
+      this.update.emit({
+        images: this.images.map((image, index) => ({ id: image.id, position: index + 1 }))
+      });
     }
   }
 
@@ -158,11 +162,12 @@ export class ImageUploadingComponent implements OnInit {
       dropElement
     );
 
-    console.log("drag::", dragIndex, dropIndex);
-    let newObj = { "id": this.images[dragIndex].id, "position": dropIndex + 1 }
-    this.update.emit(newObj)
-
-
+    /*
+     * The order used to be saved from here -- while the pointer was still
+     * moving -- and only for the image being dragged, so the other images kept
+     * their old positions and several could end up sharing one. The whole
+     * sequence is saved once, on drop, instead.
+     */
     if (!this.source) {
       this.sourceIndex = dragIndex;
       this.source = drag.dropContainer;

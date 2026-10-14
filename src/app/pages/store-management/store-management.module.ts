@@ -15,6 +15,7 @@ import { StoreBrandingComponent } from './store-branding/store-branding.componen
 import { RetailerComponent } from './retailer/retailer.component';
 import { RetailerListComponent } from './retailer-list/retailer-list.component';
 import { RetailerStoresComponent } from './retailer-stores/retailer-stores.component';
+import { StoreEmailComponent } from './store-email/store-email.component';
 import { NbDialogModule } from '@nebular/theme';
 
 @NgModule({
@@ -30,7 +31,8 @@ import { NbDialogModule } from '@nebular/theme';
     StoreDetailInfoComponent,
     RetailerComponent,
     RetailerListComponent,
-    RetailerStoresComponent
+    RetailerStoresComponent,
+    StoreEmailComponent
   ],
   imports: [
     StoreManagementRoutingModule,

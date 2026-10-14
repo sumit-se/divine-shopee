@@ -152,6 +152,9 @@ export class CategoryFormComponent implements OnInit {
       parent: ['root', [Validators.required]],
       store: [this.merchant],
       visible: [false],
+      // the category's `featured` flag, which the storefront reads as "show
+      // this in the Shop by Category strip on the home page"
+      featured: [false],
       code: ['', [Validators.required, Validators.pattern(validators.alphanumericwithhyphen)]],
       sortOrder: [0, [Validators.required, Validators.pattern(validators.number)]],
       selectedLanguage: ['', [Validators.required]],
@@ -194,6 +197,7 @@ export class CategoryFormComponent implements OnInit {
       parent: this.category.parent === null ? 'root' : this.category.parent.code,
       store: this.category.store,
       visible: this.category.visible,
+      featured: this.category.featured,
       code: this.category.code,
       sortOrder: this.category.sortOrder,
       selectedLanguage: this.defaultLanguage,

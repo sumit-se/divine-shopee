@@ -8,6 +8,7 @@ let paypalData = require('../services/paypal.json');
 let beanStreamData = require('../services/beanstream.json');
 let stripeData = require('../services/stripe.json');
 let paytmData = require('../services/paytm.json');
+let razorpayData = require('../services/razorpay.json');
 
 let braintreeData = require('../services/braintree.json');
 import { PaymentService } from '../services/payment.service';
@@ -25,6 +26,10 @@ export class ConfigureComponent implements OnInit {
   loadingList: boolean = false;
   paymentType: any;
   paymentData: any;
+  // Whether a configuration is stored for this module, from the backend rather
+  // than inferred: it decides if the remove button is offered at all.
+  isConfigured: boolean = false;
+  deleting: boolean = false;
   editorConfig = {
     placeholder: '',
     tabsize: 2,
@@ -63,7 +68,8 @@ export class ConfigureComponent implements OnInit {
 
     if (paymenttype == 'moneyorder') {
       this.formData = moneyorder;
-      this.paymentType = "Money Order";
+      // the "moneyorder" module is how the store takes bank transfer / UPI
+      this.paymentType = "Bank transfer / UPI";
     } else if (paymenttype == 'paypal-express-checkout') {
       this.formData = paypalData;
       this.paymentType = "PayPal Express Checkout";
@@ -76,6 +82,9 @@ export class ConfigureComponent implements OnInit {
     } else if (paymenttype == 'paytm') {
       this.formData = paytmData;
       this.paymentType = "Paytm";
+    } else if (paymenttype == 'razorpay') {
+      this.formData = razorpayData;
+      this.paymentType = "Razorpay";
     }else if (paymenttype == 'braintree') {
       this.formData = braintreeData;
       this.paymentType = "Braintree";
@@ -89,6 +98,7 @@ export class ConfigureComponent implements OnInit {
       .subscribe(data => {
         this.loadingList = false;
         this.paymentData = data;
+        this.isConfigured = data != null && data.configured === true;
         if(data!=null && this.paymentData.length==0) {
 
         }
@@ -142,11 +152,37 @@ export class ConfigureComponent implements OnInit {
       body = { 'code': paymenttype, 'active': param.active, 'defaultSelected': param.defaultSelected, 'integrationKeys': { 'api': param.api, 'signature': param.signature, 'transaction': param.transaction, 'username': param.username }, 'integrationOptions': null }
     } else if (paymenttype == 'braintree') {
       body = { 'code': paymenttype, 'active': param.active, 'defaultSelected': param.defaultSelected, 'integrationKeys': { 'merchant_id': param.merchant_id, 'public_key': param.public_key, 'private_key': param.private_key, 'tokenization_key': param.tokenization_key, 'transaction': param.transaction }, 'integrationOptions': null }
+    } else if (paymenttype == 'razorpay') {
+      body = { 'code': paymenttype, 'active': param.active, 'defaultSelected': param.defaultSelected, 'integrationKeys': { 'key_id': param.key_id, 'key_secret': param.key_secret, 'webhook_secret': param.webhook_secret }, 'integrationOptions': null }
     } else if (paymenttype == 'beanstream') {
       body = { 'code': paymenttype, 'active': param.active, 'defaultSelected': param.defaultSelected, 'integrationKeys': { 'merchantid': param.merchantid, 'username': param.username, 'password': param.password, 'transaction': param.transaction }, 'integrationOptions': null }
     }
     this.savePayment(body);
   }
+  /**
+   * Deletes the stored configuration for this module, credentials included.
+   * Confirmed first: the key secret is not recoverable from here afterwards,
+   * it has to be fetched from the gateway dashboard again.
+   */
+  remove() {
+    let paymenttype = this.activatedRoute.snapshot.paramMap.get('id');
+    if (!confirm('Remove the stored configuration for ' + this.paymentType + '? '
+        + 'Saved keys will be deleted and have to be entered again.')) {
+      return;
+    }
+    this.deleting = true;
+    this.paymentService.deletePayment(paymenttype)
+      .subscribe(() => {
+        this.deleting = false;
+        this.isConfigured = false;
+        this.toastr.success('Payment configuration has been removed.');
+        this.goBack();
+      }, error => {
+        this.deleting = false;
+        this.toastr.error('Removing the payment configuration failed.');
+      });
+  }
+
   savePayment(param) {
     this.paymentService.savePayment(param)
       .subscribe(data => {

@@ -8,6 +8,14 @@
 
       <form class="form-inline filter_section">
         <div class="filter_left_section">
+          <button *ngIf="specialCategoryId" type="button" class="special-filter" [class.special-filter--on]="specialOnly"
+            (click)="toggleSpecialOnly()">
+            {{ specialOnly ? '★' : '☆' }} {{ 'PRODUCT.SPECIAL_ONLY' | translate }}
+          </button>
+          <button type="button" class="special-filter unlisted-filter" [class.unlisted-filter--on]="unlistedOnly"
+            (click)="toggleUnlistedOnly()">
+            {{ 'PRODUCT.UNLISTED_ONLY' | translate }}
+          </button>
         </div>
         <div class="filter_right_section">
           <ngx-store-autocomplete (onStore)="choseStore($event)"></ngx-store-autocomplete>

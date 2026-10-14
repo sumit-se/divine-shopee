@@ -1,0 +1,197 @@
+<div class="inner_pages variant_create_page">
+  <nb-card-header class="main_header">
+    <h1 class="page_title">{{ 'PRODUCT_VARIANTS.VARIANT' | translate}}</h1>
+
+    <div class="content_spacing">
+      <button type="button" nbButton class="cancel_button" (click)="goToback()">
+        {{ 'ORDER_FORM.CANCLE' | translate}}
+      </button>
+      <button type="button" nbButton class="success_button" [nbSpinner]="loading" nbSpinnerSize="large"
+        nbSpinnerStatus="control" (click)="save()">
+        {{ (!loading ? 'COMMON.SAVE' : '') | translate }}
+      </button>
+    </div>
+  </nb-card-header>
+
+  <div [nbSpinner]="loading" nbSpinnerSize="large" nbSpinnerStatus="primary"></div>
+
+  <form *ngIf="form" [formGroup]='form'>
+    <nb-card class="nb-card inline-form-card">
+      <nb-card-body class="nb-card-body">
+
+        <div class="form-group">
+          <label class="col-sm-10 col-form-label inputLabel">{{ 'PRODUCT_VARIANTS.SKU' | translate}} *</label>
+          <div class="col-sm-12">
+            <input type="text" class="form-control inputText" formControlName='sku'
+              placeholder="{{ 'PRODUCT_VARIANTS.SKU' | translate }}" required>
+            <span *ngIf="(sku.dirty || sku.touched) && sku.invalid" class="err-message">
+              {{ 'COMMON.VALUE_REQUIRED' | translate}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-10 col-form-label inputLabel">{{ 'PRODUCT_VARIANTS.VARIATION' | translate}} *</label>
+          <div class="col-sm-12">
+            <!-- only once the list has arrived: p-dropdown with an empty
+                 options array and filter enabled breaks the whole dialog. The
+                 message below covers the empty case. -->
+            <p-dropdown *ngIf="variations.length" [options]="variations"
+              placeholder="{{ 'PRODUCT_VARIANTS.SELECT_VARIATION' | translate }}" formControlName='variation'
+              filter="true">
+              <ng-template let-item pTemplate="selectedItem">{{item.label}}</ng-template>
+              <ng-template let-el pTemplate="item">{{el.label}}</ng-template>
+            </p-dropdown>
+            <span *ngIf="variationsLoaded && !variations.length" class="err-message">
+              {{ 'PRODUCT_VARIANTS.NO_VARIATIONS' | translate}}
+            </span>
+            <span *ngIf="(variation.dirty || variation.touched) && variation.invalid" class="err-message">
+              {{ 'COMMON.VALUE_REQUIRED' | translate}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <!-- a variant can stand for two option/value pairs, e.g. size AND colour -->
+          <label class="col-sm-10 col-form-label inputLabel">
+            {{ 'PRODUCT_VARIANTS.SECOND_VARIATION' | translate}}
+          </label>
+          <div class="col-sm-12">
+            <p-dropdown *ngIf="variations.length" [options]="variations"
+              placeholder="{{ 'PRODUCT_VARIANTS.SELECT_VARIATION' | translate }}" formControlName='variationValue'
+              filter="true" [showClear]="true">
+              <ng-template let-item pTemplate="selectedItem">{{item.label}}</ng-template>
+              <ng-template let-el pTemplate="item">{{el.label}}</ng-template>
+            </p-dropdown>
+          </div>
+        </div>
+
+        <!-- paired: two short fields per row keeps the dialog short enough to read -->
+        <div class="form-row">
+          <div class="form-group col-sm-6">
+            <label class="col-form-label inputLabel">{{ 'PRODUCT_VARIANTS.DATE_AVAILABLE' | translate}}</label>
+            <input class="form-control inputText" [nbDatepicker]="dateAvailablePicker" formControlName='dateAvailable'>
+            <nb-datepicker #dateAvailablePicker></nb-datepicker>
+          </div>
+          <div class="form-group col-sm-6">
+            <label class="col-form-label inputLabel">{{ 'COMMON.ORDER' | translate}}</label>
+            <input type="number" class="form-control inputText" formControlName='sortOrder' placeholder="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-sm-6 group-block">
+            <nb-checkbox formControlName='available'>{{ 'PRODUCT_VARIANTS.AVAILABLE' | translate}}</nb-checkbox>
+          </div>
+          <div class="form-group col-sm-6 group-block">
+            <nb-checkbox formControlName='defaultSelection'>
+              {{ 'PRODUCT_VARIANTS.DEFAULT' | translate}}
+            </nb-checkbox>
+          </div>
+        </div>
+
+      </nb-card-body>
+    </nb-card>
+
+    <!-- shipping dimensions; a blank field uses the product's value -->
+    <nb-card class="nb-card inline-form-card">
+      <nb-card-header class="nb-card-header">{{ 'PRODUCT_VARIANTS.DIMENSIONS' | translate}}</nb-card-header>
+      <nb-card-body class="nb-card-body">
+        <p class="dimensions-hint">{{ 'PRODUCT_VARIANTS.DIMENSIONS_HINT' | translate}}</p>
+        <div class="form-row">
+          <div class="form-group col-sm-6" *ngFor="let field of dimensionFields">
+            <label class="col-form-label inputLabel" [for]="'variant-' + field">{{ 'COMMON.' + field.toUpperCase() | translate}}</label>
+            <input type="number" min="0" step="any" class="form-control inputText" [id]="'variant-' + field"
+              [formControlName]="field" [placeholder]="productDimensionPlaceholder(field)">
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <!-- stock and price: these live on the variant's inventory record -->
+    <nb-card class="nb-card inline-form-card">
+      <nb-card-header class="nb-card-header">{{ 'PRODUCT_VARIANTS.STOCK_AND_PRICE' | translate}}</nb-card-header>
+      <nb-card-body class="nb-card-body">
+
+        <div class="form-row">
+          <div class="form-group col-sm-6">
+            <label class="col-form-label inputLabel">{{ 'PRODUCT_VARIANTS.PRICE' | translate}} *</label>
+            <input type="number" step="0.01" class="form-control inputText" formControlName='price' placeholder="0.00"
+              required>
+            <span *ngIf="(price.dirty || price.touched) && price.invalid" class="err-message">
+              {{ 'COMMON.VALUE_REQUIRED' | translate}}
+            </span>
+          </div>
+          <div class="form-group col-sm-6">
+            <label class="col-form-label inputLabel">{{ 'PRODUCT_VARIANTS.QUANTITY' | translate}}</label>
+            <input type="number" class="form-control inputText" formControlName='quantity' placeholder="0">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-10 col-form-label inputLabel">
+            {{ 'PRODUCT_VARIANTS.DISCOUNTED_PRICE' | translate}}
+          </label>
+          <div class="col-sm-12">
+            <input type="number" step="0.01" class="form-control inputText" formControlName='discountedPrice'
+              placeholder="0.00">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-sm-6">
+            <label class="col-form-label inputLabel">{{ 'PRODUCT_VARIANTS.DISCOUNT_FROM' | translate}}</label>
+            <input class="form-control inputText" [nbDatepicker]="discountStartPicker"
+              formControlName='discountStartDate'>
+            <nb-datepicker #discountStartPicker></nb-datepicker>
+          </div>
+          <div class="form-group col-sm-6">
+            <label class="col-form-label inputLabel">{{ 'PRODUCT_VARIANTS.DISCOUNT_TO' | translate}}</label>
+            <input class="form-control inputText" [nbDatepicker]="discountEndPicker" formControlName='discountEndDate'>
+            <nb-datepicker #discountEndPicker></nb-datepicker>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-sm-6">
+            <label class="col-form-label inputLabel">{{ 'PRODUCT_VARIANTS.MIN_ORDER' | translate}}</label>
+            <input type="number" class="form-control inputText" formControlName='quantityOrderMin' placeholder="1">
+          </div>
+          <div class="form-group col-sm-6">
+            <label class="col-form-label inputLabel">{{ 'PRODUCT_VARIANTS.MAX_ORDER' | translate}}</label>
+            <input type="number" class="form-control inputText" formControlName='quantityOrderMax' placeholder="1">
+          </div>
+        </div>
+
+      </nb-card-body>
+    </nb-card>
+
+    <!-- the variant's own images, saved as soon as they are picked -->
+    <nb-card class="nb-card inline-form-card">
+      <nb-card-header class="nb-card-header">{{ 'PRODUCT_VARIANTS.IMAGES' | translate}}</nb-card-header>
+      <nb-card-body class="nb-card-body" [nbSpinner]="uploadingImages" nbSpinnerStatus="primary">
+        <p class="dimensions-hint" *ngIf="!variantId">{{ 'PRODUCT_VARIANTS.IMAGES_SAVE_FIRST' | translate}}</p>
+        <ng-container *ngIf="variantId">
+          <p class="dimensions-hint">{{ 'PRODUCT_VARIANTS.IMAGES_HINT' | translate}}</p>
+          <div class="variant-images">
+            <div class="variant-image" *ngFor="let image of images" [class.main]="image.defaultImage">
+              <img [src]="image.imageUrl" alt="">
+              <span class="main-badge" *ngIf="image.defaultImage">{{ 'PRODUCT_VARIANTS.MAIN_IMAGE' | translate}}</span>
+              <div class="image-actions">
+                <button type="button" nbButton size="tiny" status="basic" *ngIf="!image.defaultImage"
+                  (click)="makeMainImage(image)">{{ 'PRODUCT_VARIANTS.MAKE_MAIN' | translate}}</button>
+                <button type="button" nbButton size="tiny" status="danger" (click)="removeImage(image)"
+                  [attr.aria-label]="'PRODUCT_VARIANTS.REMOVE_IMAGE' | translate"><i class="nb-trash"></i></button>
+              </div>
+            </div>
+            <label class="variant-image add-image" [class.disabled]="uploadingImages">
+              <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple
+                (change)="onImagesSelected($event)" [disabled]="uploadingImages">
+              <span>+ {{ 'PRODUCT_VARIANTS.ADD_IMAGES' | translate}}</span>
+            </label>
+          </div>
+        </ng-container>
+      </nb-card-body>
+    </nb-card>
+  </form>
+</div>

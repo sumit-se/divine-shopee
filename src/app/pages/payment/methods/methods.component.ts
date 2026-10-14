@@ -14,6 +14,9 @@ import { error } from '@angular/compiler/src/util';
 export class PaymentMethodsComponent implements OnInit {
   loadingList = false;
   paymentData: Array<any> = [];
+  // A failed list call used to leave the grid empty and silent, which looks
+  // exactly like a store with no payment modules. Hold the reason instead.
+  loadError: string = null;
   constructor(
     private paymentService: PaymentService,
     private router: Router,
@@ -31,11 +34,17 @@ export class PaymentMethodsComponent implements OnInit {
     this.loadingList = true;
     this.paymentService.getPaymentModules()
       .subscribe(data => {
-        console.log(data);
         this.loadingList = false;
+        this.loadError = null;
         this.paymentData = data;
       }, error => {
         this.loadingList = false;
+        this.paymentData = [];
+        this.loadError = error && error.status === 0
+          ? 'Could not reach the server. Is the backend running?'
+          : 'Could not load the payment modules (server returned '
+            + ((error && error.status) || 'an error')
+            + '). Check the backend log.';
       });
   }
   onClickConfigure(value) {

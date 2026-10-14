@@ -28,6 +28,16 @@
                   <nb-checkbox formControlName='visible'>
                     {{ 'COMMON.VISIBLE' | translate}}
                   </nb-checkbox>
+                  <!--
+                    The category's `featured` flag. Shopizer has always carried
+                    it and the API has always read and saved it; it simply had
+                    no control here. The storefront reads it as "show this in
+                    the Shop by Category strip", and the Sort Order field below
+                    sets the order they appear in.
+                  -->
+                  <nb-checkbox formControlName='featured'>
+                    {{ 'COMMON.SHOP_BY_CATEGORY' | translate}}
+                  </nb-checkbox>
                 </div>
               </div>
             </div>

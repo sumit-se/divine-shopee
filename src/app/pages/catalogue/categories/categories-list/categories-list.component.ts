@@ -27,7 +27,15 @@ export class CategoriesListComponent implements OnInit {
   settings = {};
 
   // paginator
-  perPage = 25;
+  //
+  // The category list is a tree flattened into rows, but /v1/category pages
+  // over the flat list and then re-nests it, dropping every child whose parent
+  // landed on another page (CategoryFacadeImpl keeps a child only when
+  // readableCategoryMap holds its parent). At 25 per page that hid five
+  // sub-categories of Rudraksha outright -- 1 Mukhi among them -- as they sat
+  // on page 2 while their parent sat on page 1, so they appeared on neither.
+  // Asking for the whole tree in one page keeps parents and children together.
+  perPage = 200;
   currentPage = 1; //start base
   totalCount;
   roles;

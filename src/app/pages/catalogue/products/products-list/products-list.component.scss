@@ -130,3 +130,70 @@ tbody {
   overflow-x: hidden;
   /* Hide the horizontal scroll */
 }
+// hand-picked "Special" products, and products unlisted from the site
+.special-filter {
+  padding: 5px 14px;
+  border-radius: 16px;
+  border: 1px solid #d4a15a;
+  background: #fff;
+  color: #9a6a2f;
+  font-weight: 600;
+  cursor: pointer;
+
+  &.special-filter--on {
+    background: #e8751a;
+    border-color: #e8751a;
+    color: #fff;
+  }
+}
+
+.unlisted-filter {
+  margin-left: 8px;
+  border-color: #b0b0b0;
+  color: #616161;
+
+  &.unlisted-filter--on {
+    background: #616161;
+    border-color: #616161;
+    color: #fff;
+  }
+}
+
+:host ::ng-deep {
+  ng2-smart-table tr.unlisted-row td {
+    background: #f4f4f4;
+    color: #8a8a8a;
+  }
+  .unlisted-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: #9e9e9e;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  ng2-smart-table tr.special-row td {
+    background: #fff8ef;
+  }
+  ng2-smart-table tr.special-row td:first-child {
+    box-shadow: inset 3px 0 0 #e8751a;
+  }
+  .special-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: #e8751a;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+}

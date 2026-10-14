@@ -7,6 +7,9 @@ import { LocalDataSource } from 'ng2-smart-table';
 import { Router } from '@angular/router';
 // import { MalihuScrollbarService } from 'ngx-malihu-scrollbar';
 import { TranslateService } from '@ngx-translate/core';
+import { NbDialogService } from '@nebular/theme';
+import { ToastrService } from 'ngx-toastr';
+import { OrderDeleteDialogComponent } from '../order-delete-dialog/order-delete-dialog.component';
 import { error } from '@angular/compiler/src/util';
 @Component({
   selector: 'ngx-order-list',
@@ -38,6 +41,8 @@ export class OrderListComponent implements OnInit {
     private translate: TranslateService,
     private storageService: StorageService,
     private storeService: StoreService,
+    private dialogService: NbDialogService,
+    private toastr: ToastrService,
   ) {
     this.isSuperAdmin = this.storageService.getUserRoles().isSuperadmin;
     this.getStoreList();
@@ -99,7 +104,10 @@ export class OrderListComponent implements OnInit {
     };
   }
   getOrderList() {
-    this.params.page = this.currentPage;
+    // the paginator counts pages from 1, the API from 0: sending currentPage
+    // straight through asked for the second page and the list came back empty,
+    // so no order was ever shown
+    this.params.page = this.currentPage - 1;
 
     this.loadingList = true;
     this.ordersService.getOrders(this.params)
@@ -133,6 +141,10 @@ export class OrderListComponent implements OnInit {
           {
             name: 'view',
             title: '<i class="nb-edit"></i>'
+          },
+          {
+            name: 'remove',
+            title: '<i class="nb-trash"></i>'
           }
         ],
       },
@@ -251,13 +263,46 @@ export class OrderListComponent implements OnInit {
   }
 
   onSelectStore(e) {
-    this.params["store"] = e.value;
+    /*
+     * p-autoComplete hands back the suggestion itself, and the suggestions here
+     * are plain store codes. Reading `.value` off a string gave undefined, so
+     * the request went out as store=undefined, the API answered 404 "MerchantStore
+     * is not found", and the error branch emptied the table -- picking a store
+     * made every order disappear. The object form is still honoured in case a
+     * caller emits one.
+     */
+    this.params["store"] = (e && e.value) ? e.value : e;
+    // a different store has its own pages; staying on page 4 would look empty
+    this.currentPage = 1;
     this.getOrderList();
   }
 
   route(e) {
+    if (e.action === 'remove') {
+      this.deleteOrder(e.data);
+      return;
+    }
     localStorage.setItem('orderID', e.data.id);
     this.router.navigate(['pages/orders/order-details']);
+  }
+
+  deleteOrder(order) {
+    this.dialogService.open(OrderDeleteDialogComponent, {
+      context: { orderId: order.id, status: order.orderStatus }
+    }).onClose.subscribe(res => {
+      if (!res) {
+        return;
+      }
+      this.loadingList = true;
+      this.ordersService.deleteOrder(order.id, { store: this.params.store, restock: res.restock })
+        .subscribe(() => {
+          this.toastr.success(this.translate.instant('ORDER.DELETED'));
+          this.getOrderList();
+        }, () => {
+          this.loadingList = false;
+          this.toastr.error(this.translate.instant('ORDER.DELETE_FAILED'));
+        });
+    });
   }
 
 }

@@ -9,7 +9,9 @@ import { InventoryService } from '../../services/inventory.service';
   styleUrls: ['./inventory-details.component.scss']
 })
 export class InventoryDetailsComponent implements OnInit {
-  inventory = {};
+  // `any`, not an inferred {}: the template reads inventory.id, and the
+  // production build type-checks templates where the dev build does not
+  inventory: any = {};
 
   constructor(
     private activatedRoute: ActivatedRoute,

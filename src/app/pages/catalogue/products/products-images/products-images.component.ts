@@ -28,6 +28,7 @@ export class ProductsImagesComponent implements OnInit {
 
   // loading = true;
   addImageUrlComponent = '';//add image url to be used by uploader
+  videoUrl = '';
 
   constructor(
 
@@ -79,10 +80,18 @@ export class ProductsImagesComponent implements OnInit {
   }
   updateImage(event) {
     this.loading = true;
-    this.productImageService.updateImage(this.id, event).subscribe(res => {
+    // a drop sends the whole sequence; the single-image form is kept for any
+    // other caller
+    const save = event && event.images
+      ? this.productImageService.updateImageOrder(this.id, event.images)
+      : this.productImageService.updateImage(this.id, event);
+    save.subscribe(res => {
       this.load();
+      if (event && event.images) {
+        this.toastr.success(this.translate.instant('PRODUCT.PRODUCT_UPDATED'));
+      }
     }, error => {
-      this.toastr.error(error.error.message);
+      this.toastr.error(error && error.error ? error.error.message : error);
       this.loading = false;
     });
 
@@ -103,5 +112,24 @@ export class ProductsImagesComponent implements OnInit {
 
 
   /** end image component */
+
+  addVideo() {
+    const url = (this.videoUrl || '').trim();
+    if (!url) {
+      return;
+    }
+    this.loading = true;
+    this.productImageService.addVideo(this.id, url)
+      .subscribe(() => {
+        this.videoUrl = '';
+        this.load();
+        this.toastr.success(this.translate.instant('PRODUCT.VIDEO_ADDED'));
+      }, error => {
+        this.loading = false;
+        this.toastr.error(error && error.error && error.error.message
+          ? error.error.message
+          : this.translate.instant('COMMON.SOMETHING_WRONG'));
+      });
+  }
 
 }

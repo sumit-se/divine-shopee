@@ -1,12 +1,8 @@
-<!-- <ngx-back-button></ngx-back-button>
-<nb-card size="small" class="page-card">
-  <nb-card-header>
-    {{ 'COMPONENTS.INVENTORY' | translate}}
-  </nb-card-header>
-  <nb-card-body> -->
 <div>
-  <ngx-inventory-form [inventory]="inventory" _title="COMPONENTS.INVENTORY"></ngx-inventory-form>
+  <!--
+    Held back until the record has arrived: the form reads it once, on init, so
+    rendering it against the empty placeholder left every field blank.
+  -->
+  <ngx-inventory-form *ngIf="inventory && inventory.id" [inventory]="inventory" _title="COMPONENTS.INVENTORY">
+  </ngx-inventory-form>
 </div>
-
-<!-- </nb-card-body>
-</nb-card> -->

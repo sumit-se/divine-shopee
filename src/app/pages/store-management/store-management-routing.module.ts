@@ -14,6 +14,7 @@ import { StoreLandingPageComponent } from './store-landing-page/store-landing-pa
 import { StoreDetailInfoComponent } from './store-detail-info/store-detail-info.component';
 import { StoreBrandingComponent } from './store-branding/store-branding.component';
 import { RetailerStoresComponent } from './retailer-stores/retailer-stores.component';
+import { StoreEmailComponent } from './store-email/store-email.component';
 
 const routes: Routes = [
   {
@@ -46,6 +47,11 @@ const routes: Routes = [
       {
         path: 'store-branding/:code',
         component: StoreBrandingComponent,
+        canActivate: [SuperuserAdminRetailStoreGuard]
+      },
+      {
+        path: 'email-configuration',
+        component: StoreEmailComponent,
         canActivate: [SuperuserAdminRetailStoreGuard]
       },
       {
