@@ -220,11 +220,11 @@ ng2-st-tbody-custom {
 
           &.active {
             span {
-              background-color: #f79828;
+              background-color: #7f0000;
               padding: 12px 16px 10px 16px;
 
               &:hover {
-                background-color: #f79828;
+                background-color: #7f0000;
               }
             }
           }
@@ -277,21 +277,21 @@ ng2-st-tbody-custom {
 
         &::placeholder {
           /* Chrome, Firefox, Opera, Safari 10.1+ */
-          color: #f79827;
-          opacity: 1;
+          color: #7f0000;
+          opacity: 0.6;
           font-size: 16px !important;
           /* Firefox */
         }
 
         &:-ms-input-placeholder {
           /* Internet Explorer 10-11 */
-          color: #f79827;
+          color: #7f0000;
           font-size: 16px !important;
         }
 
         &::-ms-input-placeholder {
           /* Microsoft Edge */
-          color: #f79827;
+          color: #7f0000;
           font-size: 16px !important;
         }
       }
@@ -305,7 +305,7 @@ ng2-st-tbody-custom {
       border-radius: 5px !important;
       min-width: 150px;
       padding: 12px 20px 12px 20px !important;
-      background-color: #f79827 !important;
+      background-color: #7f0000 !important;
       cursor: pointer !important;
     }
   }
@@ -822,7 +822,7 @@ ng2-st-tbody-custom {
 
 .nb-theme-corporate nb-card.select.primary nb-option.selected,
 .nb-theme-corporate nb-card.select.primary nb-option:hover {
-  background-color: #0088cc;
+  background-color: #7f0000;
 }
 
 /** category hierarchy **/
@@ -980,8 +980,8 @@ ng2-st-tbody-custom {
 
     .content_spacing {
       .success_button {
-        background-color: #36f;
-        border-color: #36f;
+        background-color: #7f0000;
+        border-color: #7f0000;
         color: #fff;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
         text-transform: uppercase;
@@ -989,17 +989,17 @@ ng2-st-tbody-custom {
         font-size: 0.875rem;
 
         &:disabled {
-          background-color: #598bff96;
+          background-color: #b3000096;
 
           &:hover {
-            background-color: #598bff96;
-            border-color: #598bff96;
+            background-color: #b3000096;
+            border-color: #b3000096;
           }
         }
 
         &:hover {
-          background-color: #598bff;
-          border-color: #598bff;
+          background-color: #a00000;
+          border-color: #a00000;
           box-shadow: 0px 7px 15px rgba(165, 162, 162, 0.25), 1px 3px 8px rgba(165, 162, 162, 0.25);
         }
       }
