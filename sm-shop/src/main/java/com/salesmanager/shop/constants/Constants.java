@@ -66,6 +66,8 @@ public class Constants {
 	public final static String PRODUCTS_URI= "/products";
 	public final static String SMALL_IMAGE= "SMALL";
 	public final static String LARGE_IMAGE= "LARGE";
+	/** grid-size copy of a product image; see ReadableImage.thumbnailUrl */
+	public final static String THUMB_IMAGE= "THUMB";
 	public final static String CATEGORY_URI = "/category";
 	public final static String PRODUCT_ID_URI= "/productid";
 	public final static String ORDER_DOWNLOAD_URI= "/order/download";

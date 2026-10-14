@@ -12,12 +12,22 @@ public class IntegrationModuleConfiguration extends IntegrationModuleEntity {
 	 */
 	private static final long serialVersionUID = 1L;
 	private boolean defaultSelected;
+	/** True when a configuration is stored for this store, as opposed to the
+	 *  empty shell returned for a module nobody has configured yet. Lets the
+	 *  administration tool offer delete only when there is something to delete. */
+	private boolean configured;
 	private Map<String, String> integrationKeys = new HashMap<String,String>();
 	private Map<String, List<String>> integrationOptions = new HashMap<String, List<String>>();
 	private List<String> requiredKeys = new ArrayList<String>();
 	private String configurable = null;
 	
 	
+	public boolean isConfigured() {
+		return configured;
+	}
+	public void setConfigured(boolean configured) {
+		this.configured = configured;
+	}
 	public boolean isDefaultSelected() {
 		return defaultSelected;
 	}

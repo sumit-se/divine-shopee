@@ -144,6 +144,16 @@
 					-->
 					<beans:value>file:#{systemProperties['user.home']}/.divineshopee/email.properties</beans:value>
 					<beans:value>classpath:profiles/local/shopizer-core.properties</beans:value>
+					<!--
+						The master encryption key, kept out of the source tree for the same
+						reason as the mail account above. It comes last of the two so it
+						overrides the secretKey in shopizer-core.properties, which is the
+						stock Shopizer value and therefore public. Optional: without the
+						file a checkout still boots on that development placeholder.
+						What the key protects, and how to rotate it, is documented in the
+						file itself and in migration/sql/rotate-secret-key.sh.
+					-->
+					<beans:value>file:#{systemProperties['user.home']}/.divineshopee/secrets.properties</beans:value>
 					<beans:value>classpath:authentication.properties</beans:value>
 				</beans:list>
 			</beans:property>

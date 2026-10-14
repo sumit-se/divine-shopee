@@ -609,6 +609,25 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			countBuilderSelect.append(" INNER JOIN p.manufacturer manuf");
 			countBuilderWhere.append(" and manuf.id = :manufid");
 		}
+
+		// Price band, for the storefront facet. Joining availabilities and
+		// prices multiplies the rows -- a bead priced at three weights matches
+		// three times -- which is why this is safe only because both queries
+		// built from these two builders are distinct on the product: the count
+		// is count(distinct p) and the id query selects distinct p.id.
+		//
+		// Lower bound inclusive, upper exclusive, so a product on a boundary is
+		// claimed by one band rather than two.
+		if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
+			countBuilderSelect.append(" INNER JOIN p.availabilities pavail");
+			countBuilderSelect.append(" INNER JOIN pavail.prices pprice");
+			if (criteria.getMinPrice() != null) {
+				countBuilderWhere.append(" and pprice.productPriceAmount >= :minPrice");
+			}
+			if (criteria.getMaxPrice() != null) {
+				countBuilderWhere.append(" and pprice.productPriceAmount < :maxPrice");
+			}
+		}
 		
 		// todo type
 
@@ -686,6 +705,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		// (admin filtering by category failed with "Named parameter not bound : cid")
 		if (!CollectionUtils.isEmpty(criteria.getCategoryIds())) {
 			countQ.setParameter("cid", criteria.getCategoryIds());
+		}
+
+		// bound on countQ only: the id query below is built from the same two
+		// builders and copies every parameter off this query
+		if (criteria.getMinPrice() != null) {
+			countQ.setParameter("minPrice", criteria.getMinPrice());
+		}
+		if (criteria.getMaxPrice() != null) {
+			countQ.setParameter("maxPrice", criteria.getMaxPrice());
 		}
 		
 		/**/

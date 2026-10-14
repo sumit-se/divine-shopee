@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.salesmanager.core.business.services.shipping.CodRestrictedPostalCodeService;
+import com.salesmanager.core.business.utils.CodConvenienceFee;
 import com.salesmanager.core.business.utils.SpecialProducts;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -101,7 +102,17 @@ public class CODPayment implements PaymentModule {
 		if (maximumAmount == null || maximumAmount.compareTo(BigDecimal.ZERO) <= 0) {
 			return;
 		}
-		if (amount != null && amount.compareTo(maximumAmount) >= 0) {
+		/*
+		 * The ceiling the store sets is an order value, but what arrives here is
+		 * the amount payable, which already has the convenience fee in it. Left
+		 * compared directly, an order just under the ceiling would be refused
+		 * for a fee it was only charged because cash on delivery was allowed --
+		 * a 1900 order paying a 190 fee would read as 2090 and be turned away.
+		 * So the ceiling is converted to a payable figure and the two are
+		 * compared on the same footing.
+		 */
+		BigDecimal ceiling = CodConvenienceFee.payableCeiling(maximumAmount);
+		if (amount != null && amount.compareTo(ceiling) >= 0) {
 			/*
 			 * The single-argument constructors of this exception hand their string
 			 * to ServiceException(String messageCode), which files it as a code and

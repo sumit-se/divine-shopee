@@ -24,6 +24,14 @@ public class OrderSummary implements Serializable {
 	private OrderSummaryType orderSummaryType = OrderSummaryType.ORDERTOTAL;
 	private ShippingSummary shippingSummary;
 	private String promoCode;
+	/*
+	 * Which way the shopper has chosen to pay, when they have chosen yet. It
+	 * belongs here for the same reason promoCode does: it is a checkout-time
+	 * input that changes the total, and the calculation is the one place that
+	 * should decide what it changes it by. Cash on delivery carries a
+	 * convenience fee; everything else leaves the total alone.
+	 */
+	private String paymentMethodCode;
 	private List<ShoppingCartItem> products = new ArrayList<ShoppingCartItem>();
 
 	public void setProducts(List<ShoppingCartItem> products) {
@@ -44,6 +52,14 @@ public class OrderSummary implements Serializable {
 	public void setOrderSummaryType(OrderSummaryType orderSummaryType) {
 		this.orderSummaryType = orderSummaryType;
 	}
+	public String getPaymentMethodCode() {
+		return paymentMethodCode;
+	}
+
+	public void setPaymentMethodCode(String paymentMethodCode) {
+		this.paymentMethodCode = paymentMethodCode;
+	}
+
 	public String getPromoCode() {
 		return promoCode;
 	}

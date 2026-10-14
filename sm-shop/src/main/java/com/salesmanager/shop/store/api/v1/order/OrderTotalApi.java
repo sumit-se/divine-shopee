@@ -173,6 +173,13 @@ public class OrderTotalApi {
   public ReadableOrderTotalSummary calculateTotal(
       @PathVariable final String code,
       @RequestParam(value = "quote", required = false) Long quote,
+      /*
+       * Optional, and only cash on delivery changes anything: it carries a
+       * convenience fee, so a total quoted for it differs from the same cart
+       * paid for online. Left out, the quote is the pre-fee order value, which
+       * is what the storefront measures the cash-on-delivery ceiling against.
+       */
+      @RequestParam(value = "paymentMethod", required = false) String paymentMethod,
       @ApiIgnore MerchantStore merchantStore,
       @ApiIgnore Language language,//possible postal code, province and country
       HttpServletResponse response) {
@@ -201,6 +208,7 @@ public class OrderTotalApi {
       List<ShoppingCartItem> itemsSet =
           new ArrayList<ShoppingCartItem>(shoppingCart.getLineItems());
       orderSummary.setProducts(itemsSet);
+      orderSummary.setPaymentMethodCode(paymentMethod);
 
       orderTotalSummary = orderService.caculateOrderTotal(orderSummary, merchantStore, language);
 

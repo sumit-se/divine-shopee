@@ -30,6 +30,18 @@ import com.salesmanager.core.business.services.catalog.product.variant.ProductVa
 import com.salesmanager.core.model.catalog.product.variant.ProductVariant;
 import com.salesmanager.core.model.catalog.product.variant.ProductVariantGroup;
 import com.salesmanager.core.model.catalog.product.variant.ProductVariantImage;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+import com.salesmanager.core.business.utils.ProductImageSizeUtils;
 import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.content.InputContentFile;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -104,10 +116,12 @@ public class ProductVariantImageApi {
 
 		try {
 			InputContentFile content = new InputContentFile();
-			// files are keyed by store and type only, so the name alone has to be unique
-			content.setFileName("variant-" + variantId + "-" + System.currentTimeMillis() + "." + extension);
-			content.setMimeType(file.getContentType());
-			content.setFile(file.getInputStream());
+			// files are keyed by store and type only, so the name alone has to be unique.
+			// Always .jpg: the name is ours to choose and everything that comes out of
+			// scaleForWeb is a JPEG.
+			content.setFileName("variant-" + variantId + "-" + System.currentTimeMillis() + ".jpg");
+			content.setMimeType(MediaType.IMAGE_JPEG_VALUE);
+			content.setFile(new ByteArrayInputStream(scaleForWeb(file)));
 			content.setFileContentType(FileContentType.VARIANT);
 			productVariantGroupService.addVariantImage(variant, content, merchantStore);
 		} catch (Exception e) {
@@ -187,4 +201,61 @@ public class ProductVariantImageApi {
 				}).collect(Collectors.toList());
 	}
 
+
+	/**
+	 * The longest edge a stored bead photo is allowed. These arrive straight off
+	 * a camera or a scanner -- 3900px and 2.5MB is typical -- and every one of
+	 * them is downloaded in full by any shopper who opens the product, because
+	 * the shop has no smaller copy of a variant image to fall back on. 1600
+	 * keeps a lab report's small print readable in the full-screen viewer, which
+	 * is the most demanding thing these are used for.
+	 */
+	private static final int VARIANT_MAX_EDGE = 1600;
+
+	/** JPEG quality for the stored copy; 0.85 is visually clean on photographs. */
+	private static final float VARIANT_JPEG_QUALITY = 0.85f;
+
+	/**
+	 * The uploaded image, scaled to {@link #VARIANT_MAX_EDGE} if it is larger and
+	 * encoded as JPEG.
+	 *
+	 * Product images already get this treatment -- Shopizer resizes them on the
+	 * way in and keeps the original beside them -- but variant images are filed
+	 * as plain content, which stores whatever it is handed. That is why a bead
+	 * photo was costing a page several megabytes while the product photo beside
+	 * it cost a hundred kilobytes.
+	 */
+	private byte[] scaleForWeb(MultipartFile file) throws IOException {
+		byte[] original = file.getBytes();
+		BufferedImage source = ImageIO.read(new ByteArrayInputStream(original));
+		if (source == null) {
+			// not something ImageIO can decode: store it untouched rather than lose it
+			return original;
+		}
+		BufferedImage scaled = source;
+		if (source.getWidth() > VARIANT_MAX_EDGE || source.getHeight() > VARIANT_MAX_EDGE) {
+			scaled = ProductImageSizeUtils.resizeWithRatio(source, VARIANT_MAX_EDGE, VARIANT_MAX_EDGE);
+		}
+		// JPEG has no alpha; anything with transparency is flattened onto white
+		// first, or the transparent areas come out black
+		BufferedImage opaque = new BufferedImage(scaled.getWidth(), scaled.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = opaque.createGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, opaque.getWidth(), opaque.getHeight());
+		g.drawImage(scaled, 0, 0, null);
+		g.dispose();
+
+		ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
+		ImageWriteParam params = writer.getDefaultWriteParam();
+		params.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		params.setCompressionQuality(VARIANT_JPEG_QUALITY);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try (ImageOutputStream ios = ImageIO.createImageOutputStream(out)) {
+			writer.setOutput(ios);
+			writer.write(null, new IIOImage(opaque, null, null), params);
+		} finally {
+			writer.dispose();
+		}
+		return out.toByteArray();
+	}
 }

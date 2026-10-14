@@ -495,4 +495,78 @@ public class EmailTemplatesUtils {
 		
 	}
 
+
+	/**
+	 * Tells the store owner that money was taken for an order that does not
+	 * exist, so somebody can finish it or refund it.
+	 *
+	 * This is the whole point of the Razorpay webhook. A shopper can pay and
+	 * then lose the browser before the success callback reaches us, and the
+	 * order is only created by that callback -- so the payment sits at the
+	 * gateway with nothing on this side pointing at it. Nobody would find out
+	 * until the Razorpay dashboard and the order list were compared by hand.
+	 *
+	 * Sent to the store's own address, not a shopper's, and it carries no
+	 * customer details because at this point we have none: the gateway
+	 * reference is all there is to go on.
+	 *
+	 * @param merchantStore store the payment belongs to
+	 * @param paymentId Razorpay payment id, e.g. pay_XXXX
+	 * @param razorpayOrderId Razorpay order id the payment was made against
+	 * @param amountText the amount as the gateway reported it
+	 * @param contextPath for the logo in the template
+	 */
+	@Async
+	public void sendOrphanedPaymentEmail(MerchantStore merchantStore, String paymentId,
+			String razorpayOrderId, String amountText, String contextPath) {
+		LOGGER.debug("Sending orphaned payment notification");
+		try {
+			Locale storeLocale = LocaleUtils.getLocale(merchantStore);
+
+			Map<String, String> templateTokens =
+					emailUtils.createEmailObjectsMap(contextPath, merchantStore, messages, storeLocale);
+
+			templateTokens.put(EmailConstants.LABEL_HI, messages.getMessage("label.generic.hi", storeLocale));
+			templateTokens.put(EmailConstants.EMAIL_CUSTOMER_FIRSTNAME, merchantStore.getStorename());
+			templateTokens.put(EmailConstants.EMAIL_CUSTOMER_LASTNAME, "");
+
+			/*
+			 * Written out rather than taken from a message bundle: this goes to
+			 * the store owner, has to say exactly what to do, and there is no
+			 * shopper-facing wording to keep in step with.
+			 */
+			StringBuilder message = new StringBuilder()
+				.append("A Razorpay payment was captured but no order was created for it.")
+				.append(LINE_BREAK).append(LINE_BREAK)
+				.append("Amount: ").append(amountText).append(LINE_BREAK)
+				.append("Razorpay payment id: ").append(paymentId).append(LINE_BREAK)
+				.append("Razorpay order id: ").append(razorpayOrderId).append(LINE_BREAK)
+				.append(LINE_BREAK)
+				.append("The shopper most likely closed the window after paying. ")
+				.append("Open this payment in the Razorpay dashboard and either refund it, ")
+				.append("or contact the shopper and place the order manually.")
+				.append(LINE_BREAK).append(LINE_BREAK)
+				.append("No customer details are available here: the order was never submitted, ")
+				.append("so the payment is the only record. The Razorpay dashboard shows the ")
+				.append("contact details the shopper gave it.");
+
+			templateTokens.put(EmailConstants.EMAIL_NOTIFICATION_MESSAGE, message.toString());
+
+			Email email = new Email();
+			email.setFrom(merchantStore.getStorename());
+			email.setFromEmail(merchantStore.getStoreEmailAddress());
+			email.setSubject("Payment received with no order (" + paymentId + ")");
+			email.setTo(merchantStore.getStoreEmailAddress());
+			email.setTemplateName(EmailConstants.EMAIL_NOTIFICATION_TMPL);
+			email.setTemplateTokens(templateTokens);
+
+			emailService.sendHtmlEmail(merchantStore, email);
+
+		} catch (Exception e) {
+			// The webhook still acknowledges: a failed email must not make
+			// Razorpay retry, and the ERROR log already records the payment.
+			LOGGER.error("Could not send the orphaned payment notification for " + paymentId, e);
+		}
+	}
+
 }

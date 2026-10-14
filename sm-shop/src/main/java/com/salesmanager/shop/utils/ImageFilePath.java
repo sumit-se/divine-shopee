@@ -63,6 +63,11 @@ public interface ImageFilePath {
 	 * @return
 	 */
 	public String buildProductImageUtils(MerchantStore store, String sku, String imageName);
+
+	/**
+	 * The same image at grid size -- see ReadableImage.thumbnailUrl.
+	 */
+	public String buildProductThumbnailUtils(MerchantStore store, String sku, String imageName);
 	
 	/**
 	 * Builds a large product image file path that can be used by the image servlet

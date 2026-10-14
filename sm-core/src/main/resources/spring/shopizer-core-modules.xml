@@ -53,6 +53,9 @@
 		<beans:entry key="stripe" value-ref="stripe" />
 		<beans:entry key="stripe3" value-ref="stripe3" />
 		<beans:entry key="braintree" value-ref="braintree" />
+		<!-- Razorpay: the store's Indian gateway. Credentials only so far;
+		     the Orders API calls are still to be written. -->
+		<beans:entry key="razorpay" value-ref="razorpay" />
 	</util:map>
 
 	<!-- Shipping -->
@@ -93,6 +96,8 @@
 		class="com.salesmanager.core.business.modules.integration.payment.impl.Stripe3Payment" />
 	<beans:bean id="braintree"
 		class="com.salesmanager.core.business.modules.integration.payment.impl.BraintreePayment" />
+	<beans:bean id="razorpay"
+		class="com.salesmanager.core.business.modules.integration.payment.impl.RazorpayPayment" />
 
 
 

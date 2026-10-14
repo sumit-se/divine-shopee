@@ -240,6 +240,18 @@ public class OrderFacadeImpl implements OrderFacade {
 			ShopOrder o = (ShopOrder) order;
 			summary.setProducts(o.getShoppingCartItems());
 
+			/*
+			 * How the shopper is paying, because cash on delivery adds a
+			 * convenience fee to the total. This is the path the order itself is
+			 * priced through, so taking it from the submitted order is what
+			 * makes the stored total match the one that was quoted -- leaving it
+			 * out would store an order for the pre-fee amount and the store
+			 * would never collect the fee.
+			 */
+			if (o.getPaymentType() != null) {
+				summary.setPaymentMethodCode(o.getPaymentType().name());
+			}
+
 			if (o.getShippingSummary() != null) {
 				summary.setShippingSummary(o.getShippingSummary());
 			}
@@ -1295,6 +1307,18 @@ public class OrderFacadeImpl implements OrderFacade {
 			List<ShoppingCartItem> itemsSet = new ArrayList<ShoppingCartItem>(cart.getLineItems());
 			orderSummary.setProducts(itemsSet);
 
+			/*
+			 * Cash on delivery adds a convenience fee, so the recalculation has
+			 * to know how the order is being paid for. The check below refuses
+			 * the order when the recalculated total differs from the amount
+			 * submitted by so much as a paisa, so without this a shopper paying
+			 * at the door would be quoted the fee, submit that amount, and have
+			 * the order bounced for not matching a total computed without it.
+			 */
+			if (order.getPayment() != null) {
+				orderSummary.setPaymentMethodCode(order.getPayment().getPaymentType());
+			}
+
 			orderTotalSummary = orderService.caculateOrderTotal(orderSummary, customer, store, language);
 
 			if (order.getPayment().getAmount() == null) {
@@ -1475,7 +1499,13 @@ public class OrderFacadeImpl implements OrderFacade {
 		readable.setDate(DateUtil.formatLongDate(source.getDateAdded()));
 		readable.setId(source.getId());
 		readable.setOrderId(source.getOrder().getId());
-		readable.setOrderStatus(source.getStatus().name());
+		/*
+		 * A history entry can be a note rather than a status change -- the admin
+		 * allows a comment with no status selected -- and those rows carry a null
+		 * status. Dereferencing it here took down the whole listing with a 500,
+		 * so one such note made an order's history unreadable.
+		 */
+		readable.setOrderStatus(source.getStatus() != null ? source.getStatus().name() : null);
 
 		return readable;
 	}
@@ -1500,12 +1530,86 @@ public class OrderFacadeImpl implements OrderFacade {
 			history.setOrder(order);
 			history.setStatus(status.getStatus());
 
+			/*
+			 * Move the order itself, not just its log.
+			 *
+			 * This used to add the history row and stop there, so the admin's
+			 * status control appeared to do nothing: ORDER_STATUS stayed as it
+			 * was while ORDER_STATUS_HISTORY filled up with the changes that
+			 * never happened. The save below carries it -- addOrderStatusHistory
+			 * ends in update(order) -- so setting it here is enough.
+			 *
+			 * Only when a status is actually given: posting a comment with no
+			 * status is a note on the order, and a note should not silently
+			 * move it.
+			 */
+			OrderStatus previous = order.getStatus();
+			boolean statusChanged = status.getStatus() != null && !status.getStatus().equals(previous);
+			if (statusChanged) {
+				order.setStatus(status.getStatus());
+			}
+
+			/*
+			 * CUSTOMER_NOTIFIED has to be set before the save rather than after
+			 * the send. The row is written by the cascade from update(order),
+			 * which merges a detached order, so the generated id lands on the
+			 * merged copy and not on the instance held here -- there is no row
+			 * to go back and update afterwards.
+			 *
+			 * It records that a notice was dispatched, not that it arrived:
+			 * sendUpdateOrderStatusEmail is @Async, so its outcome is not known
+			 * at this point. A send that fails later logs an error and leaves
+			 * the flag set.
+			 *
+			 * Null when no status was given, because a bare comment is a note on
+			 * the order and no notice is due; 0 when the status moved but the
+			 * order carries no address to send to.
+			 */
+			boolean notifying = statusChanged && !StringUtils.isBlank(order.getCustomerEmailAddress());
+			if (statusChanged) {
+				history.setCustomerNotified(notifying ? 1 : 0);
+			}
+
 			orderService.addOrderStatusHistory(order, history);
+
+			if (notifying) {
+				notifyCustomerOfStatus(order, history, store);
+			}
 
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("An error occured while converting orderstatushistory", e);
 		}
 
+	}
+
+	/**
+	 * Tell the customer their order has moved.
+	 *
+	 * Deliberately after the save and deliberately swallowing its own failures:
+	 * the order has already changed by this point, and mail is the least
+	 * reliable part of the operation -- the store's credentials may be missing
+	 * or the host unreachable. Letting that propagate would report a failed
+	 * status change for one that succeeded, and the caller would try again.
+	 *
+	 * The customer is built from the order rather than loaded, because an order
+	 * placed by a guest has no customer record to load, and everything the
+	 * message needs -- the billing name and the address to send to -- is on the
+	 * order already.
+	 *
+	 * The caller decides whether there is an address worth sending to, so that
+	 * the CUSTOMER_NOTIFIED it records and the send attempted here cannot drift
+	 * apart.
+	 */
+	private void notifyCustomerOfStatus(Order order, OrderStatusHistory history, MerchantStore store) {
+		try {
+			Customer customer = new Customer();
+			customer.setEmailAddress(order.getCustomerEmailAddress());
+			customer.setBilling(order.getBilling());
+			emailTemplatesUtils.sendUpdateOrderStatusEmail(customer, order, history, store,
+					LocaleUtils.getLocale(store), coreConfiguration.getProperty("CONTEXT_PATH"));
+		} catch (Exception e) {
+			LOGGER.error("Could not send the order status email for order [" + order.getId() + "]", e);
+		}
 	}
 
 	@Override

@@ -49,6 +49,20 @@ public class TransactionServiceImpl  extends SalesManagerEntityServiceImpl<Long,
 	}
 	
 	@Override
+	public List<Transaction> findByDetails(String details) throws ServiceException {
+		if(StringUtils.isBlank(details)) {
+			return new java.util.ArrayList<Transaction>();
+		}
+		/*
+		 * Deliberately no JSON parsing of details here, unlike
+		 * listTransactions: the rows this finds were written by save() rather
+		 * than create(), so details holds the gateway's own reference as a
+		 * plain string, not the serialised detail map.
+		 */
+		return transactionRepository.findByDetails(details);
+	}
+
+	@Override
 	public List<Transaction> listTransactions(Order order) throws ServiceException {
 		
 		List<Transaction> transactions = transactionRepository.findByOrder(order.getId());

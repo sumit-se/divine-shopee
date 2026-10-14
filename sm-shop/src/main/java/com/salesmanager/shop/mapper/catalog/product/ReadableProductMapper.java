@@ -523,6 +523,9 @@ public class ReadableProductMapper implements Mapper<Product, ReadableProduct> {
 				.append(imageUtils.buildProductImageUtils(store, product.getSku(), image.getProductImage()));
 
 		prdImage.setImageUrl(imgPath.toString());
+		prdImage.setThumbnailUrl(new StringBuilder().append(imageUtils.getContextPath())
+				.append(imageUtils.buildProductThumbnailUtils(store, product.getSku(), image.getProductImage()))
+				.toString());
 		prdImage.setId(image.getId());
 		prdImage.setImageType(image.getImageType());
 		if (image.getProductImageUrl() != null) {

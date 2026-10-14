@@ -55,6 +55,8 @@ import com.salesmanager.core.model.order.OrderSummaryType;
 import com.salesmanager.core.model.order.OrderTotal;
 import com.salesmanager.core.model.order.OrderTotalSummary;
 import com.salesmanager.core.model.order.OrderTotalType;
+import com.salesmanager.core.business.utils.CodConvenienceFee;
+import com.salesmanager.core.model.payments.PaymentType;
 import com.salesmanager.core.model.order.OrderTotalVariation;
 import com.salesmanager.core.model.order.OrderValueType;
 import com.salesmanager.core.model.order.orderproduct.OrderProduct;
@@ -388,6 +390,33 @@ public class OrderServiceImpl  extends SalesManagerEntityServiceImpl<Long, Order
             }
             grandTotal = grandTotal.add(totalTaxes);
             totalSummary.setTaxTotal(totalTaxes);
+        }
+
+        /*
+         * Cash on delivery carries a convenience fee.
+         *
+         * It goes in last, after tax, because it is charged on the order value
+         * -- products, shipping and tax -- and because the fee is a charge for
+         * the way the order is paid for rather than part of what is being
+         * bought. Adding it here means the total quoted at checkout and the
+         * total stored on the order are the same number: both arrive through
+         * this method, and whether the fee applies is decided by what the
+         * summary says the shopper chose.
+         */
+        if (PaymentType.COD.name().equalsIgnoreCase(summary.getPaymentMethodCode())) {
+            BigDecimal codFee = CodConvenienceFee.calculate(grandTotal);
+            if (codFee.compareTo(BigDecimal.ZERO) > 0) {
+                OrderTotal codFeeTotal = new OrderTotal();
+                codFeeTotal.setModule(Constants.OT_COD_FEE_MODULE_CODE);
+                codFeeTotal.setOrderTotalType(OrderTotalType.HANDLING);
+                codFeeTotal.setOrderTotalCode("order.total.codfee");
+                codFeeTotal.setTitle(Constants.OT_COD_FEE_MODULE_CODE);
+                // between the taxes (200+) and the grand total (500)
+                codFeeTotal.setSortOrder(300);
+                codFeeTotal.setValue(codFee);
+                orderTotals.add(codFeeTotal);
+                grandTotal = grandTotal.add(codFee);
+            }
         }
 
         // grand total

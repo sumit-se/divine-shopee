@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.salesmanager.core.business.modules.integration.payment.impl.CODPayment;
 import com.salesmanager.core.business.services.shipping.CodRestrictedPostalCodeService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
+import com.salesmanager.core.business.utils.CodConvenienceFee;
 import com.salesmanager.core.business.utils.SpecialProducts;
 import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.core.business.services.shipping.DeliveryRestrictedPostalCodeService;
@@ -58,6 +59,19 @@ public class CodAvailabilityApi {
 
 		Map<String, Object> response = new LinkedHashMap<>();
 		response.put("maximumAmount", CODPayment.DEFAULT_MAXIMUM_AMOUNT);
+		/*
+		 * The fee and the rule behind it, so the storefront can show what paying
+		 * at the door will cost before the shopper commits to it. The number is
+		 * computed here rather than in the browser: the same rule decides the
+		 * total the order is actually charged, and two implementations of it
+		 * would eventually disagree about money.
+		 *
+		 * 'amount' is the order value before the fee, which is what the
+		 * storefront has at this point -- the quoted total.
+		 */
+		response.put("feeMinimum", CodConvenienceFee.DEFAULT_MINIMUM);
+		response.put("feePercent", CodConvenienceFee.DEFAULT_PERCENT);
+		response.put("fee", amount != null ? CodConvenienceFee.calculate(amount) : null);
 
 		if (amount != null && CODPayment.DEFAULT_MAXIMUM_AMOUNT.compareTo(BigDecimal.ZERO) > 0
 				&& amount.compareTo(CODPayment.DEFAULT_MAXIMUM_AMOUNT) >= 0) {

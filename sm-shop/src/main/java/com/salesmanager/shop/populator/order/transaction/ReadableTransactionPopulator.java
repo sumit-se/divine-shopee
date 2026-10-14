@@ -38,6 +38,9 @@ public class ReadableTransactionPopulator extends AbstractDataPopulator<Transact
 
 			target.setAmount(pricingService.getDisplayAmount(source.getAmount(), store));
 			target.setDetails(source.getDetails());
+			// Carried through so a gateway's init can return more than one
+			// value; previously this Map was silently dropped here.
+			target.setTransactionDetails(source.getTransactionDetails());
 			target.setPaymentType(source.getPaymentType());
 			target.setTransactionType(source.getTransactionType());
 			target.setTransactionDate(DateUtil.formatDate(source.getTransactionDate()));

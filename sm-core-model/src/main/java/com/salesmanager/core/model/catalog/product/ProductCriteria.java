@@ -1,5 +1,6 @@
 package com.salesmanager.core.model.catalog.product;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.salesmanager.core.model.catalog.product.attribute.AttributeCriteria;
@@ -32,6 +33,35 @@ public class ProductCriteria extends Criteria {
 	private Long manufacturerId = null;
 	
 	private Long ownerId = null;
+
+	/**
+	 * Price band, for the storefront's price facet. A product matches when any
+	 * of its prices falls in the band -- a bead listed at several weights sits
+	 * in every band those weights reach, which is what a shopper filtering for
+	 * "under 5,000" means by it.
+	 *
+	 * Lower bound inclusive, upper exclusive, so adjacent bands cannot both
+	 * claim the same product. Either may be null for an open-ended band.
+	 */
+	private BigDecimal minPrice = null;
+
+	private BigDecimal maxPrice = null;
+
+	public BigDecimal getMinPrice() {
+		return minPrice;
+	}
+
+	public void setMinPrice(BigDecimal minPrice) {
+		this.minPrice = minPrice;
+	}
+
+	public BigDecimal getMaxPrice() {
+		return maxPrice;
+	}
+
+	public void setMaxPrice(BigDecimal maxPrice) {
+		this.maxPrice = maxPrice;
+	}
 
 	public String getProductName() {
 		return productName;

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -149,6 +150,7 @@ public class PaymentApi {
 			returnConfig.setConfigurable(integrationModule.getConfigurable());
 			returnConfig.setActive(false);
 			returnConfig.setDefaultSelected(false);
+			returnConfig.setConfigured(false);
 			returnConfig.setCode(code);
 			
 			
@@ -168,6 +170,7 @@ public class PaymentApi {
 			
 			returnConfig.setActive(config.isActive());
 			returnConfig.setDefaultSelected(config.isDefaultSelected());
+			returnConfig.setConfigured(true);
 			returnConfig.setCode(code);
 			returnConfig.setIntegrationKeys(config.getIntegrationKeys());
 			returnConfig.setIntegrationOptions(config.getIntegrationOptions());
@@ -177,6 +180,42 @@ public class PaymentApi {
 		} catch (ServiceException e) {
 			LOGGER.error("Error getting payment module [" + code + "]", e);
 			throw new ServiceRuntimeException("Error getting payment module [" + code + "]", e);
+		}
+
+	}
+
+	/**
+	 * Remove a payment module's configuration, which is the delete half of the
+	 * configuration CRUD the administration tool drives. The module itself stays
+	 * registered and can be configured again; what goes is the stored
+	 * configuration for this store, including any gateway credentials.
+	 *
+	 * Deleting rather than deactivating is what to reach for when credentials
+	 * have to stop existing -- a leaked key, or a gateway the store has left --
+	 * since an inactive module still holds its keys.
+	 *
+	 * @param code module code
+	 * @param merchantStore store
+	 */
+	@DeleteMapping("/private/modules/payment/{code}")
+	@ApiOperation(httpMethod = "DELETE", value = "Removes a payment module configuration", notes = "Requires administration access", produces = "application/json")
+	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
+	public void deleteConfiguration(@PathVariable String code, @ApiIgnore MerchantStore merchantStore) {
+
+		try {
+
+			// the module has to exist for this store, otherwise the caller gets a
+			// 404 rather than a silent success on a code that was never valid
+			IntegrationModule module = paymentService.getPaymentMethodByCode(merchantStore, code);
+			if (module == null) {
+				throw new ResourceNotFoundException("Payment module [" + code + "] not found");
+			}
+
+			paymentService.removePaymentModuleConfiguration(code, merchantStore);
+
+		} catch (ServiceException e) {
+			LOGGER.error("Error removing payment module [" + code + "]", e);
+			throw new ServiceRuntimeException("Error removing payment module [" + code + "]", e);
 		}
 
 	}

@@ -326,6 +326,33 @@
 				<version>19.5.0</version>
 			</dependency>
 
+			<!-- Razorpay: the store's Indian gateway (UPI, cards, netbanking) -->
+			<dependency>
+				<groupId>com.razorpay</groupId>
+				<artifactId>razorpay-java</artifactId>
+				<version>1.4.8</version>
+			</dependency>
+
+			<!--
+				okio, pinned for Razorpay.
+
+				Two okhttp generations are on the classpath: the ancient
+				com.squareup.okhttp:okhttp:2.0.0 that arrives with an older SDK,
+				and com.squareup.okhttp3:okhttp:3.14.9 that Razorpay's client
+				uses. Maven's nearest-wins picked okhttp 2.0.0's okio 1.0.0,
+				which predates ByteString.encodeString(String, Charset), so the
+				first Razorpay call died with NoSuchMethodError.
+
+				1.17.2 is what okhttp3 3.14.9 asks for and is API compatible with
+				what okhttp 2.0.0 uses, so both work. Staying inside the okio 1.x
+				line is deliberate: okio 2.x drops the method as well.
+			-->
+			<dependency>
+				<groupId>com.squareup.okio</groupId>
+				<artifactId>okio</artifactId>
+				<version>1.17.2</version>
+			</dependency>
+
 			<!-- Braintree -->
 			<dependency>
 				<groupId>com.braintreepayments.gateway</groupId>

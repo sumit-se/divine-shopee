@@ -1,6 +1,14 @@
 package com.salesmanager.core.business.modules.cms.product.aws;
 
 import java.io.ByteArrayOutputStream;
+import com.salesmanager.core.business.utils.ProductImageSizeUtils;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
+import java.awt.Color;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +61,8 @@ public class S3ProductContentFileManager
 
   private static S3ProductContentFileManager fileManager = null;
 
-  private static String DEFAULT_BUCKET_NAME = "shopizer-content";
+  // only ever this store's bucket -- see ContentAssetsManager.DEFAULT_BUCKET_NAME
+  private static String DEFAULT_BUCKET_NAME = "divineshopee-media";
   private static String DEFAULT_REGION_NAME = "us-east-1";
   private static final String ROOT_NAME = "products";
 
@@ -63,6 +72,10 @@ public class S3ProductContentFileManager
 
   private final static String SMALL = "SMALL";
   private final static String LARGE = "LARGE";
+  /** grid-size copy, written alongside the small one */
+  private final static String THUMB = "THUMB";
+  /** longest edge of that copy: a listing card shows it about 250px wide */
+  private static final int THUMB_MAX_EDGE = 400;
 
   private CMSManager cmsManager;
 
@@ -210,14 +223,30 @@ public class S3ProductContentFileManager
           productImage.getProduct().getSku(), contentImage);
 
 
-      ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentType(contentImage.getMimeType());
+      byte[] bytes = readFully(contentImage.getFile());
 
-      PutObjectRequest request = new PutObjectRequest(bucketName,
-          nodePath + productImage.getProductImage(), contentImage.getFile(), metadata);
+      PutObjectRequest request = sizedRequest(bucketName,
+          nodePath + productImage.getProductImage(), new ByteArrayInputStream(bytes),
+          contentImage.getMimeType());
 
       s3.putObject(request);
 
+      /*
+       * The listing card shows this picture about 250px wide and used to be
+       * handed the same copy the product page's gallery needs, fifteen times
+       * over on a category page. A grid-size copy goes in beside the small one
+       * whenever the small one is written -- so every upload has one from the
+       * start and nothing has to remember to generate it later.
+       */
+      if (FileContentType.PRODUCT.name().equals(contentImage.getFileContentType().name())) {
+        byte[] thumb = thumbnail(bytes);
+        if (thumb != null) {
+          String thumbPath = nodePath(productImage.getProduct().getMerchantStore().getCode(),
+              productImage.getProduct().getSku()) + THUMB + Constants.SLASH;
+          s3.putObject(sizedRequest(bucketName, thumbPath + productImage.getProductImage(),
+              new ByteArrayInputStream(thumb), "image/jpeg"));
+        }
+      }
 
       LOGGER.info("Product add file");
 
@@ -356,4 +385,65 @@ public class S3ProductContentFileManager
   }
 
 
+
+  /**
+   * The metadata carried no content length, which leaves the SDK to work the
+   * length out from the stream and, when it cannot, to send the body chunked
+   * under a streaming signature. Cloudflare R2 does not accept that signature
+   * and answers "InvalidArgument: Authorization", which is what an upload here
+   * died of -- not every time, since whether the length can be worked out
+   * depends on the kind of stream the request arrived on, which made it look
+   * intermittent. Reading the bytes first and declaring the length always
+   * sends an ordinary signed PUT.
+   */
+  private PutObjectRequest sizedRequest(String bucketName, String key, InputStream content, String mimeType)
+      throws IOException {
+    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    IOUtils.copy(content, buffer);
+    byte[] bytes = buffer.toByteArray();
+    ObjectMetadata metadata = new ObjectMetadata();
+    if (mimeType != null) {
+      metadata.setContentType(mimeType);
+    }
+    metadata.setContentLength(bytes.length);
+    return new PutObjectRequest(bucketName, key, new ByteArrayInputStream(bytes), metadata);
+  }
+
+  private byte[] readFully(InputStream in) throws IOException {
+    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    IOUtils.copy(in, buffer);
+    return buffer.toByteArray();
+  }
+
+  /**
+   * A grid-size JPEG of the given image, or null when the bytes are not
+   * something ImageIO can read -- in which case the card simply falls back to
+   * the larger copy rather than the upload failing over a thumbnail.
+   */
+  private byte[] thumbnail(byte[] source) {
+    try {
+      BufferedImage image = ImageIO.read(new ByteArrayInputStream(source));
+      if (image == null) {
+        return null;
+      }
+      BufferedImage scaled = image;
+      if (image.getWidth() > THUMB_MAX_EDGE || image.getHeight() > THUMB_MAX_EDGE) {
+        scaled = ProductImageSizeUtils.resizeWithRatio(image, THUMB_MAX_EDGE, THUMB_MAX_EDGE);
+      }
+      // JPEG carries no alpha; flatten onto white or transparency comes out black
+      BufferedImage opaque =
+          new BufferedImage(scaled.getWidth(), scaled.getHeight(), BufferedImage.TYPE_INT_RGB);
+      Graphics2D g = opaque.createGraphics();
+      g.setColor(Color.WHITE);
+      g.fillRect(0, 0, opaque.getWidth(), opaque.getHeight());
+      g.drawImage(scaled, 0, 0, null);
+      g.dispose();
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      ImageIO.write(opaque, "jpeg", out);
+      return out.toByteArray();
+    } catch (Exception e) {
+      LOGGER.warn("Could not build a thumbnail for " + THUMB_MAX_EDGE + "px", e);
+      return null;
+    }
+  }
 }

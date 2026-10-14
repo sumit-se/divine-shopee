@@ -1,6 +1,9 @@
 package com.salesmanager.core.business.modules.cms.content.aws;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
@@ -165,10 +168,9 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 
 			final AmazonS3 s3 = s3Client();
 
-			ObjectMetadata metadata = new ObjectMetadata();
-			metadata.setContentType(inputStaticContentData.getMimeType());
-			PutObjectRequest request = new PutObjectRequest(bucketName, nodePath + inputStaticContentData.getFileName(),
-					inputStaticContentData.getFile(), metadata);
+			PutObjectRequest request = sizedRequest(bucketName,
+					nodePath + inputStaticContentData.getFileName(),
+					inputStaticContentData.getFile(), inputStaticContentData.getMimeType());
 
 			s3.putObject(request);
 
@@ -314,4 +316,27 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 		return null;
 	}
 
+
+	/**
+	 * The metadata carried no content length, which leaves the SDK to work the
+	 * length out from the stream and, when it cannot, to send the body chunked
+	 * under a streaming signature. Cloudflare R2 does not accept that signature
+	 * and answers "InvalidArgument: Authorization", which is what an upload here
+	 * died of -- not every time, since whether the length can be worked out
+	 * depends on the kind of stream the request arrived on, which made it look
+	 * intermittent. Reading the bytes first and declaring the length always
+	 * sends an ordinary signed PUT.
+	 */
+	private PutObjectRequest sizedRequest(String bucketName, String key, InputStream content, String mimeType)
+			throws IOException {
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		IOUtils.copy(content, buffer);
+		byte[] bytes = buffer.toByteArray();
+		ObjectMetadata metadata = new ObjectMetadata();
+		if (mimeType != null) {
+			metadata.setContentType(mimeType);
+		}
+		metadata.setContentLength(bytes.length);
+		return new PutObjectRequest(bucketName, key, new ByteArrayInputStream(bytes), metadata);
+	}
 }

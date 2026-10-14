@@ -39,6 +39,8 @@ public class Constants {
   public final static String OT_TOTAL_MODULE_CODE = "total";
   public final static String OT_SHIPPING_MODULE_CODE = "shipping";
   public final static String OT_HANDLING_MODULE_CODE = "handling";
+  /** the convenience fee charged for paying cash on delivery */
+  public final static String OT_COD_FEE_MODULE_CODE = "codfee";
   public final static String OT_TAX_MODULE_CODE = "tax";
   public final static String OT_REFUND_MODULE_CODE = "refund";
   public final static String OT_DISCOUNT_TITLE = "order.total.discount";

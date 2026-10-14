@@ -110,6 +110,12 @@ public abstract class AbstractimageFilePath implements ImageFilePath {
 		return new StringBuilder().append(getBasePath(store)).append(Constants.PRODUCTS_URI).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH)
 				.append(sku).append(Constants.SLASH).append(Constants.SMALL_IMAGE).append(Constants.SLASH).append(imageName).toString();
 	}
+
+	/** The same image at grid size -- see ReadableImage.thumbnailUrl. */
+	public String buildProductThumbnailUtils(MerchantStore store, String sku, String imageName) {
+		return new StringBuilder().append(getBasePath(store)).append(Constants.PRODUCTS_URI).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH)
+				.append(sku).append(Constants.SLASH).append(Constants.THUMB_IMAGE).append(Constants.SLASH).append(imageName).toString();
+	}
 	
 	/**
 	 * Builds a large product image file path that can be used by the image servlet

@@ -225,6 +225,9 @@ public class ReadableProductPopulator extends
 						imgPath.append(contextPath).append(imageUtils.buildProductImageUtils(store, source.getSku(), img.getProductImage()));
 
 						prdImage.setImageUrl(imgPath.toString());
+						prdImage.setThumbnailUrl(new StringBuilder().append(contextPath)
+								.append(imageUtils.buildProductThumbnailUtils(store, source.getSku(), img.getProductImage()))
+								.toString());
 					}
 					prdImage.setId(img.getId());
 					prdImage.setImageType(img.getImageType());

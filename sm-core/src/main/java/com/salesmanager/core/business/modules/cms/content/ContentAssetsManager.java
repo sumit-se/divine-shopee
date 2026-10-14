@@ -13,7 +13,14 @@ import org.apache.commons.lang3.StringUtils;
 public interface ContentAssetsManager extends AssetsManager, FileGet, FilePut, FileRemove, FolderPut, FolderList, FolderRemove, Serializable {
     public static final char UNIX_SEPARATOR = '/';
     public static final char WINDOWS_SEPARATOR = '\\';
-    public static String DEFAULT_BUCKET_NAME = "shopizer";
+    /*
+     * Only ever this store's bucket. The name normally comes from
+     * config.cms.aws.bucket; this is what is used when that is blank, which it
+     * is in every profile but local and aws. The upstream default was
+     * "shopizer", so a run under another profile would have quietly written
+     * the store's images somewhere else.
+     */
+    public static String DEFAULT_BUCKET_NAME = "divineshopee-media";
     public static String DEFAULT_REGION_NAME = "us-east-1";
     public static final String ROOT_NAME = "files";
 

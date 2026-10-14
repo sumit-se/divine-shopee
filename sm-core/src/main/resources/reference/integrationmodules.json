@@ -115,6 +115,16 @@
 		"image":"braintree.jpg",
 		"configuration":[{"env":"TEST","scheme":"https","host":"NOTREQUIRED","port":"NOTREQUIRED","uri":"NOTREQUIRED"},{"env":"PROD","scheme":"https","host":"NOTREQUIRED","port":"NOTREQUIRED","uri":"NOTREQUIRED"}]
 
+	},
+
+	{
+		"module": "PAYMENT",
+		"code": "razorpay",
+		"type":"creditcard",
+		"version":"",
+		"regions": ["IN"],
+		"configuration":[{"env":"TEST","scheme":"https","host":"api.razorpay.com","port":"443","uri":"/v1"},{"env":"PROD","scheme":"https","host":"api.razorpay.com","port":"443","uri":"/v1"}]
+
 	}
 
 ]

@@ -25,6 +25,13 @@ public interface TransactionService extends SalesManagerEntityService<Long, Tran
 	Transaction getRefundableTransaction(Order order) throws ServiceException;
 
 	List<Transaction> listTransactions(Order order) throws ServiceException;
+
+	/**
+	 * Transactions carrying this exact details value, whether or not an order
+	 * is attached. Used to resolve a gateway reference that arrives on its own,
+	 * such as in a webhook.
+	 */
+	List<Transaction> findByDetails(String details) throws ServiceException;
 	
 	List<Transaction> listTransactions(Date startDate, Date endDate) throws ServiceException;
 	
