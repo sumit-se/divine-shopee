@@ -5,6 +5,7 @@ import { useToasts } from "react-toast-notifications";
 import { connect } from "react-redux";
 // import { getDiscountPrice } from "../../helpers/product";
 import ProductModal from "./ProductModal";
+import SaleTag from "./SaleTag";
 import { setProductID } from "../../redux/actions/productActions";
 const ProductGridSingleTwo = ({
   product,
@@ -41,20 +42,18 @@ const ProductGridSingleTwo = ({
           <div className="product-img">
             <Link to={process.env.PUBLIC_URL + "/product/" + product.description.friendlyUrl} onClick={() => onClickProductDetails(product.id)}>
               {product.images && product.images.length > 0}
-                <img src={product.images[0].imageUrl} alt="" />
+                {/* grid-size copy; see cardImage in ProductGridListSingle */}
+                <img src={product.images[0].thumbnailUrl || product.images[0].imageUrl} alt="" />
               
 
             </Link>
-            {/* {
-              product.discount || product.new ? (
-                <div className="product-img-badges">
-                  {product.discount ? (
-                    <span className="pink">-{product.discount}%</span>
-                  ) : ("")}
-                  {product.new ? <span className="purple">New</span> : ""}
-                </div>
-              ) : ("")
-            } */}
+            {!product.soldOut && (
+              <SaleTag
+                original={product.originalPrice}
+                final={product.finalPrice}
+                discounted={product.discounted}
+              />
+            )}
 
             <div className="product-action-2">
               {/* {product.affiliateLink ? (
@@ -80,7 +79,8 @@ const ProductGridSingleTwo = ({
                 <i className="fa fa-cog"></i>
               </Link>
               {
-                product.available && product.canBePurchased && product.visible && product.quantity > 0 &&
+                // soldOut counts beads: a bead product's own row always says 1
+                product.available && product.canBePurchased && product.visible && product.quantity > 0 && !product.soldOut &&
                 <button
                   onClick={() => addToCart(product, addToast, cartData, 1, defaultStore, userData)}
                   className="active"
@@ -122,7 +122,12 @@ const ProductGridSingleTwo = ({
                 </Link>
               </h3>
               <div className="price-2">
-                {product.discounted ? (
+                {/* a product its type forbids selling has no price on show */}
+                {(product.type && product.type.allowAddToCart === false) || product.soldOut ? (
+                  <span className="price-on-request">
+                    Price on request
+                  </span>
+                ) : product.discounted ? (
                   <Fragment>
                     <span>
                       {finalDiscountedPrice}

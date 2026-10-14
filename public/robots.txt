@@ -1,2 +1,24 @@
 # https://www.robotstxt.org/robotstxt.html
+
 User-agent: *
+
+# One shopper's own pages. Nothing here belongs in an index, and most of it
+# redirects or empties out for anyone who is not signed in, so a crawler that
+# follows these spends its budget on pages it cannot read.
+Disallow: /cart
+Disallow: /checkout
+Disallow: /order-confirm
+Disallow: /recent-order
+Disallow: /order-details/
+Disallow: /my-account
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /customer/
+
+# Search results are endless re-cuts of the same catalogue. Letting them be
+# indexed competes with the category pages that are meant to rank for those
+# words, using the same products to do it.
+Disallow: /search/
+
+Sitemap: https://divineshopee.in/sitemap.xml

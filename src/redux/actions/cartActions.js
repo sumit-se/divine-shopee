@@ -13,7 +13,7 @@ export const DELETE_FROM_CART = "DELETE_FROM_CART";
 export const DELETE_ALL_FROM_CART = "DELETE_ALL_FROM_CART";
 
 //add to cart
-export const addToCart = (item, addToast, cartId, quantityCount, defaultStore, userData, selectedProductOptions) => {
+export const addToCart = (item, addToast, cartId, quantityCount, defaultStore, userData, selectedProductOptions, selectedVariant) => {
   return async dispatch => {
     dispatch(setLoader(true))
     try {
@@ -26,6 +26,12 @@ export const addToCart = (item, addToast, cartId, quantityCount, defaultStore, u
         param = { "attributes": selectedProductOptions, "product": item.sku, "quantity": quantityCount }
       } else {
         param = { "product": item.sku, "quantity": quantityCount }
+      }
+      // The chosen variant prices the line. Without it the cart falls back to
+      // the first variant on the product and charges its price for every
+      // choice, which is wrong as soon as two variants differ in price.
+      if (selectedVariant) {
+        param.variant = selectedVariant;
       }
       console.log('Cart parameters ' + JSON.stringify(param));
       if (cartId) {
@@ -43,6 +49,13 @@ export const addToCart = (item, addToast, cartId, quantityCount, defaultStore, u
       if (response) {
         dispatch(setShopizerCartID(response.code))
         dispatch(setLoader(false))
+        /*
+         * The add response is the whole cart, so the badge and the mini cart can
+         * show it straight away. A signed-in shopper used to wait two seconds
+         * for the refresh below -- and saw no change at all when they moved on
+         * before it landed.
+         */
+        dispatch({ type: GET_CART, payload: response });
         if (userData) {
           setTimeout(() => {
             dispatch(getCart(response.code, userData));
@@ -57,6 +70,12 @@ export const addToCart = (item, addToast, cartId, quantityCount, defaultStore, u
       }
     } catch (error) {
       dispatch(setLoader(false))
+      // a rule the shopper can act on (e.g. the most of a special offer one
+      // order may hold) comes back as the error's message
+      const reason = error && error.response && error.response.data && error.response.data.message;
+      if (addToast && reason) {
+        addToast(reason, { appearance: "warning", autoDismiss: true });
+      }
     }
 
   };
@@ -66,22 +85,47 @@ export const addToCart = (item, addToast, cartId, quantityCount, defaultStore, u
 
 export const getCart = (cartID, userData) => {
   return async dispatch => {
-    // if (cartID) {
+    const language = JSON.parse(getLocalData('redux_localstorage_simple')).multilanguage.currentLanguageCode;
+
+    // the cart read by its own code, which works signed in or not
+    const cartAction = cartID
+      // The cart is created against the store (POST /cart?store=...), so the
+      // read-back needs the same scope. Without store= it fell back to
+      // DEFAULT, 404'd, and the badge stayed at 0 even though the item had
+      // been added successfully.
+      ? constant.ACTION.CART + cartID + '?store=' + window._env_.APP_MERCHANT + '&lang=' + language
+      : null;
+    // the signed-in customer's own cart, which is how a cart started on another
+    // device is picked up after signing in
+    const customerCartAction = constant.ACTION.AUTH + constant.ACTION.CUSTOMER + constant.ACTION.CARTS
+      + (cartID ? '?cart=' + cartID : '?') + '&lang=' + language;
+
+    if (!userData && !cartAction) {
+      // no cart to read and nobody to read it for
+      return;
+    }
+
     try {
-      let action;
+      let response;
       if (userData) {
-        if (cartID) {
-          action = constant.ACTION.AUTH + constant.ACTION.CUSTOMER + constant.ACTION.CARTS + '?cart=' + cartID + '&lang=' + JSON.parse(getLocalData('redux_localstorage_simple')).multilanguage.currentLanguageCode;
-        } else {
-          action = constant.ACTION.AUTH + constant.ACTION.CUSTOMER + constant.ACTION.CARTS + '?&lang=' + JSON.parse(getLocalData('redux_localstorage_simple')).multilanguage.currentLanguageCode;
+        try {
+          response = await WebService.get(customerCartAction);
+        } catch (error) {
+          /*
+           * A cart started before signing in is not attached to the customer, so
+           * this lookup answers 404 while the cart itself is perfectly alive.
+           * Treating that as "no cart" wiped a cart the shopper had just filled:
+           * the header emptied on the next page load and /cart bounced back to
+           * the home page. Fall back to reading the cart by its own code.
+           */
+          if (!cartAction) {
+            throw error;
+          }
+          response = await WebService.get(cartAction);
         }
       } else {
-        if (cartID) {
-          action = constant.ACTION.CART + cartID + '?lang=' + JSON.parse(getLocalData('redux_localstorage_simple')).multilanguage.currentLanguageCode
-        }
+        response = await WebService.get(cartAction);
       }
-
-      let response = await WebService.get(action);
       dispatch(setShopizerCartID(response.code))
       dispatch({
         type: GET_CART,
@@ -90,7 +134,16 @@ export const getCart = (cartID, userData) => {
 
     } catch (error) {
       console.log('Cart action response ' + error);
-      dispatch(deleteAllFromCart())
+      /*
+       * Only forget the cart when the server says it is not there. Any error at
+       * all used to empty it, so a single hiccup -- the API restarting, the
+       * network dropping a request -- threw away a cart the shopper had filled
+       * and left /cart with nothing to show.
+       */
+      const status = error && error.response && error.response.status;
+      if (status === 404 || status === 400) {
+        dispatch(deleteAllFromCart())
+      }
     }
   }
   // }
@@ -156,23 +209,33 @@ export const increaseQuantity = (item, addToast) => {
 
 
 //delete from cart
-export const deleteFromCart = (cartID, item, defaultStore, addToast) => {
+export const deleteFromCart = (cartID, item, defaultStore, addToast, userData) => {
   return async dispatch => {
     dispatch(setLoader(true))
     try {
-      let action = constant.ACTION.CART + cartID + '/' + constant.ACTION.PRODUCT + item.id + '?store=' + window._env_.APP_MERCHANT;
+      /*
+       * The endpoint takes a sku. This sent `item.id`, which is the product's id
+       * -- it matched no sku at all, so the API removed nothing and the line came
+       * back on the next read. A line with a variant answers to the variant's
+       * sku, which is also what tells two lines of the same product apart.
+       */
+      const sku = item.variantSku || item.sku;
+      let action = constant.ACTION.CART + cartID + '/' + constant.ACTION.PRODUCT + sku + '?store=' + window._env_.APP_MERCHANT;
       await WebService.delete(action);
 
       dispatch({
         type: DELETE_FROM_CART,
         payload: item
       });
-      dispatch(setLoader(false))
       if (addToast) {
         addToast("Removed From Cart", { appearance: "error", autoDismiss: true });
       }
 
-      // dispatch(getCart(cartID));
+      // read the cart back: the local splice matches on the product id, which
+      // every line of a product with variants shares, so it can drop the wrong
+      // row. What the server says is the truth.
+      dispatch(getCart(cartID, userData));
+      dispatch(setLoader(false))
     } catch (error) {
       console.log('Error removing from cart ' + cartID);
       dispatch(setLoader(false))

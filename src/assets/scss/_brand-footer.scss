@@ -1,0 +1,216 @@
+/*  Footer aligned to divineshopee.com.
+ *
+ *  Measured off the live site rather than eyeballed:
+ *    main band        #000000
+ *    rights strip     #de5f00
+ *    headings         Lato 800 / 20px / #ffffff
+ *    links            Poppins 400 / 15px / #ffffff
+ *    subscribe button #de0000
+ *
+ *  The theme's own footer is a light grey band with #313131 headings and
+ *  #5d5d5d links, so nearly every rule below is an override and needs to beat
+ *  _footer.scss -- hence the .footer-brand-area prefix on everything.
+ */
+
+$ds-footer-bg: #000000;
+$ds-footer-rights-bg: #de5f00;
+$ds-footer-cta: #de0000;
+$ds-footer-muted: rgba(255, 255, 255, 0.75);
+
+.footer-brand-area {
+  padding: 0 !important; // Layout passes pt-100/pb-70; the bands own their spacing
+  background: $ds-footer-bg;
+
+  &__main {
+    padding: 70px 0 40px;
+    background: $ds-footer-bg;
+  }
+
+  &__rights {
+    padding: 22px 0;
+    background: $ds-footer-rights-bg;
+
+    p {
+      font-family: $poppins;
+      font-size: 20px;
+      font-weight: 500;
+
+      margin: 0;
+      text-align: center;
+
+      color: #fff;
+    }
+
+    a {
+      color: #fff;
+
+      &:hover {
+        text-decoration: underline;
+
+        color: #fff;
+      }
+    }
+  }
+
+  // ---- brand column -------------------------------------------------------
+  .footer-brand {
+    &__logo {
+      margin: 0 0 22px;
+
+      img {
+        // The store logo is dark artwork on a transparent ground, so it
+        // disappears on the black band without this.
+        max-height: 70px;
+        padding: 8px 12px;
+
+        border-radius: 6px;
+        background: #fff;
+      }
+    }
+
+    &__blurb {
+      font-family: $poppins;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.8;
+
+      margin: 0 0 20px;
+
+      color: $ds-footer-muted;
+    }
+
+    &__contact {
+      margin: 0;
+      padding: 0;
+
+      list-style: none;
+
+      li {
+        margin: 0 0 10px;
+      }
+
+      a {
+        font-family: $poppins;
+        font-size: 15px;
+
+        color: #fff;
+
+        i {
+          width: 20px;
+
+          color: $ds-footer-rights-bg;
+        }
+
+        &:hover {
+          color: $ds-footer-rights-bg;
+        }
+      }
+    }
+  }
+
+  // ---- headings + link lists ---------------------------------------------
+  .footer-widget {
+    .footer-title h3 {
+      font-family: $lato;
+      font-size: 20px;
+      font-weight: 800;
+
+      margin: 0 0 20px;
+
+      color: #fff;
+    }
+
+    .footer-list ul li a {
+      font-family: $poppins;
+      font-size: 15px;
+      font-weight: 400;
+
+      color: #fff;
+
+      &:hover {
+        padding-left: 4px;
+
+        color: $ds-footer-rights-bg;
+      }
+    }
+  }
+
+  .footer-office p {
+    font-family: $poppins;
+    font-size: 15px;
+    line-height: 1.8;
+
+    color: $ds-footer-muted;
+
+    strong {
+      color: #fff;
+    }
+  }
+
+  // ---- subscribe ----------------------------------------------------------
+  .subscribe-style {
+    p {
+      font-family: $poppins;
+      font-size: 15px;
+
+      color: $ds-footer-muted;
+    }
+
+    .subscribe-form {
+      .mc-form > div {
+        margin-bottom: 12px;
+      }
+
+      input.email {
+        font-size: 14px;
+        width: 100%;
+        padding: 11px 14px;
+
+        color: #333;
+        border: none;
+        border-radius: 4px;
+        background: #fff;
+      }
+
+      .clear button.button,
+      button.button {
+        font-family: $poppins;
+        font-size: 15px;
+        font-weight: 600;
+
+        padding: 10px 26px;
+
+        cursor: pointer;
+        transition: background 0.25s ease;
+
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        background: $ds-footer-cta;
+
+        &:hover {
+          background: darken($ds-footer-cta, 8%);
+        }
+      }
+    }
+  }
+
+  // The scroll-to-top button is maroon elsewhere in the theme; keep it on the
+  // footer's own accent so it does not read as a stray element on black.
+  .scroll-top {
+    color: #fff;
+    background: $ds-footer-rights-bg;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .footer-brand-area {
+    &__main {
+      padding: 50px 0 10px;
+    }
+
+    &__rights p {
+      font-size: 16px;
+    }
+  }
+}

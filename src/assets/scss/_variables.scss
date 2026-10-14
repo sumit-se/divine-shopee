@@ -1,4 +1,5 @@
 // Font Family
+$lato: "Lato", sans-serif;
 $poppins: "Poppins",
 sans-serif;
 $abrilfatface: "Abril Fatface",
@@ -9,6 +10,14 @@ cursive;
 $lobster: "Lobster",
 cursive;
 $josefin: "Josefin Sans",
+sans-serif;
+// Body stack used by divineshopee.com -- no webfont, so body copy renders in
+// the platform UI face and costs nothing to load.
+$system-stack: -apple-system,
+system-ui,
+"Segoe UI",
+Helvetica,
+Arial,
 sans-serif;
 
 // text Colors ---------------

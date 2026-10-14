@@ -1,0 +1,413 @@
+// Header styling matched to divineshopee.com (sampled 23 Aug 2026).
+//
+// Source header is two bands:
+//   row 1  white          logo | pill search (#eeeeee, radius 30px) | account | cart
+//   row 2  saffron #ffa516  nav links, Poppins 700 / 15px / #000
+//
+// This file only restyles what the existing single-row markup can carry. The
+// two-row split and the search field are component changes, not CSS.
+// Imported last in style.scss so it wins over the theme defaults.
+
+$brand-saffron: #ffa516;
+$brand-maroon: #7f0000;
+
+// ---- shop-by-category carousel tiles ---------------------------------------
+.category-carousel-area {
+  // Picture on top, name underneath it rather than inside a card. The card
+  // itself is now the picture: the cream panel the name used to sit in would
+  // have become a second box under the image, so the frame moved onto the
+  // image and the text sits on the page.
+  .category-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+
+    transition: all 0.25s ease;
+
+    &:hover {
+      .category-tile__figure {
+        border-color: $brand-saffron;
+      }
+
+      .category-tile__name {
+        color: $brand-saffron;
+      }
+    }
+  }
+
+  // The banner artwork at thumbnail size (categoryTileUrl in
+  // CategoryBanner.js). Shown whole: `contain`, not `cover`. These banners are
+  // nearly 4:1 and composed with their subjects out at the edges, so cropping
+  // to a square-ish tile kept the empty middle and threw the subject away --
+  // Sphatik came out as a patch of coral and Special caught the side of its
+  // badge.
+  //
+  // The box takes the banners' own 1170:308, so the four that are that shape
+  // fill it exactly. The shared photo is 1472x832, a different shape again, so
+  // it sits centred with cream either side rather than being stretched to
+  // match -- which is also a visible cue that those categories have no artwork
+  // of their own yet.
+  .category-tile__figure {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1170 / 308;
+
+    object-fit: contain;
+    border: 1px solid #f0e3cf;
+    border-radius: 8px;
+    background-color: #fdf6ec;
+
+    transition: border-color 0.25s ease;
+  }
+
+  .category-tile__name {
+    margin-top: 10px;
+
+    font-family: $poppins;
+    font-size: 15px;
+    font-weight: 700;
+
+    color: $brand-maroon;
+
+    transition: color 0.25s ease;
+  }
+
+  .category-tile__count {
+    margin-top: 2px;
+
+    font-size: 12px;
+
+    color: #8a7f72;
+  }
+}
+
+// Full-width saffron strip carrying the navigation, as on the source site.
+// The colour lives here rather than on .main-menu, which is a bounded column
+// and rendered as a floating block that wrapped onto a second line.
+.brand-nav-band {
+  background-color: $brand-saffron;
+
+  // The theme pulls the menu up five pixels (`.main-menu nav ul` carries
+  // `margin-top: -5px`), a tweak from when the nav shared a row with the logo.
+  // Now that the nav has its own band -- which has no padding or border of its
+  // own -- that negative margin collapses straight through the band and drags
+  // the whole saffron strip up over the logo: a 5px overlap at every width.
+  .main-menu nav>ul {
+    margin-top: 0;
+  }
+
+  .main-menu nav>ul>li {
+    // the band is its own row, so the menu can breathe horizontally
+    margin-right: 28px;
+  }
+}
+
+.header-area {
+
+  // ---- logo ---------------------------------------------------------------
+  // Measured on divineshopee.com: the logo box renders 262x113 CSS px. The
+  // artwork is 1378x595 (ratio 2.32), so capping height at 113px reproduces
+  // the source width exactly without distorting it.
+  .logo img {
+    max-height: 113px;
+    width: auto;
+  }
+
+  // ---- search ---------------------------------------------------------------
+  // Pill field matching the source: #eeeeee fill, 30px radius, no visible border.
+  .header-search-wrap {
+    form {
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      height: 46px;
+      padding: 0 48px 0 22px;
+
+      color: #444444;
+      border: 2px solid transparent;
+      border-radius: 30px;
+      background-color: #eeeeee;
+
+      &:focus {
+        outline: none;
+        border-color: $brand-saffron;
+      }
+
+      &::placeholder {
+        color: #888888;
+      }
+    }
+
+    button {
+      position: absolute;
+      top: 0;
+      right: 14px;
+
+      height: 46px;
+      padding: 0 6px;
+
+      cursor: pointer;
+      color: $brand-maroon;
+      border: none;
+      background: transparent;
+    }
+  }
+
+  // ---- search suggestions ---------------------------------------------------
+  // Hangs off the form, which is the positioned ancestor, so it tracks the
+  // field at every width without being laid out in the header row -- the row
+  // is align-items: center and a list in the flow would shove the logo and the
+  // cart about as the shopper typed.
+  .header-search__suggestions {
+    position: absolute;
+    z-index: 1001;        // over the saffron nav band, which carries its own
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+
+    max-height: 420px;
+    margin: 0;
+    padding: 6px 0;
+    overflow-y: auto;
+
+    list-style: none;
+    border: 1px solid #f0e3cf;
+    border-radius: 12px;
+    background-color: #ffffff;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .14);
+  }
+
+  .header-search__group {
+    padding: 8px 16px 4px;
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+
+    color: #8a7f72;
+  }
+
+  .header-search__option {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+
+    padding: 8px 16px;
+
+    cursor: pointer;
+    font-size: 14px;
+    color: #444444;
+
+    // the keyboard and the mouse drive the same highlight, so there is never a
+    // second one trailing the pointer while the arrows are in use
+    &.is-active {
+      background-color: #fdf6ec;
+      color: $brand-maroon;
+    }
+
+    img {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+
+      object-fit: cover;
+      border-radius: 6px;
+      background-color: #fdf6ec;
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  // ---- nav links ----------------------------------------------------------
+  .main-menu {
+
+    nav>ul>li>a {
+      font-family: $poppins;
+      font-size: 15px;
+      font-weight: 700;
+
+      color: #000000;
+
+      &:hover {
+        color: $brand-maroon;
+      }
+    }
+
+    // dropdown + mega-menu entries stay on white, as on the source site
+    ul.submenu,
+    ul.mega-menu {
+      background-color: #ffffff;
+
+      li a {
+        font-family: $poppins;
+        font-weight: 500;
+
+        color: #242424;
+
+        &:hover {
+          color: $brand-maroon;
+        }
+      }
+    }
+  }
+
+  // ---- cart / account icons ----------------------------------------------
+  .header-right-wrap {
+
+    .same-style.cart-wrap button,
+    .same-style button {
+      color: $brand-maroon;
+    }
+
+    // cart count badge picks up the saffron of the source site's cart button
+    .count-style {
+      background-color: $brand-saffron;
+      color: #000000;
+    }
+  }
+}
+
+// ---- header row alignment --------------------------------------------------
+// The logo / search / icon columns already sit in a Bootstrap
+// `.row.align-items-center`, but the theme still carries the top margins it
+// used when all three shared ONE row with the nav: `.logo` has margin-top 14px
+// and `.header-right-wrap` 32px. A top margin grows the flex item as well as
+// offsetting its content, so centring the row could not undo them -- the three
+// columns landed on three different vertical centres (measured 70.5 / 63.5 /
+// 79.5 px at a 1280 viewport). divineshopee.com keeps its logo, search and cart
+// within 5px of one another (71 / 76 / 71).
+//
+// (The horizontal half of this -- the header sitting on a wider grid than the
+// page -- is fixed in Header.js by using `.container` instead of the
+// `.container-fluid` every page passes in.)
+.header-area {
+
+
+  // The top row was exactly as tall as the logo (113px), leaving it flush
+  // against the nav band. divineshopee.com keeps ~30px between the two.
+  .sticky-bar>.container {
+    padding-top: 12px;
+    padding-bottom: 14px;
+  }
+
+  .logo {
+    margin-top: 0;
+  }
+
+  .header-right-wrap {
+    margin-top: 0;
+    align-items: center;
+  }
+}
+
+// Pagination bullets under the category strip. Only meaningful below 1024,
+// where slidesPerView drops and some roots move off-canvas; at xl all six fit
+// and swiper leaves the single bullet inert, so it is hidden outright.
+.category-carousel-area {
+  .swiper-container {
+    padding-bottom: 28px;
+  }
+
+  .swiper-pagination-bullet-active {
+    background-color: $brand-maroon;
+  }
+
+  @media (min-width: 1024px) {
+    .swiper-pagination {
+      display: none;
+    }
+
+    .swiper-container {
+      padding-bottom: 0;
+    }
+  }
+}
+
+// ---- announcement bar ------------------------------------------------------
+// Full-bleed strip above the header. Sampled from divineshopee.com: #d50101
+// ground, white Poppins 700 / 20px, centred, 10px padding.
+.announcement-bar {
+  padding: 10px;
+
+  text-align: center;
+  background-color: #d50101;
+}
+
+.announcement-bar__text {
+  margin: 0;
+
+  font-family: $poppins;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+
+  color: #ffffff;
+
+  @media (max-width: 767px) {
+    font-size: 15px;
+  }
+}
+
+// ---- trending videos -------------------------------------------------------
+// 3-up row of 16:9 tiles. Both the real embed and the placeholder are absolutely
+// positioned inside a padding-top box, so a tile keeps its aspect ratio at every
+// width and the row never goes ragged.
+.trending-video {
+  position: relative;
+
+  overflow: hidden;
+
+  margin-bottom: 30px;
+  padding-top: 56.25%;
+
+  border-radius: 8px;
+  background-color: #fdf6ec;
+}
+
+.trending-video__frame,
+.trending-video__placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.trending-video__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  text-align: center;
+  border: 1px dashed #e0cdb0;
+  border-radius: 8px;
+}
+
+.trending-video__placeholder-icon {
+  margin-bottom: 10px;
+
+  font-size: 34px;
+
+  color: $brand-saffron;
+}
+
+.trending-video__placeholder-text {
+  font-family: $poppins;
+  font-size: 13px;
+
+  color: #8a7f72;
+}

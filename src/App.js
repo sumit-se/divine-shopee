@@ -29,6 +29,9 @@ const ProductDetail = lazy(() => import("./pages/product-details/ProductDetail")
 // other pages
 // const About = lazy(() => import("./pages/other/About"));
 const Contact = lazy(() => import("./pages/other/Contact"));
+const RudrakshaRecommendation = lazy(() =>
+  import("./pages/other/RudrakshaRecommendation")
+);
 const MyAccount = lazy(() => import("./pages/other/MyAccount"));
 const LoginRegister = lazy(() => import("./pages/other/LoginRegister"));
 const ForgotPassword = lazy(() => import("./pages/other/ForgotPassword"));
@@ -126,6 +129,10 @@ const App = (props) => {
                 <Route
                   path="/contact"
                   component={Contact}
+                />
+                <Route
+                  path="/rudraksha-recommendation"
+                  component={RudrakshaRecommendation}
                 />
                 <Route
                   path="/my-account"

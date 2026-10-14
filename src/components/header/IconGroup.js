@@ -1,14 +1,15 @@
 import PropTypes from "prop-types";
 import React, { useState, useEffect } from "react";
-import { Link, useRouteMatch, useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { connect } from "react-redux";
 import MenuCart from "./sub-components/MenuCart";
-import { deleteFromCart, deleteAllFromCart } from "../../redux/actions/cartActions";
+import { deleteFromCart, deleteAllFromCart, GET_SHOPIZER_CART_ID } from "../../redux/actions/cartActions";
 import { setUser } from "../../redux/actions/userAction";
 import { getCart } from "../../redux/actions/cartActions";
 import { setLocalData, getLocalData } from '../../util/helper';
 import { multilanguage } from "redux-multilanguage";
 import IdleTimer from 'react-idle-timer';
+import Cookies from 'universal-cookie';
 import constant from '../../util/constant';
 import WebService from '../../util/webService';
 const IconGroup = ({
@@ -25,7 +26,6 @@ const IconGroup = ({
   strings,
   getCart
 }) => {
-  const pathname = useRouteMatch();
   const history = useHistory();
   const timeout = 1000 * 60 * 30;
   // const [idleTimer, setIdleTimer] = useState(null);
@@ -33,7 +33,20 @@ const IconGroup = ({
   // const [searchText, setSearchText] = useState('');
   const [useDetails, setUseDetails] = useState({});
   useEffect(() => {
-    // getCart(cartData.code, userData)
+    /*
+     * The cart is kept in local storage and restored at startup, so the badge
+     * and the mini cart used to show whatever was there the last time -- a count
+     * that survived the cart being emptied, checked out in another tab or wiped
+     * server side. Reading it back on load keeps it honest; getCart clears the
+     * local copy when the cart no longer exists.
+     */
+    // the id lives in local storage and, for six months, in a cookie; the
+    // cookie is the one that survives local storage being cleared
+    const storedCartId = getLocalData(GET_SHOPIZER_CART_ID)
+      || new Cookies().get(window._env_.APP_MERCHANT + '_shopizer_cart');
+    if (storedCartId || userData) {
+      getCart(storedCartId, userData);
+    }
     if (getLocalData('thekey') === window._env_.APP_BASE_URL) {
       setLocalData('thekey', window._env_.APP_BASE_URL)
     } else {
@@ -173,15 +186,14 @@ const IconGroup = ({
       */}
 
       <div className="same-style account-setting d-none d-lg-block">
-        {
-          pathname.url !== '/checkout' &&
-          <button
-            className="account-setting-active"
-            onClick={e => handleClick(e)}
-          >
-            <i className="pe-7s-user-female" />
-          </button>
-        }
+        {/* the account menu used to be taken away on /checkout; the shopper
+            keeps it there like everywhere else */}
+        <button
+          className="account-setting-active"
+          onClick={e => handleClick(e)}
+        >
+          <i className="pe-7s-user-female" />
+        </button>
         <div className="account-dropdown">
           <ul>
             {
@@ -242,23 +254,21 @@ const IconGroup = ({
           </span>
         </Link>
       </div> */}
-      {
-        pathname.url !== '/checkout' &&
-        <div className="same-style cart-wrap d-none d-lg-block">
-          <button className="icon-cart" onClick={e => handleClick(e)}>
-            <i className="pe-7s-shopbag" />
-            <span className="count-style">
-              {cartCount}
-            </span>
-          </button>
-          {/* menu cart */}
-          <MenuCart
-            cartData={cartData}
-            // currency={currency}
-            deleteFromCart={deleteFromCart}
-          />
-        </div>
-      }
+      {/* and so is the cart, mini cart included */}
+      <div className="same-style cart-wrap d-none d-lg-block">
+        <button className="icon-cart" onClick={e => handleClick(e)}>
+          <i className="pe-7s-shopbag" />
+          <span className="count-style">
+            {cartCount}
+          </span>
+        </button>
+        {/* menu cart */}
+        <MenuCart
+          cartData={cartData}
+          // currency={currency}
+          deleteFromCart={deleteFromCart}
+        />
+      </div>
       <div className="same-style cart-wrap d-block d-lg-none">
         <Link className="icon-cart" to={process.env.PUBLIC_URL + "/cart"}>
           <i className="pe-7s-shopbag" />

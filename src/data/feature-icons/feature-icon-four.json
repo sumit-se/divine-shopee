@@ -2,22 +2,29 @@
   {
     "id": 1,
     "titleImage": "/assets/img/icon-img/support-8.png",
-    "title": "Free shipping on all order",
+    "title": "Free Shipping",
     "iconImage": "/assets/img/icon-img/support-5.png",
-    "backgroundColor": "#ccfbe9"
+    "backgroundColor": "#fdf1e0"
   },
   {
     "id": 2,
     "titleImage": "/assets/img/icon-img/support-9.png",
-    "title": "Back guarantee under 5 days",
+    "title": "Secure Payments",
     "iconImage": "/assets/img/icon-img/support-6.png",
-    "backgroundColor": "#f2fbcc"
+    "backgroundColor": "#f7e7e7"
   },
   {
     "id": 3,
     "titleImage": "/assets/img/icon-img/support-10.png",
-    "title": "On every order over $150",
+    "title": "Trusted Brand",
     "iconImage": "/assets/img/icon-img/support-7.png",
-    "backgroundColor": "#ddfbcc"
+    "backgroundColor": "#fdf1e0"
+  },
+  {
+    "id": 4,
+    "titleImage": "/assets/img/icon-img/support-8.png",
+    "title": "Happy & Satisfied",
+    "iconImage": "/assets/img/icon-img/support-5.png",
+    "backgroundColor": "#f7e7e7"
   }
 ]

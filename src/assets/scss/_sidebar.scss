@@ -69,6 +69,22 @@
           padding: 0 0 0;
         }
 
+        // The chosen facet on the search results page (activeCategoryId in
+        // ShopCategories). Nothing else marks it: the list narrows the results
+        // in place, so without this the page silently shows fewer products
+        // with no indication why, and no clue that clicking again clears it.
+        // The category page never sets it, so that list is untouched.
+        button.is-active {
+          font-weight: 700;
+
+          color: $theme-color;
+
+          &::after {
+            content: " ×";
+            font-weight: 400;
+          }
+        }
+
         .sidebar-widget-list-left {
           padding-left: 30px;
 

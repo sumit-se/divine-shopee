@@ -592,7 +592,7 @@
     span {
       font-size: 24px;
 
-      color: #fe5252;
+      color: $theme-color; // was the template's coral red, off the maroon theme
 
       &.old {
         font-size: 18px;

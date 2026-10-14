@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 // import { Link } from "react-router-dom";
-import Tab from "react-bootstrap/Tab";
-import Nav from "react-bootstrap/Nav";
 import SectionTitle from "../../components/section-title/SectionTitle";
 import ProductGrid from "./ProductGrid";
 import WebService from '../../util/webService';
@@ -10,6 +8,9 @@ import constant from '../../util/constant';
 import { setLoader } from "../../redux/actions/loaderActions";
 import { multilanguage } from "redux-multilanguage";
 import { connect } from "react-redux";
+// divineshopee.com shows 12 here, in three rows of four.
+const FEATURED_LIMIT = 12;
+
 const TabProduct = ({
   setLoader,
   spaceTopClass,
@@ -28,7 +29,11 @@ const TabProduct = ({
   }, []);
   const getProductList = async () => {
     setLoader(true)
-    let action = constant.ACTION.PRODUCT_GROUP + 'FEATURED_ITEM?store=' + defaultStore + '&lang=' + currentLanguageCode;
+    // defaultStore arrives from redux via setMerchant(), which has not resolved
+    // on first paint -- the request went out as 'store=' and returned nothing.
+    // Fall back to the runtime config, loaded before the app boots.
+    const storeCode = defaultStore || window._env_.APP_MERCHANT;
+    let action = constant.ACTION.PRODUCT_GROUP + 'FEATURED_ITEM?store=' + storeCode + '&lang=' + currentLanguageCode;
     try {
       let response = await WebService.get(action);
       // console.log(response);
@@ -56,6 +61,9 @@ const TabProduct = ({
       setLoader(false)
     }
   }
+  // categoryData[0] is the 'All' bucket assembled above
+  const featuredProducts = (categoryData[0] && categoryData[0].data) || [];
+
   return (
     <div
       className={`product-area ${spaceTopClass ? spaceTopClass : ""} ${
@@ -63,39 +71,26 @@ const TabProduct = ({
         } ${extraClass ? extraClass : ""}`}
     >
       <div className={`${containerClass ? containerClass : "container"}`}>
-        <SectionTitle titleText="Featured Products" positionClass="text-center" />
-        <Tab.Container defaultActiveKey="all">
-          <Nav variant="pills" className="product-tab-list pt-30 pb-55 text-center">
-            {
-              categoryData.map((value, i) => {
-                return (
-                  <Nav.Item key={i} >
-                    <Nav.Link eventKey={value.code}>
-                      <h4>{value.name}</h4>
-                    </Nav.Link>
-                  </Nav.Item>)
-              })
-            }
-          </Nav>
-          <Tab.Content>
-            {
-              categoryData.map((value, i) => {
-                return (
-                  <Tab.Pane key={i} eventKey={value.code}>
-                    <div className="row">
-                      <ProductGrid
-                        products={value.data}
-                        type="men"
-                        limit={8}
-                        spaceBottomClass="mb-25"
-                      />
-                    </div>
-                  </Tab.Pane>
-                )
-              })
-            }
-          </Tab.Content>
-        </Tab.Container>
+        {/* matches the equivalent section heading on divineshopee.com */}
+        <SectionTitle titleText="Our Top Selling Product" positionClass="text-center" />
+        {/*
+          A plain grid, as on divineshopee.com, which runs this section as 12
+          products in a 4-wide grid with no filter control above it.
+
+          The tab strip that used to sit here built one pill per category found
+          among the featured products. That is 22 pills against this catalogue:
+          they wrapped into five ragged rows ~160px deep between the heading and
+          the products, each row centred independently, so nothing in the block
+          shared an edge with anything else.
+        */}
+        <div className="row">
+          <ProductGrid
+            products={featuredProducts}
+            type="men"
+            limit={FEATURED_LIMIT}
+            spaceBottomClass="mb-25"
+          />
+        </div>
       </div>
     </div>
   );

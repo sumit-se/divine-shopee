@@ -103,3 +103,8 @@ dist
 
 #temporary configurations
 #env-config.js
+
+# Environment variables — contain API keys and secrets, never commit
+.env
+.env.local
+.env.*.local

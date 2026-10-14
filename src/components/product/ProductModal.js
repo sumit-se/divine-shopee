@@ -98,7 +98,6 @@ function ProductModal(props, strings) {
         })
       })
       setSelectedProductColor(temp)
-      getPrice(temp)
     }
   }
   const onChangeOptions = async (value, option) => {
@@ -127,24 +126,8 @@ function ProductModal(props, strings) {
       tempSelectedOptions = temp;
       setSelectedProductColor(temp)
     }
-    getPrice(tempSelectedOptions)
   }
-  const getPrice = async (tempSelectedOptions) => {
-    setLoader(true)
-    let action = constant.ACTION.PRODUCT + product.id + '/' + constant.ACTION.PRICE;
-    let param = { "options": tempSelectedOptions }
-    try {
-      let response = await WebService.post(action, param);
-      if (response) {
-        setDiscountedPrice(response.finalPrice);
-        setProductPrice(response.originalPrice);
-        setIsDiscount(response.discounted);
-        setLoader(false)
-      }
-    } catch (error) {
-      setLoader(false)
-    }
-  }
+  // getPrice removed with the dead /product/{id}/price route -- see ProductDescriptionInfo
   const checkedOrNot = (value) => {
     let index = selectedProductColor.findIndex(a => a.id === value.id);
     if (index === -1) {

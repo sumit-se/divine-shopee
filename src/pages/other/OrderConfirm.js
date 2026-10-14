@@ -10,6 +10,16 @@ import { multilanguage } from "redux-multilanguage";
 import { getLocalData } from "../../util/helper";
 const OrderConfirm = ({ location, orderID, strings, merchant }) => {
   const { pathname } = location;
+  // how the order was paid, saved by the checkout; a bank transfer / UPI order
+  // still has to be paid, so the details are repeated here with the order id
+  const payment = (() => {
+    try {
+      return JSON.parse(getLocalData('order-payment') || '{}') || {};
+    } catch (e) {
+      return {};
+    }
+  })();
+  const payByBankTransfer = payment.method === 'MONEYORDER';
 
   return (
     <Fragment>
@@ -35,10 +45,23 @@ const OrderConfirm = ({ location, orderID, strings, merchant }) => {
               <div className="col-xl-7 col-lg-8 text-center">
                 <div className="error">
                   <h3>{strings["Order Completed"]}</h3>
-                  <h2>{strings["Thank you for ordering from importa"]}</h2>
+                  <h2>{strings["Thank you for ordering from"]} {merchant.name}</h2>
                   <p>
                     {strings["Your order id is"]} <b>{orderID}</b> <br />{strings["An email with you order details has been sent to"]} {getLocalData('order-email')}
                   </p>
+                  {payByBankTransfer && (
+                    <div className="bank-transfer-info text-left">
+                      <h4>{strings["Complete your payment"] || "Complete your payment"}</h4>
+                      <p>{strings["Please pay by bank transfer or UPI and mention your order id as the payment reference. We ship once your payment is received."]
+                        || "Please pay by bank transfer or UPI and mention your order id as the payment reference. We ship once your payment is received."}</p>
+                      {payment.details ? (
+                        <div className="bank-transfer-details" dangerouslySetInnerHTML={{ __html: payment.details }} />
+                      ) : (
+                        <p>{strings["We will send our bank and UPI details to your email shortly."]
+                          || "We will send our bank and UPI details to your email shortly."}</p>
+                      )}
+                    </div>
+                  )}
                   <p>
                     {strings["Feedback"]}
                   </p>

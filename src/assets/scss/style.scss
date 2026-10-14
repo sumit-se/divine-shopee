@@ -2,7 +2,12 @@
 @import "~swiper/css/swiper.css";
 @import "~animate.css/animate.min.css";
 @import "~lightgallery.js/dist/css/lightgallery.css";
-@import "~react-modal-video/scss/modal-video.scss";
+/*
+ * react-modal-video's stylesheet is not imported: nothing in the app renders
+ * its component or its markup, so it was ~2KB of rules that could never match.
+ * animate.css above IS needed despite looking similar -- the slider animates
+ * with fadeInLeft/Right/Up, keyframes this theme never defines itself.
+ */
 @import "../css/icons.min.css";
 
 @import "variables";
@@ -36,10 +41,20 @@
 @import "my-account";
 @import "404";
 @import "video-popup";
+// Brand header overrides -- must stay last so it wins over "header" above.
+@import "brand-header";
+@import "brand-footer";
+@import "brand-home";
+// headings + bold in brand maroon; last so it settles the colour question
+@import "brand-typography";
+@import "brand-images";
 
 
 :root {
-    --theme-color: red;
+    /* Divine Shopee brand maroon, taken from the wordmark on divineshopee.com.
+       App.js overwrites this at runtime from APP_THEME_COLOR; this value is the
+       pre-hydration fallback so the page never flashes the old default red. */
+    --theme-color: #7f0000;
 }
 
 .css-m2td1u {

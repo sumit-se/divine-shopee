@@ -8,25 +8,37 @@ import { multilanguage } from "redux-multilanguage";
 const MenuCart = ({ cartData, deleteFromCart, defaultStore, strings }) => {
   // let cartTotalPrice = 0;
   const { addToast } = useToasts();
+  /*
+   * A cart object without a products array -- an empty cart from the API, or a
+   * half-written copy restored from local storage -- used to throw here on
+   * `products.length`. This component sits in the header of every page, so that
+   * one error blanked the whole site.
+   */
+  const lines = (isValidObject(cartData) && cartData.products) || [];
   return (
     <div className="shopping-cart-content">
-      {isValidObject(cartData) && cartData.products.length > 0 ? (
+      {lines.length > 0 ? (
         <Fragment>
           <ul>
-            {cartData.products.map((single, key) => {
+            {lines.map((single, key) => {
               // const finalProductPrice = single.originalPrice;
               const finalDiscountedPrice = single.finalPrice;
               // cartTotalPrice += single.price;
+              // the line's id is the cart line, not the product: link by the
+              // product's own address, as the cart page does. The name used to
+              // link to "" -- that is, back to whatever page you were on.
+              const productLink = "/product/"
+                + ((single.description && single.description.friendlyUrl) || single.id);
               return (
                 <li className="single-shopping-cart" key={key}>
                   <div className="shopping-cart-img">
-                    <Link to={"/product/" + single.id}>
+                    <Link to={productLink}>
                       <img alt="" src={defaultImage(single)} className="img-fluid" />
                     </Link>
                   </div>
                   <div className="shopping-cart-title">
                     <h4>
-                      <Link to="">
+                      <Link to={productLink}>
                         {single.description.name}
                       </Link>
                     </h4>

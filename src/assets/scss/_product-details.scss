@@ -856,3 +856,479 @@
   }
 }
 }
+// one-of-a-kind beads chosen by price, size and weight rather than by lab
+// report number (ProductDescriptionInfo.beadChoices); compact so a product can
+// offer many beads without the choice pushing Add to cart off the screen
+.pro-details-beads {
+  margin-bottom: 20px;
+
+  > span {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .bead-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .bead-chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 7px 12px;
+    font-size: 13px;
+    line-height: 1.3;
+    color: #333;
+    background: #fff;
+    border: 1px solid #d6d6d6;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s, background 0.2s;
+
+    b {
+      font-weight: 600;
+      color: $theme-color;
+    }
+
+    span {
+      color: #555;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: $theme-color;
+    }
+
+    &.selected {
+      border-color: $theme-color;
+      background: #fbeeee;
+      box-shadow: inset 0 0 0 1px $theme-color;
+    }
+
+    &.sold-out {
+      opacity: 0.45;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+  }
+}
+
+// replaces the quantity box when only one can be bought: a line of its own
+// above a full-width Add to cart, rather than squeezed in beside it
+.product-details-content .pro-details-quality .single-stock {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: auto;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2e7d32;
+
+  &::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2e7d32;
+  }
+}
+
+// the chosen bead's own photo inside the product gallery (ProductImageGallery)
+.product-large-image-wrapper .single-image,
+.product-small-image-wrapper .single-image {
+  position: relative;
+}
+
+.your-bead-badge {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  left: 8px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: #fff;
+  background: $theme-color;
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+.product-small-image-wrapper .single-image.active img {
+  outline: 2px solid $theme-color;
+  outline-offset: -2px;
+}
+
+// under the main photo when it is the chosen bead's own
+.your-bead-caption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: $theme-color;
+
+  &::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $theme-color;
+  }
+}
+
+// main photo: hover to zoom in place, click for the full-screen viewer
+// (ProductImageGallery)
+.product-large-image-wrapper {
+  .lg-hidden-photo {
+    display: none;
+  }
+
+  .single-image.zoomable {
+    cursor: zoom-in;
+
+    img {
+      transition: transform 0.25s ease;
+      will-change: transform;
+    }
+
+    &.zoomed img {
+      transform: scale(2.5);
+      transition: transform 0.1s ease;
+    }
+
+    .enlarge-hint {
+      position: absolute;
+      z-index: 2;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+      color: #fff;
+      background: rgba(127, 0, 0, 0.75);
+      border-radius: 50%;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    // the hint would sit on top of the magnified detail
+    &.zoomed .enlarge-hint {
+      opacity: 0;
+    }
+  }
+}
+
+// "SALE / 18% OFF" on a discounted product's image (SaleTag): listing cards
+// and the product page. Maroon with saffron -- the shop's own theme and accent
+// -- so it stands out without looking borrowed from another site.
+@keyframes sale-tag-shine {
+  0%, 70% { transform: translateX(-120%) skewX(-20deg); }
+  100% { transform: translateX(220%) skewX(-20deg); }
+}
+
+.product-img,
+.product-large-image-wrapper .single-image {
+  .sale-tag {
+    position: absolute;
+    z-index: 3;
+    top: 10px;
+    left: 10px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 64px;
+    padding: 6px 10px 7px;
+    overflow: hidden;
+    color: #fff;
+    text-align: center;
+    background: linear-gradient(135deg, #a30000 0%, #7f0000 60%, #5e0000 100%);
+    border: 2px solid #ffa900;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(127, 0, 0, 0.35);
+    pointer-events: none;
+
+    // a light sweep across the badge every few seconds
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+      animation: sale-tag-shine 3.5s ease-in-out infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      &::after {
+        animation: none;
+        display: none;
+      }
+    }
+  }
+
+  .sale-tag__label {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .sale-tag__off {
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.15;
+    color: #ffa900;
+    white-space: nowrap;
+  }
+}
+
+// bigger on the product page, where the photo is
+.product-large-image-wrapper .single-image {
+  .sale-tag {
+    top: 16px;
+    left: 16px;
+    min-width: 86px;
+    padding: 8px 14px 9px;
+    border-radius: 12px;
+  }
+
+  .sale-tag__label {
+    font-size: 13px;
+    letter-spacing: 3px;
+  }
+
+  .sale-tag__off {
+    font-size: 24px;
+  }
+}
+
+// a chosen bead that is the only one of its kind (ProductDescriptionInfo):
+// on a line of its own above Add to cart, in the sale badge's saffron and maroon
+.product-details-content .pro-details-quality .one-of-a-kind {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #7f0000;
+  background: #fff4dc;
+  border: 1px solid #ffd27a;
+  border-left: 4px solid #ffa900;
+  border-radius: 8px;
+
+  b {
+    font-weight: 700;
+  }
+
+  .one-of-a-kind__icon {
+    flex: 0 0 auto;
+    font-size: 18px;
+    line-height: 1;
+    color: #ffa900;
+  }
+}
+
+// a special offer's limits (ProductDescriptionInfo): a line of its own under
+// the quantity and Add to cart
+.product-details-content .pro-details-quality {
+  flex-wrap: wrap;
+
+  .special-offer-limit {
+    order: 10;
+    flex: 0 0 100%;
+    margin: 12px 0 0;
+    font-size: 13px;
+    color: #7f0000;
+
+    &::before {
+      content: "★ ";
+      color: #ffa900;
+    }
+  }
+}
+
+// a product's YouTube video (ProductImageGallery): it fills the photo box, and
+// its thumbnail carries a play mark
+.product-large-image-wrapper .single-image.product-video {
+  background: #000;
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.product-small-image-wrapper .single-image .video-play-badge {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 28px;
+  font-size: 13px;
+  color: #fff;
+  background: rgba(204, 0, 0, 0.9);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+// "Notify me when available" on a sold-out product (NotifyWhenAvailable).
+// It takes the place of the quantity + Add to cart row, whose theme styles
+// (_brand-home) are scoped to .pro-details-quality -- so its buttons and fields
+// repeat them here: the same maroon pill, Poppins, saffron on hover.
+@mixin notify-pill-button {
+  height: 52px;
+  padding: 0 28px;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #ffffff;
+  border: none;
+  border-radius: 30px;
+  background-color: #7f0000;
+  box-shadow: 0 4px 14px rgba(127, 0, 0, 0.25);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+
+  &:hover:not(:disabled) {
+    color: #000000;
+    background-color: #ffa900;
+    box-shadow: 0 6px 18px rgba(255, 165, 22, 0.4);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.product-details-content .notify-available {
+  margin: 0 0 26px;
+  font-family: "Poppins", sans-serif;
+
+  .notify-available__status {
+    margin: 0 0 14px;
+    padding: 10px 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #7f0000;
+    background: #fff4dc;
+    border: 1px solid #ffd27a;
+    border-left: 4px solid #ffa900;
+    border-radius: 8px;
+
+    b {
+      font-weight: 700;
+    }
+  }
+
+  .pro-details-cart {
+    margin: 0;
+
+    button {
+      @include notify-pill-button;
+      width: 100%;
+    }
+  }
+
+  .notify-available__form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    input {
+      width: 100%;
+      height: 52px;
+      padding: 0 22px;
+      font-family: "Poppins", sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: #fdfaf5;
+      border: 1px solid #e2d9cb;
+      border-radius: 30px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &:focus {
+        border-color: #7f0000;
+        box-shadow: 0 0 0 3px rgba(127, 0, 0, 0.12);
+      }
+    }
+
+    small {
+      padding: 0 6px;
+      font-size: 12px;
+      color: #7a6a55;
+    }
+  }
+
+  .notify-available__actions {
+    display: flex;
+    gap: 12px;
+
+    button {
+      @include notify-pill-button;
+      flex: 1 1 auto;
+    }
+
+    // secondary: outlined in maroon, filled saffron on hover like the rest
+    .notify-available__cancel {
+      flex: 0 0 auto;
+      color: #7f0000;
+      background-color: transparent;
+      border: 2px solid #7f0000;
+      box-shadow: none;
+    }
+  }
+
+  .notify-available__done {
+    margin: 0;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2e7d32;
+    background: #eef7ee;
+    border: 1px solid #c5e1c6;
+    border-radius: 30px;
+  }
+}
+
+.product-details-content .notify-available .pro-details-cart button i {
+  margin-right: 6px;
+  font-size: 20px;
+  font-weight: 700;
+  vertical-align: middle;
+}

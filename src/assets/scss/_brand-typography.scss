@@ -1,0 +1,83 @@
+// ---- brand typography colour -----------------------------------------------
+// Headings and bold text carry the brand maroon across the storefront, the way
+// divineshopee.com sets its section titles and inline emphasis apart from the
+// body copy.
+//
+// Imported after the other brand partials so it settles the colour question
+// last. It only sets `color`; sizes, weights and spacing stay where they are.
+//
+// $brand-maroon is defined in _brand-header.scss, which style.scss imports
+// ahead of this file.
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+b,
+strong,
+// The admin's rich-text editor does not emit <b>: it writes the weight inline,
+// as <span style="font-weight: bolder">. Matching on the style attribute keeps
+// editor-authored emphasis in the same colour as the rest. The "bold" match
+// covers "bolder" too; the numeric ones cover 600-900.
+[style*="font-weight: bold"],
+[style*="font-weight:bold"],
+[style*="font-weight: 6"],
+[style*="font-weight: 7"],
+[style*="font-weight: 8"],
+[style*="font-weight: 9"],
+[style*="font-weight:6"],
+[style*="font-weight:7"],
+[style*="font-weight:8"],
+[style*="font-weight:9"] {
+  color: $brand-maroon;
+}
+
+// The theme and the brand partials style a few headings through class
+// selectors, which outrank a bare tag selector however late it is imported.
+// Named here so they follow the same rule rather than staying black.
+.section-title-5 h2,
+.section-title h2,
+.site-blocks-cover h1,
+.site-blocks-cover .divine-journey__copy h1,
+.site-blocks-cover .divine-journey__copy h2,
+.product-details-content h1.product-title,
+.product-details-content .product-title,
+.shop-list-wrap .shop-list-content h3,
+.shop-list-wrap .shop-list-content h3 a,
+.product-wrap-2 .product-content h3 a,
+.welcome-content h1,
+.welcome-content h5 {
+  color: $brand-maroon;
+}
+
+// Regions that paint their own dark or photographic background: their headings
+// and bold text are light by design, and maroon on black is unreadable. These
+// inherit the surrounding colour again rather than being pinned to a value, so
+// each region keeps whatever it already uses.
+.header-area,
+.announcement-bar,
+.footer-area,
+.footer-top,
+.copyright-area,
+footer {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  b,
+  strong,
+  [style*="font-weight: bold"],
+  [style*="font-weight:bold"] {
+    color: inherit;
+  }
+}
+
+// The category hero prints its title in white over a darkened photograph.
+.category-banner__title {
+  color: #ffffff;
+}

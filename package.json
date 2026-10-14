@@ -14,7 +14,6 @@
 		"node-fetch": "2.6.1",
 		"prop-types": "^15.7.2",
 		"react": "^16.6.0",
-		"react-dom": "^16.6.0",
 		"react-app-polyfill": "^1.0.4",
 		"react-bootstrap": "1.0.1",
 		"react-bootstrap-sweetalert": "^5.2.0",
@@ -23,6 +22,7 @@
 		"react-countdown-now": "^2.1.2",
 		"react-countup": "^4.2.3",
 		"react-custom-scrollbars-2": "^4.4.0",
+		"react-dom": "^16.6.0",
 		"react-fullpage": "^0.1.19",
 		"react-geocode": "^0.2.2",
 		"react-hook-form": "^6.13.1",
@@ -35,7 +35,7 @@
 		"react-paginate": "^7.0.0",
 		"react-redux": "^7.1.3",
 		"react-router-dom": "^5.1.2",
-		"react-scripts": "^4.0.1",
+		"react-scripts": "^5.0.1",
 		"react-scroll": "^1.7.14",
 		"react-spinners": "^0.9.0",
 		"react-star-ratings": "^2.3.0",
@@ -55,9 +55,12 @@
 		"dev": "react-scripts start",
 		"intergartion": "chmod +x ./env.sh && ./env.sh && cp env-config.js ./public/ && react-scripts start",
 		"start": "react-scripts start",
-		"build": "react-scripts build",
+		"build": "npm run sitemap && react-scripts build",
+		"sitemap": "node scripts/generate-sitemap.js",
 		"test": "react-scripts test",
-		"eject": "react-scripts eject"
+		"eject": "react-scripts eject",
+		"purgecss": "purgecss --config purgecss.config.js",
+		"postbuild": "purgecss --config purgecss.config.js"
 	},
 	"eslintConfig": {
 		"extends": "react-app"
@@ -77,6 +80,7 @@
 		]
 	},
 	"devDependencies": {
+		"purgecss": "^5.0.0",
 		"redux-devtools-extension": "^2.13.8",
 		"sass": "^1.29.0"
 	}

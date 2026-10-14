@@ -87,6 +87,9 @@ const cartReducer = (state = initState, action) => {
     const cookies = new Cookies();
     cookies.remove(cart_cookie1);
     removeLocalData(cart_cookie1);
+    // the cart's own id is kept under a second key; leaving it behind meant the
+    // next page load asked the API for a cart that no longer exists
+    removeLocalData(GET_SHOPIZER_CART_ID);
     return {
       ...state,
       cartItems: {},

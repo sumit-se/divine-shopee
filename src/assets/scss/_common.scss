@@ -5,7 +5,7 @@
 
 /*-- Google Font --*/
 
-@import url("https://fonts.googleapis.com/css?family=Cormorant+Garamond:300,400,500,600,700|Poppins:300,400,500,600,700,800,900|Josefin+Sans:wght@300;400;500;600;700|Abril+Fatface|Great+Vibe|Lobster&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Cormorant+Garamond:300,400,500,600,700|Poppins:300,400,500,600,700,800,900|Josefin+Sans:wght@300;400;500;600;700|Lato:400,700,800|Abril+Fatface|Great+Vibe|Lobster|Baloo+2:700,800|Oswald:600,700&display=swap");
 
 /*-- Common Style --*/
 
@@ -20,8 +20,12 @@ body {
   height: 100%;
 }
 
+// Type matched to divineshopee.com (computed styles, 23 Aug 2026): body uses
+// the system stack, headings are Poppins 700. $poppins was already declared in
+// _variables.scss and the font is imported at the top of this file -- the theme
+// simply never used it, hardcoding Arial in the three rules below.
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: $system-stack;
   font-size: 14px;
   font-weight: 400;
   font-style: normal;
@@ -37,9 +41,8 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: Arial, Helvetica, sans-serif;
-  ;
-  font-weight: 400;
+  font-family: $poppins;
+  font-weight: 700;
 
   margin-top: 0;
 
@@ -47,8 +50,7 @@ h6 {
 }
 
 p {
-  font-family: Arial, Helvetica, sans-serif;
-  ;
+  font-family: $system-stack;
   font-size: 14px;
   font-weight: 400;
   line-height: 24px;

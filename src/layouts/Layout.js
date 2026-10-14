@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { Fragment } from "react";
+import AnnouncementBar from "../components/announcement/AnnouncementBar";
 import Header from "../wrappers/header/Header";
 import Footer from "../wrappers/footer/Footer";
 
@@ -12,6 +13,8 @@ const Layout = ({
 }) => {
   return (
     <Fragment>
+      {/* sits above the header on every page, as on divineshopee.com */}
+      <AnnouncementBar />
       <Header
         layout={headerContainerClass}
         top={headerTop}
@@ -19,11 +22,9 @@ const Layout = ({
         headerPositionClass={headerPositionClass}
       />
       {children}
-      <Footer
-        backgroundColorClass="bg-gray"
-        spaceTopClass="pt-100"
-        spaceBottomClass="pb-70"
-      />
+      {/* bg-gray / pt-100 / pb-70 dropped: the brand footer paints its own
+          black band and orange rights strip and owns its vertical rhythm. */}
+      <Footer />
     </Fragment>
   );
 };

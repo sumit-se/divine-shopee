@@ -361,6 +361,52 @@
     }
   }
 
+  // the shopper's choice between the store's payment methods, above whichever
+  // method's own panel is showing
+  .payment-method-choice {
+    h5 {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 14px;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+
+      li {
+        list-style: outside none none;
+        margin-bottom: 4px;
+      }
+    }
+
+    input[type="radio"] {
+      height: 15px;
+      margin: 0;
+      position: relative;
+      top: 2px;
+      width: 17px;
+    }
+
+    label {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    // the cost of choosing this method, said next to the method itself
+    .payment-method-fee {
+      font-size: 13px;
+      color: #6b6b6b;
+    }
+
+    // why a method the shopper may have expected is not on the list
+    .payment-method-note {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: #7f0000;
+    }
+  }
+
   .payment-method {
     input[type="checkbox"] {
       height: 15px;
@@ -485,4 +531,28 @@ iframe {
   border: none;
   line-height: 0;
   float: left;
+}
+// bank transfer / UPI: the details the shopper pays to, on checkout and on the
+// order confirmation page
+.bank-transfer-info {
+  margin-top: 10px;
+
+  .bank-transfer-details {
+    background: #fff8ef;
+    border: 1px solid #f0d9b5;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    font-size: 15px;
+    line-height: 1.6;
+
+    p {
+      margin: 0 0 4px;
+    }
+  }
+
+  .bank-transfer-note {
+    font-size: 13px;
+    color: #7f0000;
+  }
 }

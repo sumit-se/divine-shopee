@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { Fragment, useState } from "react";
+import SaleTag from "./SaleTag";
 import { Link } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
 // import { getDiscountPrice } from "../../helpers/product";
@@ -34,6 +35,30 @@ const ProductGridListSingle = ({
     setProductID(id)
   }
 
+  // Sold by enquiry: its product type has "allow add to cart" switched off.
+  // Such a product has no price to show and is not out of stock -- it is asked
+  // about on its page (as ProductGridSingle and the product page already do).
+  const enquiryOnly = !!(product.type && product.type.allowAddToCart === false);
+  // nothing in stock (beads counted): no price quoted, and "notify me" instead
+  const soldOut = !enquiryOnly && !!product.soldOut;
+  // sold out: the product page takes a "notify me when available" request
+  const notifyLink = (
+    <Link
+      to={"/product/" + product.description.friendlyUrl}
+      onClick={() => onClickProductDetails(product.id)}
+      title={strings["Notify me when available"] || "Notify me when available"}>
+      {" "}<i className="pe-7s-bell"></i>{" "}{strings["Notify me"] || "Notify me"}
+    </Link>
+  );
+  const enquireLink = (
+    <Link
+      to={"/product/" + product.description.friendlyUrl}
+      onClick={() => onClickProductDetails(product.id)}
+      title={strings["Enquire"] || "Enquire"}>
+      {" "}<i className="pe-7s-mail"></i>{" "}{strings["Enquire"] || "Enquire"}
+    </Link>
+  );
+
   return (
     <Fragment>
       <div
@@ -53,6 +78,12 @@ const ProductGridListSingle = ({
                 product.images.length > 1 ? <img className="hover-img-A" src={defaultImage(product)} alt="" /> : ''
               }
             </Link>
+            {!soldOut && <SaleTag
+              original={product.originalPrice}
+              final={product.finalPrice}
+              discounted={product.discounted}
+              strings={strings}
+            />}
 
 
             <div className="product-action">
@@ -64,6 +95,7 @@ const ProductGridListSingle = ({
               <div className="pro-same-action pro-cart">
 
                 {
+                  enquiryOnly ? enquireLink : soldOut ? notifyLink :
                   product.available && product.canBePurchased && product.visible && product.quantity > 0 ?
                     (
                       <button
@@ -74,11 +106,7 @@ const ProductGridListSingle = ({
                       > {" "}  <i className="pe-7s-cart"></i>{" "}{strings["Add to cart"]}</button>
                     )
                     :
-                    (
-                      <button disabled className="active">
-                        {strings["Out of Stock"]}
-                      </button>
-                    )
+                    notifyLink
                 }
 
               </div>
@@ -107,7 +135,9 @@ const ProductGridListSingle = ({
               {/* <Rating ratingValue={product.rating} /> */}
             </div>
             <div className="product-price">
-              {product.discounted ? (
+              {enquiryOnly || soldOut ? (
+                <span className="price-on-request">{strings["Price on request"] || "Price on request"}</span>
+              ) : product.discounted ? (
                 <Fragment>
                   <span>{finalDiscountedPrice}</span>{" "}
                   <span className="old">
@@ -127,7 +157,7 @@ const ProductGridListSingle = ({
                 <div className="product-img">
                   <Link to={"/product/" + product.description.friendlyUrl} onClick={() => onClickProductDetails(product.id)}>
                     {
-                      product.image && <img className="default-img img-fluid" src={product.image.imageUrl} alt="" />
+                      product.image && <img className="default-img img-fluid" src={cardImage(product.image)} alt="" />
                     }
                     
                     {/*product.images.length > 1 ?
@@ -146,6 +176,12 @@ const ProductGridListSingle = ({
                     
 
                   </Link>
+                  {!soldOut && <SaleTag
+                    original={product.originalPrice}
+                    final={product.finalPrice}
+                    discounted={product.discounted}
+                    strings={strings}
+                  />}
                 </div>
               </div>
             </div>
@@ -157,7 +193,9 @@ const ProductGridListSingle = ({
                   </Link>
                 </h3>
                 <div className="product-list-price">
-                  {product.discounted ? (
+                  {enquiryOnly || soldOut ? (
+                    <span className="price-on-request">{strings["Price on request"] || "Price on request"}</span>
+                  ) : product.discounted ? (
                     <Fragment>
                       <span>
                         {finalDiscountedPrice}
@@ -188,6 +226,7 @@ const ProductGridListSingle = ({
                   <div className="shop-list-btn btn-hover">
 
                     {
+                      enquiryOnly ? enquireLink : soldOut ? notifyLink :
                       product.available && product.canBePurchased && product.visible && product.quantity > 0 ?
 
                         (
@@ -198,11 +237,7 @@ const ProductGridListSingle = ({
                           </button>
                         )
                         :
-                        (
-                          <button disabled className="active">
-                            {strings["Out of Stock"]}
-                          </button>
-                        )
+                        notifyLink
                     }
 
                     {/* )} */}
@@ -246,11 +281,25 @@ ProductGridListSingle.propTypes = {
   // wishlistItem: PropTypes.object
 };
 
+/*
+ * A listing card draws this picture about 250px wide. The catalogue now keeps
+ * a grid-size copy of every product image for exactly that -- roughly 35KB
+ * against the 150KB of the copy the product page's gallery needs, fifteen
+ * times over on a category page. `thumbnailUrl` is missing only on an image
+ * that predates the tier, so the full copy stays as the fallback.
+ */
+function cardImage(image) {
+  if (!image) {
+    return null;
+  }
+  return image.thumbnailUrl || image.imageUrl || null;
+}
+
 function defaultImage(product) {
   if(product.images && product.images.length > 0) {
-    return product.images[0].imageUrl;
+    return cardImage(product.images[0]);
   } else if(product.image != null) {
-    return product.imageUrl;
+    return cardImage(product.image) || product.imageUrl;
   } else {
     return null;
   }

@@ -13,6 +13,7 @@ const HeroSlider = ({ string }) => {
           pitch1={string["Pitch1"]}
           pitch2={string["Pitch2"]}
           pitch3={string["Shop now"]}
+          pitch4={string["Pitch4"]}
         />
       </div>
     </div>

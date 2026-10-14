@@ -1,0 +1,1282 @@
+// Home-page sections specific to Divine Shopee, matched to divineshopee.com.
+// Imported after brand-header so it wins over the theme defaults.
+
+// ---- "Divine Shopee Experience" banner -------------------------------------
+// Full-bleed on the source site: the artwork runs edge to edge (measured l=0,
+// w=viewport) rather than sitting inside the 1200px content column, so it is
+// deliberately NOT wrapped in a .container here.
+.experience-banner-area {
+  // <picture> is inline by default, which leaves a descender gap under the
+  // image and stops the banner sitting flush against the next section.
+  picture {
+    display: block;
+  }
+
+  img {
+    display: block;
+
+    width: 100%;
+    height: auto;
+  }
+}
+
+// ---- "A Divine Journey" intro block ----------------------------------------
+// Measured on divineshopee.com at a 1280 viewport: heading 40px Poppins 700 on
+// a 40px line, body 17px on 25.5px justified, both inside a 602px column, with
+// the artwork 469px wide on the right.
+//
+// This overrides .site-blocks-cover, whose theme rules set the heading in
+// oversized caps (the headline was rendering ~56px and wrapping to four lines)
+// and floated the copy to the right of the artwork.
+.site-blocks-cover {
+  // The theme sizes this as a full-viewport hero -- `min-height: 500px` plus
+  // `height: calc(100vh - 230px)`, applied to both the section and its row
+  // (_slider.scss:3321). That is meant for a background-image cover, not a
+  // block of copy: it made the section 570px tall for 324px of content at an
+  // 800px window, and grow taller on a taller screen. Sized to its content
+  // instead, with padding that lands it near the source's 405px.
+  height: auto;
+  min-height: 0;
+
+  padding-top: 40px;
+  padding-bottom: 40px;
+
+  > .container > .row.divine-journey {
+    height: auto;
+    min-height: 0;
+  }
+
+  .divine-journey {
+
+    &__copy {
+      // h1 since the heading was promoted for SEO; h2 kept so the rule still
+      // applies if the tag is ever changed back.
+      // line-height needs !important: the theme sets
+      // `.site-blocks-cover h1 { line-height: 72px !important }`, which beats
+      // specificity and stretched this two-line headline from 80px to 144px.
+      // That rule targets h1 only, which is why the h2 never hit it.
+      h1,
+      h2 {
+        margin-bottom: 26px;
+
+        font-family: $poppins;
+        font-size: 40px;
+        font-weight: 700;
+        line-height: 40px !important;
+        text-transform: none;
+        letter-spacing: normal;
+
+        color: #000000;
+      }
+
+      p {
+        // The theme's `.site-blocks-cover p` sets `margin: 10px !important` on
+        // all four sides, which indented the body copy 10px past the heading;
+        // the source keeps the two flush. !important is the only way to beat
+        // !important -- specificity does not enter into it.
+        margin: 0 0 7px !important;
+
+        font-family: $poppins;
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 25.5px;
+        text-align: justify;
+
+        color: #000000;
+      }
+
+      strong {
+        font-weight: 700;
+      }
+    }
+
+    &__art {
+      text-align: center;
+
+      img {
+        // the source's exact treatment: white keyline, one square corner,
+        // and a soft shadow lifting it off the page
+        max-width: 100%;
+        height: auto;
+
+        border: 3px solid #ffffff;
+        border-radius: 20px 20px 20px 0;
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+      }
+    }
+  }
+}
+
+// Stack cleanly on phones, where the two columns sit on top of each other.
+@media (max-width: 991px) {
+  .site-blocks-cover .divine-journey {
+    &__copy {
+      margin-bottom: 34px;
+
+      // h1 as well as h2 -- the heading was promoted for SEO, and this
+      // responsive step-down still named only h2, leaving the headline at 40px
+      // and four lines tall on a phone. !important for the same reason as the
+      // desktop rule: the theme's .site-blocks-cover h1 line-height is forced.
+      h1,
+      h2 {
+        font-size: 30px !important;
+        line-height: 34px !important;
+      }
+    }
+  }
+}
+
+// ---- home-page banner carousel ---------------------------------------------
+// One slide in view at 1200x450, as on divineshopee.com.
+.hero-carousel-area {
+
+  .hero-carousel__slide {
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 8px;
+
+    // Holds the frame at the source's 1200x450 whatever the artwork is, so the
+    // carousel never changes height between slides and never shifts the page.
+    aspect-ratio: 1200 / 450;
+
+    img {
+      display: block;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+    }
+  }
+
+  // ---- controls (the source has none; see HeroCarousel.js) ----------------
+  .hero-carousel__prev,
+  .hero-carousel__next {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 44px;
+    height: 44px;
+
+    transform: translateY(-50%);
+
+    cursor: pointer;
+    font-size: 22px;
+    color: $brand-maroon;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+
+    transition: background-color 0.25s ease;
+
+    &:hover {
+      background-color: $brand-saffron;
+      color: #000000;
+    }
+  }
+
+  .hero-carousel__prev {
+    left: 18px;
+  }
+
+  .hero-carousel__next {
+    right: 18px;
+  }
+
+  .swiper-container {
+    position: relative;
+  }
+
+  .swiper-pagination {
+    bottom: 12px;
+  }
+
+  .swiper-pagination-bullet {
+    opacity: 0.9;
+    background-color: #ffffff;
+  }
+
+  .swiper-pagination-bullet-active {
+    background-color: $brand-saffron;
+  }
+
+  // Arrows are a mouse affordance and crowd a narrow screen; the bullets and
+  // swipe cover touch.
+  @media (max-width: 767px) {
+    .hero-carousel__prev,
+    .hero-carousel__next {
+      display: none;
+    }
+  }
+}
+
+// ---- category hero + description -------------------------------------------
+// Matched to the archive template on divineshopee.com: 303px tall, one shared
+// photo cover/centre under a 50% black wash, title 70px Poppins bold white.
+.category-banner {
+
+  &__media {
+    position: relative;
+
+    // Sits inside a .container in CategoryBanner.js so it lines up with the
+    // sidebar and product grid below. The source bleeds this to the viewport
+    // edge, but on our contained layout that left it ~55px wider than every
+    // other section. A fixed max-width here would track .container's outer box
+    // rather than its content, landing 15px out on each side.
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 303px;
+    padding: 20px 15px;
+
+    background-color: #000000;
+    // the image itself is set inline from PUBLIC_URL in CategoryBanner.js:
+    // it lives in public/, and a url() here would be resolved against src/
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    // the wash, so white type stays legible over any part of the photo
+    &::before {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+
+      content: "";
+
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  &__title {
+    position: relative;
+    z-index: 1;
+
+    margin: 0;
+
+    font-family: $poppins;
+    font-size: 70px;
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+
+    color: #ffffff;
+  }
+
+  // Descriptions run long -- 1 Mukhi Rudraksha is 11 paragraphs, including a
+  // Hindi passage -- and at full height they pushed the product grid a long way
+  // down the page. Capped at five lines and scrolled, which is how the source
+  // site presents it too.
+  &__blurb {
+    padding-top: 26px;
+
+    // The description is a read-only <textarea rows={5}>. Height comes from
+    // `rows`, so it lands on exactly five lines of this font and scrolls the
+    // rest; resize is disabled so it cannot be dragged out of the layout.
+    &-text {
+      display: block;
+
+      width: 100%;
+      padding: 12px 14px;
+
+      resize: none;
+      overflow-y: auto;
+
+      font-family: $poppins;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 25.5px;
+
+      color: #000000;
+      border: 1px solid #e2d9cb;
+      border-radius: 6px;
+      background-color: #fdfaf5;
+
+      &:focus {
+        outline: none;
+        border-color: $brand-saffron;
+      }
+
+      // slim scrollbar; the OS default is heavy next to 17px text
+      scrollbar-width: thin;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        border-radius: 3px;
+        background-color: #d6ccbe;
+      }
+
+      &::-webkit-scrollbar-track {
+        background-color: #f4efe7;
+      }
+
+      // The HTML variant is a <div>, so it has no `rows` to size it: cap it at
+      // the same five lines (5 x 25.5 line-height + the 12px padding pair) and
+      // scroll the rest, so both shapes of description occupy one box.
+      &--html {
+        max-height: 152px;
+
+        p,
+        ol,
+        ul {
+          margin: 0 0 6px;
+        }
+
+        ol,
+        ul {
+          padding-left: 22px;
+        }
+
+        li {
+          // the editor wraps list text in its own font-size spans; those are
+          // left alone, this is for the plain <li> content
+          line-height: 25.5px;
+        }
+
+        hr {
+          margin: 10px 0;
+          border-top: 1px solid #e2d9cb;
+        }
+
+        :last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    p {
+      margin: 0 0 6px;
+
+      font-family: $poppins;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 25.5px;
+
+      color: #000000;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  // The source drops the title to a much smaller size on narrow screens; 70px
+  // would wrap "Gauri shankar Rudraksha" into four lines on a phone.
+  @media (max-width: 991px) {
+    &__media {
+      min-height: 200px;
+    }
+
+    &__title {
+      font-size: 40px;
+    }
+  }
+
+  @media (max-width: 575px) {
+    &__media {
+      min-height: 152px;
+    }
+
+    &__title {
+      font-size: 28px;
+    }
+  }
+}
+
+// ---- product card image frame ----------------------------------------------
+// The card image boxes were already a fixed height, but the theme only sets
+// `width: 100%` on the image inside, so each photo kept its own aspect ratio and
+// was centred in that box. With product shots ranging from 1000x1100 through
+// 1000x618 to 672x672, the rendered images came out anywhere between 151px and
+// 297px tall -- a 146px spread within identical frames, so neighbouring
+// products appeared at completely different sizes.
+//
+// A square frame with `contain` gives every product the same footprint and the
+// same visual weight. `contain` rather than `cover` because nothing may be
+// cropped: on a mala or a capped bead, the ends are the part that matters.
+//
+// The two grids also disagreed on frame height -- 300px for .product-wrap-2
+// (home) against 280px for .product-wrap (category, search) -- so both are
+// pinned to the same 1:1 ratio, which is the shape the source site uses.
+.product-wrap,
+.product-wrap-2 {
+
+  .product-img {
+    height: auto;
+    aspect-ratio: 1 / 1;
+
+    overflow: hidden;
+
+    background-color: #ffffff;
+
+    a {
+      display: block;
+
+      width: 100%;
+      height: 100%;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: contain;
+    }
+  }
+
+  // Product names show in full -- clamping them to two lines cut the tail off
+  // every long name ("1-14 Mukhi Rudraksha Healing Bracelet with Silver Caping
+  // (WYSIWYG)"), which is exactly the part that distinguishes the variants.
+  //
+  // Rows are levelled by stretching the cards instead: the column and card are
+  // flex, so every card in a row takes the row's height and the price sits at
+  // the bottom of each. min-height keeps a one-line name from making a stubby
+  // card next to a two-line neighbour.
+  // .product-wrap-2 (home) uses .product-content-2; .product-wrap (category,
+  // search) uses .product-content -- both need the same treatment.
+  .product-content-2 h3,
+  .product-content h3 {
+    min-height: 2.8em;
+  }
+}
+
+
+// ---- equal-height product cards --------------------------------------------
+// Bootstrap already stretches the columns; these make the card fill the column
+// and its content area absorb the slack, so a row of cards ends level even when
+// the names wrap to different numbers of lines.
+.product-area .row > [class*="col-"],
+.shop-area .row > [class*="col-"] {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-wrap,
+.product-wrap-2 {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+
+  width: 100%;
+
+  // the square image frame must not be squeezed by the flex layout
+  .product-img {
+    flex: 0 0 auto;
+  }
+
+  .product-content,
+  .product-content-2 {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
+  // price sits flush at the bottom of every card in the row
+  .product-price,
+  .product-price-2 {
+    margin-top: auto;
+  }
+}
+
+// ---- product description ---------------------------------------------------
+// Source copy is one unbroken run of text; ProductDescription.js breaks it into
+// labelled sections and paragraphs. These styles give that structure room.
+.product-description {
+  margin-bottom: 8px;
+
+  &__section + &__section {
+    margin-top: 18px;
+  }
+
+  &__heading {
+    margin: 0 0 6px;
+
+    font-family: $poppins;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-transform: none;
+    letter-spacing: normal;
+
+    color: $brand-maroon;
+  }
+
+  &__body {
+    margin: 0 0 10px;
+
+    font-family: $poppins;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.75;
+
+    color: #444444;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  // Descriptions authored in the admin's WYSIWYG editor arrive as markup and
+  // are printed as-is, so they carry no __body / __list classes and fall back
+  // to the browser's font -- 14px system type for the lists, next to Poppins
+  // everywhere else on the page. These rules hand that markup the same type as
+  // the parsed branch above, so both kinds of description read identically.
+  // Sizes and colours the editor set inline are left alone.
+  &--html {
+    font-family: $poppins;
+
+    p,
+    li,
+    b,
+    strong,
+    span {
+      font-family: inherit;
+    }
+
+    p {
+      margin: 0 0 10px;
+
+      font-size: 15px;
+      font-weight: 400;
+    }
+
+    ol,
+    ul {
+      margin: 0 0 10px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 5px;
+
+      font-size: 15px;
+      line-height: 25.5px;
+
+      color: #333333;
+
+      &::marker {
+        color: $brand-saffron;
+      }
+    }
+
+    hr {
+      margin: 14px 0;
+    }
+
+    :last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// The name is now an h1; keep the size the theme gave the old h2 so the visual
+// hierarchy is unchanged.
+.product-details-content .product-title {
+  margin: 0 0 12px;
+
+  font-family: $poppins;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.4;
+
+  color: #010101;
+}
+
+// ---- product description: badge, list, heading scale -----------------------
+.product-description {
+
+  // The store's "what you see is what you get" promise, lifted out of the
+  // prose into a badge so it reads as a guarantee rather than a sentence.
+  &__wysiwyg {
+    margin: 0 0 14px;
+  }
+
+  &__wysiwyg-badge {
+    display: inline-block;
+
+    padding: 6px 14px;
+
+    font-family: $poppins;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+
+    color: #000000;
+    border-radius: 20px;
+    background-color: $brand-saffron;
+  }
+
+  &__list {
+    margin: 0 0 10px;
+    padding-left: 20px;
+
+    list-style: disc;
+
+    li {
+      margin-bottom: 6px;
+
+      font-family: $poppins;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.7;
+
+      color: #444444;
+
+      &::marker {
+        color: $brand-saffron;
+      }
+    }
+  }
+}
+
+// The section headings were rendering at 24px -- the same size as the product
+// name -- because the theme styles `.product-details-content h2` and that wins
+// on specificity. The name is the page's subject, so it takes the largest
+// type and the section headings sit clearly below it.
+.product-details-content {
+
+  h1.product-title {
+    margin: 0 0 14px;
+
+    font-family: $poppins;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.3;
+
+    color: #010101;
+  }
+
+  .product-description h2.product-description__heading {
+    margin: 0 0 6px;
+
+    font-family: $poppins;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-transform: none;
+    letter-spacing: normal;
+
+    color: $brand-maroon;
+  }
+}
+
+// ---- buy box: quantity stepper + add to cart -------------------------------
+// These now sit directly above the description, so they are the first thing a
+// shopper reaches. The theme rendered them as a hairline-bordered box and a
+// square dark-grey button; this gives them the brand palette and enough weight
+// to read as the page's primary action.
+.product-details-content .pro-details-quality {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 14px;
+
+  margin: 0 0 26px;
+
+  // ---- quantity stepper ----
+  .cart-plus-minus {
+    position: relative;
+
+    display: inline-flex;
+    align-items: stretch;
+    overflow: hidden;
+
+    width: auto;
+    height: 52px;
+
+    border: 1px solid #e2d9cb;
+    border-radius: 30px;
+    background-color: #fdfaf5;
+
+    .qtybutton {
+      // the theme absolutely positions these and floats the input between
+      // them, so all three stacked on top of each other once the pill became
+      // a flex row -- they have to come back into normal flow
+      position: static;
+
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+
+      width: 44px;
+      height: 52px;
+      margin: 0;
+      padding: 0;
+
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1;
+
+      color: $brand-maroon;
+      border: none;
+      background: transparent;
+
+      transition: background-color 0.2s ease, color 0.2s ease;
+
+      &:hover {
+        color: #000000;
+        background-color: $brand-saffron;
+      }
+    }
+
+    .cart-plus-minus-box {
+      position: static;
+      float: none;
+
+      flex: 0 0 auto;
+
+      width: 52px;
+      height: 52px;
+      padding: 0;
+
+      font-family: $poppins;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+
+      color: #010101;
+      border: none;
+      background: transparent;
+    }
+  }
+
+  // ---- add to cart ----
+  .pro-details-cart {
+    flex: 1 1 auto;
+
+    // the theme gives this a side margin, which knocked the button 10px out of
+    // line with the stepper once the two wrapped onto separate rows
+    margin: 0;
+
+    button {
+      width: 100%;
+      height: 52px;
+      padding: 0 34px;
+
+      cursor: pointer;
+      font-family: $poppins;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      text-transform: uppercase;
+
+      color: #ffffff;
+      border: none;
+      border-radius: 30px;
+      background-color: $brand-maroon;
+      box-shadow: 0 4px 14px rgba(127, 0, 0, 0.25);
+
+      transition: background-color 0.2s ease, color 0.2s ease,
+        transform 0.15s ease, box-shadow 0.2s ease;
+
+      &:hover:not(:disabled) {
+        color: #000000;
+        background-color: $brand-saffron;
+        box-shadow: 0 6px 18px rgba(255, 165, 22, 0.4);
+
+        transform: translateY(-1px);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+
+        color: #7a7a7a;
+        background-color: #e4e4e4;
+        box-shadow: none;
+      }
+    }
+  }
+
+  // the buttons stack on a narrow screen rather than squashing
+  @media (max-width: 479px) {
+    .pro-details-cart {
+      flex: 1 1 100%;
+    }
+  }
+}
+
+// ---- Rudraksha recommendation form -----------------------------------------
+.rudraksha-form-area {
+  padding: 60px 0 90px;
+
+  &__bg {
+    background-color: #fdfaf5;
+  }
+}
+
+.rudraksha-form {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 34px 34px 30px;
+
+  border: 1px solid #ece3d5;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+
+  &__intro {
+    max-width: 860px;
+    margin: 0 auto 26px;
+
+    text-align: center;
+
+    h1 {
+      margin: 0 0 10px;
+
+      font-family: $poppins;
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1.25;
+
+      color: #010101;
+    }
+
+    p {
+      margin: 0;
+
+      font-family: $poppins;
+      font-size: 17px;
+      line-height: 1.7;
+
+      color: #555555;
+    }
+  }
+
+  // two columns on desktop, one on a phone; wide fields span both
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 22px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+
+    &--wide {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      margin-bottom: 6px;
+
+      font-family: $poppins;
+      font-size: 14px;
+      font-weight: 600;
+
+      color: #333333;
+
+      span {
+        color: $brand-maroon;
+      }
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      height: 46px;
+      padding: 0 14px;
+
+      font-family: $poppins;
+      font-size: 15px;
+
+      color: #222222;
+      border: 1px solid #ddd3c4;
+      border-radius: 8px;
+      background-color: #fffdfa;
+
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: $brand-saffron;
+        box-shadow: 0 0 0 3px rgba(255, 165, 22, 0.18);
+      }
+    }
+
+    textarea {
+      height: auto;
+      padding: 12px 14px;
+
+      resize: vertical;
+    }
+
+    small {
+      margin-top: 5px;
+
+      font-size: 12px;
+
+      color: #8a7f72;
+    }
+  }
+
+  &__error {
+    margin-top: 5px;
+
+    font-family: $poppins;
+    font-size: 12.5px;
+
+    color: #c0392b;
+  }
+
+  &__submit {
+    display: block;
+
+    width: 100%;
+    max-width: 320px;
+    height: 52px;
+    margin: 26px auto 0;
+
+    cursor: pointer;
+    font-family: $poppins;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+
+    color: #ffffff;
+    border: none;
+    border-radius: 30px;
+    background-color: $brand-maroon;
+    box-shadow: 0 4px 14px rgba(127, 0, 0, 0.25);
+
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+
+    &:hover {
+      color: #000000;
+      background-color: $brand-saffron;
+
+      transform: translateY(-1px);
+    }
+  }
+
+  &__note {
+    margin: 14px 0 0;
+
+    font-size: 13px;
+    text-align: center;
+
+    color: #8a7f72;
+  }
+
+  &__done {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 40px 30px;
+
+    text-align: center;
+
+    border: 1px solid #ece3d5;
+    border-radius: 12px;
+    background-color: #fdfaf5;
+
+    h2 {
+      margin: 0 0 10px;
+
+      font-family: $poppins;
+      font-size: 24px;
+      font-weight: 700;
+
+      color: $brand-maroon;
+    }
+
+    button {
+      margin-top: 18px;
+      padding: 10px 24px;
+
+      cursor: pointer;
+
+      color: $brand-maroon;
+      border: 1px solid $brand-maroon;
+      border-radius: 30px;
+      background: transparent;
+
+      &:hover {
+        color: #000000;
+        border-color: $brand-saffron;
+        background-color: $brand-saffron;
+      }
+    }
+  }
+
+  @media (max-width: 575px) {
+    padding: 24px 18px 22px;
+
+    &__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+// ---- non-category links inside a category menu -----------------------------
+// "Rudraksha Recommendation" is a page, not a bead type. On the desktop
+// mega-menu it becomes a centred pill on its own full-width row beneath the
+// sub-category columns, as on divineshopee.com; in the stacked mobile menu it
+// is a separated, accented row.
+.header-area .main-menu ul.mega-menu > li.mega-menu__page-link {
+  // the theme sizes direct children of .mega-menu at 33.33% for the columns
+  float: none;
+  clear: both;
+
+  width: 100%;
+  margin: 6px 0 0;
+  padding: 16px 20px 4px;
+
+  text-align: center;
+
+  border-top: 1px solid #efe6d6;
+
+  > a {
+    display: inline-block;
+
+    padding: 11px 26px !important;
+
+    font-family: $poppins;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap;
+
+    color: #ffffff !important;
+    border-radius: 30px;
+    background-color: #5b6470;
+
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+
+    &:hover {
+      color: #000000 !important;
+      background-color: $brand-saffron;
+
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// stacked menu (mobile drawer, and any category short enough to skip the
+// mega-menu): keep it a simple accented row rather than a pill
+.sidebar-menu .nav-page-link,
+.offcanvas-navigation .nav-page-link,
+.header-area .main-menu ul.submenu > li.nav-page-link {
+  margin-top: 8px;
+  padding-top: 10px;
+
+  border-top: 1px solid #efe6d6;
+
+  > a {
+    font-weight: 700 !important;
+
+    color: $brand-maroon !important;
+
+    &:hover {
+      color: #000000 !important;
+    }
+  }
+}
+
+// ---- section titles --------------------------------------------------------
+// .section-title-5 ships with margin: 0, so "Shop by Category" and "Our Top
+// Selling Product" sat flush against the tiles and cards below them -- the
+// measured gap was 0px in both sections. This gives the heading room to read
+// as a heading, consistently in both.
+.category-carousel-area,
+.product-area {
+  > .container > .section-title-5 {
+    margin-bottom: 34px;
+  }
+}
+
+// A category banner that is designed artwork with its own headline
+// (CategoryBanner.js, `artwork`). The whole picture is shown at its own
+// proportions, so positions given as a share of the box land on the same spot
+// of the picture at every screen width; there is no dark wash, which turned the
+// artwork's white lettering grey. The category name sits under the artwork's
+// headline, in a matching condensed face, and completes it.
+.category-banner__media--artwork {
+  container-type: inline-size;
+  display: block;
+  min-height: 0;
+  padding: 0;
+  // the artwork's own proportions, so it is never stretched: each banner that
+  // is not 1170x303 gives its own (`aspect` in CategoryBanner.js)
+  aspect-ratio: var(--banner-aspect, 1170 / 303);
+  background-size: 100% 100%;
+
+  // An artwork carries its own lettering, so the veil that makes white type
+  // readable over a photograph would only grey it down -- hence transparent by
+  // default. A picture with no lettering of its own has the name written
+  // across it instead and asks for the veil back (`wash` in CategoryBanner.js).
+  &::before {
+    background-color: var(--banner-wash, transparent);
+  }
+
+  // Where the name sits, how big it is and what colour it takes belong to the
+  // artwork, not to this rule: each banner passes them down as custom
+  // properties (the title* keys in CategoryBanner.js). The fallbacks here are
+  // the Rudraksha artwork's, which is the one they were measured on.
+  .category-banner__title {
+    position: absolute;
+    // that artwork's headline is centred 61.7% across and ends 29% down
+    left: var(--banner-title-left, 61.7%);
+    top: var(--banner-title-top, 30%);
+    // the name hangs from its top edge, as it does when it is completing a
+    // headline; one centred on the picture asks to be pulled up by half its
+    // own height as well (`titleTranslate`)
+    transform: var(--banner-title-translate, translateX(-50%));
+
+    // matched to the artwork's lettering: set per banner (titleFont in
+    // CategoryBanner.js), Baloo 2 when not given
+    font-family: var(--banner-title-font, "Baloo 2"), $poppins;
+    font-weight: 700;
+    font-size: 46px;          // fallback without container units
+    // the headline's letter height, at any width
+    font-size: var(--banner-title-size, 4.3cqw);
+    line-height: 1.1;
+    letter-spacing: 0;
+    white-space: nowrap;
+    // Deep maroon with a pale glow: on Rudraksha the name sits on the
+    // brightest, orange part of the artwork, where gold (and white) had too
+    // little contrast. An artwork painted on a dark ground overrides both.
+    color: var(--banner-title-color, #7a0000);
+    text-shadow: var(--banner-title-shadow,
+      0 0 2px #fff6e0,
+      0 0 6px #fff6e0,
+      0 0 14px rgba(255, 246, 224, .9));
+  }
+}
+
+// A sale banner can ask for the name to be set in its own festive register
+// (`flash` in CategoryBanner.js) instead of the flat colour the other artworks
+// use: warm gold poured down through the letters and lit from behind, which
+// sits with lettering that is itself gradient-filled and glowing.
+//
+// The gradient is painted through the glyphs, so `color` no longer decides
+// anything here, and `titleColor` on a flashed banner is ignored. The glow has
+// to come from a filter rather than text-shadow: background-clip cuts the
+// painted box down to the letter shapes, and a text-shadow is part of that box,
+// so it is clipped away with the rest. A filter applies after the element is
+// painted, so it survives.
+.category-banner__title--flash {
+  // Weighted towards the top: a name is only a cap height tall, so stops
+  // spread evenly over it leave most of the letter in the pale end and the
+  // gold never arrives. Cream is spent in the first quarter and the rest of
+  // the glyph is gold, stopping at amber rather than running down into the
+  // orange it is printed on.
+  background: linear-gradient(
+    180deg,
+    #fff6cc 0%,
+    #ffe066 28%,
+    #ffc12e 58%,
+    #ffa023 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: none;
+  letter-spacing: .02em;
+  filter:
+    drop-shadow(0 1px 1px rgba(90, 25, 0, .95))
+    drop-shadow(0 0 10px rgba(255, 198, 96, .75))
+    drop-shadow(0 0 24px rgba(255, 150, 40, .5));
+}
+
+@media (max-width: 991px) {
+  .category-banner .category-banner__media--artwork {
+    min-height: 0;
+  }
+}
+
+// the claims printed as text are for the phone layout only; on wider screens
+// the artwork carries them itself
+.category-banner__claims {
+  display: none;
+}
+
+// the picture box used by the phone layout below
+.category-banner__art {
+  display: none;
+}
+
+// Phone, for an artwork whose own lettering is too small to read at this width
+// (`mobileClaims` in CategoryBanner.js, which is what prints those claims as
+// text). The picture box shows only the Shiva-and-peak side -- the image scaled
+// to the box height and pinned left, so a 540/303 box shows the first 540px of
+// the 1170px artwork, stopping short of its own lettering, which starts at
+// about 565px -- and a maroon strip under it carries the name and the claims as
+// real, legible text. An artwork without claims keeps its whole picture here.
+@media (max-width: 575px) {
+  .category-banner .category-banner__media--cropmobile {
+    aspect-ratio: auto;
+    // the desktop artwork is set inline; the strip replaces it here
+    background-image: linear-gradient(135deg, #a4161a 0%, #7f0000 100%) !important;
+    background-size: 100% 100%;
+    text-align: center;
+    padding-bottom: 14px;
+
+    .category-banner__art {
+      display: block;
+      aspect-ratio: 540 / 303;
+      background-size: auto 100%;
+      background-position: left center;
+      background-repeat: no-repeat;
+    }
+
+    .category-banner__title {
+      position: static;
+      transform: none;
+      margin-top: 10px;
+      // on the maroon strip gold reads well, and maroon would not
+      color: #ffd27a;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, .55);
+      font-size: 34px;
+      white-space: normal;
+    }
+
+    .category-banner__claims {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px 14px;
+      margin: 6px 12px 0;
+      padding: 0;
+      list-style: none;
+
+      li {
+        font-family: var(--banner-title-font, "Baloo 2"), $poppins;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: .4px;
+        color: #fff;
+        text-transform: uppercase;
+
+        &::before {
+          content: "✓ ";
+          color: #ffd27a;
+        }
+      }
+    }
+  }
+}

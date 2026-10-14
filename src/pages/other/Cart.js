@@ -8,7 +8,8 @@ import { BreadcrumbsItem } from "react-breadcrumbs-dynamic";
 // import { Redirect } from 'react-router-dom';
 import { connect } from "react-redux";
 // import { getDiscountPrice } from "../../helpers/product";
-import { isValidObject } from "../../util/helper";
+import { isValidObject, getLocalData } from "../../util/helper";
+import Cookies from 'universal-cookie';
 import { useForm } from "react-hook-form";
 import { getState } from "../../redux/actions/userAction";
 import { setLoader } from "../../redux/actions/loaderActions";
@@ -17,7 +18,8 @@ import {
   // decreaseQuantity,
   deleteFromCart,
   // cartItemStock,
-  // deleteAllFromCart
+  // deleteAllFromCart,
+  GET_SHOPIZER_CART_ID
 } from "../../redux/actions/cartActions";
 import Layout from "../../layouts/Layout";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
@@ -93,6 +95,17 @@ const Cart = ({
   const { pathname } = location;
   const history = useHistory();
   const [cartItems, setCartItems] = useState({})
+  /*
+   * The cart's id: from the store when it is there, otherwise from local
+   * storage or the cookie. Reading it only from the store meant that a page
+   * opened before the state had the id -- or a session where the store had been
+   * reset while the cart lived on -- fetched "/cart/" and showed nothing, with
+   * no way to reach the cart at all.
+   */
+  const effectiveCartID = cartID
+    || getLocalData(GET_SHOPIZER_CART_ID)
+    || new Cookies().get(window._env_.APP_MERCHANT + '_shopizer_cart')
+    || '';
   // const cartTotalPrice = cartItems.displaySubTotal;
   // const grandTotalPrice = cartItems.displaySubTotal;
   // const { register, handleSubmit, control, errors } = useForm({ mode: 'onChange' });
@@ -116,17 +129,21 @@ const Cart = ({
   useEffect(() => {
     console.log(cartCount)
     async function fetchData() {
-      let action = constant.ACTION.CART + cartID + '?store=' + defaultStore;
+      let action = constant.ACTION.CART + effectiveCartID + '?store=' + defaultStore;
       try {
         let response = await WebService.get(action);
         if (response) {
           setCartItems(response)
         }
       } catch (error) {
-        console.log(error, 'jaimin')
-        setTimeout(() => {
-          history.push('/')
-        }, 200);
+        /*
+         * The page used to throw the shopper back to the home page whenever this
+         * call failed, so a cart that could not be read -- even for a moment --
+         * looked like being kicked out of the shop. An empty cart is what the
+         * page already knows how to show.
+         */
+        console.log('Cart page could not read the cart', error);
+        setCartItems({})
       }
     }
     fetchData();
@@ -136,7 +153,7 @@ const Cart = ({
 
   const getCartData = async () => {
     setLoader(true)
-    let action = constant.ACTION.CART + cartID + '?store=' + defaultStore;
+    let action = constant.ACTION.CART + effectiveCartID + '?store=' + defaultStore;
     try {
       let response = await WebService.get(action);
       if (response) {
@@ -145,10 +162,9 @@ const Cart = ({
       setLoader(false)
     } catch (error) {
       setLoader(false)
-      setTimeout(() => {
-        history.push('/')
-      }, 200);
-
+      // same here: show the empty cart rather than redirecting away
+      console.log('Cart page could not read the cart', error);
+      setCartItems({})
     }
   }
   const deleteAllFromCart = () => {
@@ -190,7 +206,7 @@ const Cart = ({
   const applyPromoCode = async (data) => {
     // console.log(data)
     setLoader(true)
-    let action = constant.ACTION.CART + cartID + '/' + constant.ACTION.PROMO + data.code;
+    let action = constant.ACTION.CART + effectiveCartID + '/' + constant.ACTION.PROMO + data.code;
     let param = {};
     param = { 'promoCart': data.code }
     try {
@@ -249,16 +265,26 @@ const Cart = ({
                             // const finalProductPrice = cartItem.originalPrice;
                             const finalDiscountedPrice = cartItem.finalPrice;
 
+                            // The cart's product lines carry no SEF url -- the
+                            // cart mapper never fills it in -- so every link
+                            // here pointed at /product/undefined and went
+                            // nowhere. The product route takes a numeric id as
+                            // well as a slug, so fall back to the id.
+                            const productLink =
+                              "/product/" +
+                              ((cartItem.description && cartItem.description.friendlyUrl) ||
+                                cartItem.id);
+
                             return (
                               <tr key={key}>
                                 <td className="product-thumbnail">
-                                  <Link to={"/product/" + cartItem.description.friendlyUrl} >
+                                  <Link to={productLink} >
                                     <img className="img-fluid" src={defaultImage(cartItem)} alt="" />
                                   </Link>
                                 </td>
 
                                 <td className="product-name">
-                                  <Link to={"/product/" + cartItem.description.friendlyUrl}>
+                                  <Link to={productLink}>
                                     {cartItem.description.name}
                                   </Link>
                                 </td>

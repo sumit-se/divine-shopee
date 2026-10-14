@@ -227,3 +227,72 @@ export const toggleShopTopFilter = e => {
   }
   e.currentTarget.classList.toggle("active");
 };
+
+/**
+ * Order a list of categories the way the store owner arranged them.
+ *
+ * Shopizer sorts ROOT categories by sortOrder but hands back CHILDREN in
+ * alphabetical order, so "10 Mukhi Rudraksha" lands directly after "1 Mukhi
+ * Rudraksha" and the real order (1..18, then the named ones) is lost. The
+ * sortOrder values themselves are correct and are returned on every child --
+ * they are simply not applied -- so re-sorting on the client is enough.
+ *
+ * sortOrder is only meaningful WITHIN a parent, so a flat list that mixes
+ * levels (the search facet, built from the categories of every matching
+ * product) cannot be sorted on it alone -- doing that interleaved roots and
+ * children as "Rudraksha, 1 Mukhi, Mala / Jaap Mala, 2 Mukhi ...". Such lists
+ * are grouped as each root followed by its own children instead. Note that the
+ * `depth` field cannot be used to detect this: in this catalogue it mirrors
+ * sortOrder (Rudraksha's children report depth 1..18), so `parent` -- null on
+ * a root, {id, code} on a child -- is the reliable discriminator.
+ *
+ * Search facets from Shopizer's own POST /search carry no sortOrder at all,
+ * hence the numeric-aware name fallback: plain alphabetical is exactly what
+ * produces the 1, 10, 11, 2 sequence.
+ */
+export const sortCategoriesByOrder = categories => {
+  const list = [...(categories || [])];
+  if (list.length < 2) return list;
+
+  const hasSortOrder = list.every(
+    c => c && typeof c.sortOrder === "number" && !isNaN(c.sortOrder)
+  );
+
+  if (!hasSortOrder) {
+    const nameOf = c =>
+      (c && c.description && c.description.name) || (c && c.name) || "";
+    const collator = new Intl.Collator(undefined, {
+      numeric: true,
+      sensitivity: "base"
+    });
+    return list.sort((a, b) => collator.compare(nameOf(a), nameOf(b)));
+  }
+
+  const parentIdOf = c => (c.parent && c.parent.id) || null;
+  const byOrder = (a, b) => a.sortOrder - b.sortOrder;
+
+  // Every item on the same level (nav submenu, category-page facet): the
+  // sortOrder values are directly comparable.
+  if (new Set(list.map(parentIdOf)).size === 1) return list.sort(byOrder);
+
+  const roots = list.filter(c => !parentIdOf(c)).sort(byOrder);
+  const childrenByParent = new Map();
+  list.filter(parentIdOf).forEach(child => {
+    const key = parentIdOf(child);
+    if (!childrenByParent.has(key)) childrenByParent.set(key, []);
+    childrenByParent.get(key).push(child);
+  });
+  childrenByParent.forEach(children => children.sort(byOrder));
+
+  const ordered = [];
+  roots.forEach(root => {
+    ordered.push(root);
+    (childrenByParent.get(root.id) || []).forEach(c => ordered.push(c));
+    childrenByParent.delete(root.id);
+  });
+  // children whose parent did not appear in this list
+  [...childrenByParent.values()].forEach(children =>
+    children.forEach(c => ordered.push(c))
+  );
+  return ordered;
+};

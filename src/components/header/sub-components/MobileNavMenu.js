@@ -5,6 +5,10 @@ import { multilanguage } from "redux-multilanguage";
 import { connect } from "react-redux";
 import { setCategoryID } from "../../../redux/actions/productActions";
 import { setContent } from "../../../redux/actions/contentAction";
+import { CATEGORY_PAGE_LINKS } from "../NavMenu";
+
+// the hand-picked promotional category, shown as a highlighted pill
+const SPECIAL_CATEGORY_CODE = "special";
 const MobileNavMenu = ({ strings, categories, contents, setCategoryID, setContent }) => {
   const onClickCategory = (item) => {
     setCategoryID(item.id)
@@ -23,9 +27,11 @@ const MobileNavMenu = ({ strings, categories, contents, setCategoryID, setConten
         {
           categories.map((item, index) => {
 
-            return item.visible && <li className="menu-item-has-children" key={index}>
+            return item.visible && <li className={"menu-item-has-children" + (item.code === SPECIAL_CATEGORY_CODE ? " nav-special" : "")} key={index}>
               <Link to={"/category/" + item.description.friendlyUrl} onClick={() => onClickCategory(item)}>
-                {item.description.name}
+                {item.code === SPECIAL_CATEGORY_CODE
+                  ? <span className="nav-special__pill"><span className="nav-special__star" aria-hidden="true">★</span>{item.description.name}</span>
+                  : item.description.name}
               </Link>
               {
                 item.children && item.children.length > 0 &&
@@ -41,6 +47,14 @@ const MobileNavMenu = ({ strings, categories, contents, setCategoryID, setConten
                       )
                     })
                   }
+                  {/* Same non-category page links as the desktop mega-menu --
+                      the mobile drawer is a separate component, so leaving it
+                      out here made the link desktop-only. */}
+                  {(CATEGORY_PAGE_LINKS[item.code] || []).map(link => (
+                    <li className="nav-page-link" key={link.to}>
+                      <Link to={link.to}>{link.label}</Link>
+                    </li>
+                  ))}
                 </ul>
               }
             </li>

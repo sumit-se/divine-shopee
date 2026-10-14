@@ -8,12 +8,16 @@ import React from "react";
 // } from "../../helpers/product";
 // import ShopSearch from "../../components/product/ShopSearch";
 import ShopCategories from "../../components/product/ShopCategories";
+import ShopPrice from "../../components/product/ShopPrice";
 import ShopColor from "../../components/product/ShopColor";
 import ShopSize from "../../components/product/ShopSize";
 // import ShopTag from "../../components/product/ShopTag";
 import ShopManufacture from "../../components/product/ShopManufacture";
 
-const ShopSidebar = ({ string, getCategoryParams, getSortParams, sideSpaceClass, uniqueCategories, uniqueColors, uniqueSizes, uniqueManufacture }) => {
+// activeCategoryId is optional: the search page passes it so the chosen
+// facet can show as selected, the category page leaves it off because there
+// the same list navigates rather than filters.
+const ShopSidebar = ({ string, getCategoryParams, getSortParams, sideSpaceClass, uniqueCategories, activeCategoryId, priceBands, activePriceBandId, getPriceParams, uniqueColors, uniqueSizes, uniqueManufacture }) => {
   // const uniqueCategories = getIndividualCategories(products);
   // const uniqueColors = getIndividualColors(products);
   // const uniqueSizes = getProductsIndividualSizes(products);
@@ -27,8 +31,12 @@ const ShopSidebar = ({ string, getCategoryParams, getSortParams, sideSpaceClass,
       {/* filter by categories */}
       {
         uniqueCategories.length > 0 &&
-        <ShopCategories string={string} categories={uniqueCategories} getCategoryParams={getCategoryParams} />
+        <ShopCategories string={string} categories={uniqueCategories} getCategoryParams={getCategoryParams} activeCategoryId={activeCategoryId} />
       }
+
+      {/* filter by price band -- search page only; it renders nothing when no
+          bands are passed, which is how the category page leaves it out */}
+      <ShopPrice string={string} bands={priceBands} activeBandId={activePriceBandId} getPriceParams={getPriceParams} />
 
 
       {/* filter by manufacture */}

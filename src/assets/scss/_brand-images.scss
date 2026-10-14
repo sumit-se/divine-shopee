@@ -1,0 +1,156 @@
+/*
+ * Product images come in whatever shape they were photographed in -- the 1 Mukhi
+ * set alone runs 1000x1100, 1000x548 and 750x1100 -- so the gallery used to
+ * change height as you clicked through it and the thumbnails were anything from
+ * 58px to 154px tall in the same row.
+ *
+ * Every image is given the same box, in the proportions of the main product
+ * shot (10:11 portrait), and is fitted inside it rather than stretched or
+ * cropped: nothing is cut off, nothing is distorted, and the page stops jumping.
+ * The box is white so the padding is invisible against the page.
+ */
+
+$product-image-ratio: 10 / 11;
+$product-image-backdrop: #fff;
+
+@mixin product-image-box($ratio: $product-image-ratio) {
+  position: relative;
+  width: 100%;
+  padding-top: (1 / $ratio) * 100%; // aspect ratio, supported everywhere
+  background-color: $product-image-backdrop;
+  overflow: hidden;
+
+  img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+/* product detail: the main image and the thumbnails below it */
+.product-large-image-wrapper {
+  .single-image {
+    @include product-image-box;
+  }
+}
+
+.product-small-image-wrapper {
+  .single-image {
+    @include product-image-box;
+    cursor: pointer;
+  }
+}
+
+/* the same shape in the quick-view dialog */
+.product-modal {
+  .modal-body .single-image {
+    @include product-image-box;
+  }
+}
+
+/* listings: grid and list views, so a category page reads as a tidy row */
+.product-wrap,
+.product-list-image-wrap {
+  .product-img {
+    @include product-image-box;
+
+    // the hover image sits on top of the first one
+    img.hover-img {
+      top: 0;
+      left: 0;
+    }
+  }
+}
+
+/*
+ * Products the store does not sell directly: an enquiry form takes the place
+ * of the quantity box and Add to cart. Typography and colours follow the rest
+ * of the shop -- Poppins, maroon headings and buttons, saffron on hover --
+ * rather than the browser defaults the form started with.
+ */
+$enquiry-maroon: #7f0000;
+$enquiry-saffron: #ffa900;
+
+.price-on-request {
+  color: $enquiry-maroon;
+  font-weight: 600;
+}
+
+.pro-details-enquiry {
+  margin-bottom: 25px;
+  font-family: 'Poppins', sans-serif;
+
+  .pro-details-cart {
+    display: flex;
+    gap: 12px;
+    margin-right: 0;
+
+    button {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #fff;
+      background-color: $enquiry-maroon;
+      border: none;
+      border-radius: 50px;
+      padding: 14px 34px;
+      transition: all 0.3s ease 0s;
+
+      &:hover:not(:disabled) {
+        background-color: $enquiry-saffron;
+        color: #fff;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    .enquiry-cancel {
+      background-color: transparent;
+      color: $enquiry-maroon;
+      border: 1px solid $enquiry-maroon;
+
+      &:hover {
+        background-color: $enquiry-maroon;
+        color: #fff;
+      }
+    }
+  }
+
+  .enquiry-form {
+    max-width: 440px;
+
+    input,
+    textarea {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      color: #333;
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 12px 16px;
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      border-radius: 4px;
+
+      &::placeholder {
+        color: #999;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $enquiry-maroon;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+    }
+  }
+}
