@@ -254,6 +254,8 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
   const [shippingOptions, setShippingOptions] = useState();
   const [shippingQuote, setShippingQuote] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState('');
+  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState('');
+  const [storePickupChecked, setStorePickupChecked] = useState(false);
   const [deliveryData, setDeliveryData] = useState();
   const [agreementData, setAgreementData] = useState('');
   // false once the store says it will not send cash on delivery to the postcode
@@ -512,6 +514,17 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
       onChangeShipping()
     });
   }
+  const isStorePickup = (opt) =>
+    (opt.shippingQuoteOptionId || '').toLowerCase().includes('storepickup') ||
+    (opt.optionName || '').toLowerCase().includes('store pick');
+
+  const onStorePickupChange = (checked, pickupQuoteId) => {
+    setStorePickupChecked(checked);
+    const quoteId = checked ? pickupQuoteId : selectedDeliveryOption;
+    setSelectedOptions(quoteId);
+    shippingQuoteChange(quoteId);
+  };
+
   const onChangeShipping = async () => {
     // every /cart/* call is store-scoped; without store= it falls back to
     // DEFAULT and 404s, which silently broke shipping and totals at checkout.
@@ -533,11 +546,19 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
         if (!opts || opts.length === 0) {
           shippingQuoteChange('');
           setShippingOptions(null);
+          setStorePickupChecked(false);
+          setSelectedDeliveryOption('');
         } else {
-          const lastQuoteId = opts[opts.length - 1].shippingQuoteOptionId;
-          shippingQuoteChange(lastQuoteId);
+          const deliveryOpts = opts.filter(o => !isStorePickup(o));
+          const pickupOpt = opts.find(o => isStorePickup(o));
+          const onlyPickup = deliveryOpts.length === 0 && !!pickupOpt;
+          const defaultDeliveryId = deliveryOpts[0] ? deliveryOpts[0].shippingQuoteOptionId : '';
+          const defaultQuoteId = onlyPickup ? pickupOpt.shippingQuoteOptionId : defaultDeliveryId;
+          shippingQuoteChange(defaultQuoteId);
           setShippingOptions(opts);
-          setSelectedOptions(lastQuoteId);
+          setSelectedOptions(defaultQuoteId);
+          setSelectedDeliveryOption(defaultDeliveryId);
+          setStorePickupChecked(!!onlyPickup);
         }
       }
     } catch (error) {
@@ -1652,18 +1673,40 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                             <div className="shippingRow">
                               <ul><li className="your-order-shipping">Shipping</li></ul>
                               <ul>
-                                {shippingOptions.map((value, i) => (
+                                {shippingOptions.filter(o => !isStorePickup(o)).map((value, i) => (
                                   <li key={i}>
                                     <div className="login-toggle-btn">
                                       <input
                                         type="radio"
+                                        name="deliveryOption"
                                         value={value.shippingQuoteOptionId}
-                                        onChange={() => { setSelectedOptions(value.shippingQuoteOptionId); shippingQuoteChange(value.shippingQuoteOptionId); }}
-                                        checked={selectedOptions === value.shippingQuoteOptionId}
+                                        onChange={() => {
+                                          setSelectedDeliveryOption(value.shippingQuoteOptionId);
+                                          if (!storePickupChecked) {
+                                            setSelectedOptions(value.shippingQuoteOptionId);
+                                            shippingQuoteChange(value.shippingQuoteOptionId);
+                                          }
+                                        }}
+                                        checked={selectedDeliveryOption === value.shippingQuoteOptionId}
                                       />
                                       <label className="ml-10 mb-20">{value.optionName} — {value.optionPriceText}</label>
                                     </div>
-                                    {value.note && selectedOptions === value.shippingQuoteOptionId && (
+                                    {value.note && selectedDeliveryOption === value.shippingQuoteOptionId && !storePickupChecked && (
+                                      <p style={{ fontSize: 12, color: 'grey', marginLeft: 24, marginTop: 4 }}>{value.note}</p>
+                                    )}
+                                  </li>
+                                ))}
+                                {shippingOptions.filter(o => isStorePickup(o)).map((value, i) => (
+                                  <li key={'pickup-' + i}>
+                                    <div className="login-toggle-btn">
+                                      <input
+                                        type="checkbox"
+                                        checked={storePickupChecked}
+                                        onChange={(e) => onStorePickupChange(e.target.checked, value.shippingQuoteOptionId)}
+                                      />
+                                      <label className="ml-10 mb-20">{value.optionName} — {value.optionPriceText}</label>
+                                    </div>
+                                    {value.note && storePickupChecked && (
                                       <p style={{ fontSize: 12, color: 'grey', marginLeft: 24, marginTop: 4 }}>{value.note}</p>
                                     )}
                                   </li>
