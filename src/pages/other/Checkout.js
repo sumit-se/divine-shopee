@@ -520,6 +520,9 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
 
   const onStorePickupChange = (checked, pickupQuoteId) => {
     setStorePickupChecked(checked);
+    if (checked && isShipping) {
+      setIsShipping(false);
+    }
     const quoteId = checked ? pickupQuoteId : selectedDeliveryOption;
     setSelectedOptions(quoteId);
     shippingQuoteChange(quoteId);
@@ -1472,8 +1475,8 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                         </div>
                       }
                       <div className="login-toggle-btn">
-                        <input type="checkbox" value={isShipping} onChange={onChangeShipAddress} />
-                        <label className="ml-10 mb-20">{strings["SHIP TO A DIFFERENT ADDRESS?"]}</label>
+                        <input type="checkbox" value={isShipping} onChange={onChangeShipAddress} disabled={storePickupChecked} />
+                        <label className="ml-10 mb-20" style={storePickupChecked ? { color: '#aaa', cursor: 'not-allowed' } : {}}>{strings["SHIP TO A DIFFERENT ADDRESS?"]}</label>
                       </div>
                       {
                         isShipping &&
@@ -1706,13 +1709,16 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                                       />
                                       <label className="ml-10 mb-20">{value.optionName} — {value.optionPriceText}</label>
                                     </div>
-                                    {value.note && storePickupChecked && (
-                                      <p style={{ fontSize: 12, color: 'grey', marginLeft: 24, marginTop: 4 }}>{value.note}</p>
-                                    )}
                                   </li>
                                 ))}
                               </ul>
                             </div>
+                            {storePickupChecked && shippingOptions && (() => {
+                              const pickup = shippingOptions.find(o => isStorePickup(o));
+                              return pickup && pickup.note
+                                ? <p className="store-pickup-note">{pickup.note}</p>
+                                : null;
+                            })()}
                           </div>
                           }
                           <div className="your-order-total">
