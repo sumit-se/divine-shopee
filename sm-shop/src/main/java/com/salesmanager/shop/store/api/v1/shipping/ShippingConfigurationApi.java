@@ -273,6 +273,7 @@ public class ShippingConfigurationApi {
 			 * Build return object for now this is a read copy
 			 */
 
+			integrationConfiguration.setModuleCode(configuration.getCode());
 			integrationConfiguration.setActive(configuration.isActive());
 			integrationConfiguration.setDefaultSelected(configuration.isDefaultSelected());
 			integrationConfiguration.setIntegrationKeys(configuration.getIntegrationKeys());
