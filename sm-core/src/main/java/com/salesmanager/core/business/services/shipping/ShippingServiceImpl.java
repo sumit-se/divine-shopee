@@ -542,7 +542,12 @@ public class ShippingServiceImpl implements ShippingService {
 				if(!CollectionUtils.isEmpty(shippingModulePreProcessors)) {
 					for(ShippingQuotePrePostProcessModule preProcessor : shippingModulePreProcessors) {
 						//System.out.println("Using pre-processor " + preProcessor.getModuleCode());
-						preProcessor.prePostProcessShippingQuotes(shippingQuote, packages, orderTotal, delivery, shippingOrigin, store, configuration, shippingModule, shippingConfiguration, shippingMethods, locale);
+						try {
+							preProcessor.prePostProcessShippingQuotes(shippingQuote, packages, orderTotal, delivery, shippingOrigin, store, configuration, shippingModule, shippingConfiguration, shippingMethods, locale);
+						} catch(Throwable t) {
+							// Drools/MVEL pre-processors can fail under Java 17; skip and continue
+							LOGGER.warn("Shipping pre-processor [" + preProcessor.getModuleCode() + "] failed, skipping: " + t.getMessage());
+						}
 						//TODO switch module if required
 						if(shippingQuote.getCurrentShippingModule()!=null && !shippingQuote.getCurrentShippingModule().getCode().equals(shippingModule.getCode())) {
 							shippingModule = shippingQuote.getCurrentShippingModule();//determines the shipping module
