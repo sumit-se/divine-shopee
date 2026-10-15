@@ -507,15 +507,15 @@ public class ShippingServiceImpl implements ShippingService {
 								freeShipping = true;
 								shippingQuote.setFreeShipping(true);
 								shippingQuote.setFreeShippingAmount(freeShippingAmount);
-								return shippingQuote;
+								// Do not return early: let post-processors (e.g. storePickUp) still run
 							}
 						} else {//international all
 							freeShipping = true;
 							shippingQuote.setFreeShipping(true);
 							shippingQuote.setFreeShippingAmount(freeShippingAmount);
-							return shippingQuote;
+							// Do not return early: let post-processors (e.g. storePickUp) still run
 						}
-	
+
 					}
 				}
 			}
@@ -532,51 +532,57 @@ public class ShippingServiceImpl implements ShippingService {
 			
 
 			Locale locale = languageService.toLocale(language, store);
-			
-			//invoke pre processors
-			//the main pre-processor determines at runtime the shipping module
-			//also available distance calculation
-			if(!CollectionUtils.isEmpty(shippingModulePreProcessors)) {
-				for(ShippingQuotePrePostProcessModule preProcessor : shippingModulePreProcessors) {
-					//System.out.println("Using pre-processor " + preProcessor.getModuleCode());
-					preProcessor.prePostProcessShippingQuotes(shippingQuote, packages, orderTotal, delivery, shippingOrigin, store, configuration, shippingModule, shippingConfiguration, shippingMethods, locale);
-					//TODO switch module if required
-					if(shippingQuote.getCurrentShippingModule()!=null && !shippingQuote.getCurrentShippingModule().getCode().equals(shippingModule.getCode())) {
-						shippingModule = shippingQuote.getCurrentShippingModule();//determines the shipping module
-						configuration = modules.get(shippingModule.getCode());
-						if(configuration!=null) {
-							if(configuration.isActive()) {
-								moduleName = shippingModule.getCode();
-								shippingQuoteModule = this.shippingModules.get(shippingModule.getCode());
-								configuration = modules.get(shippingModule.getCode());
-							} //TODO use default
+
+			List<ShippingOption> shippingOptions = null;
+
+			if(!freeShipping) {
+				//invoke pre processors
+				//the main pre-processor determines at runtime the shipping module
+				//also available distance calculation
+				if(!CollectionUtils.isEmpty(shippingModulePreProcessors)) {
+					for(ShippingQuotePrePostProcessModule preProcessor : shippingModulePreProcessors) {
+						//System.out.println("Using pre-processor " + preProcessor.getModuleCode());
+						preProcessor.prePostProcessShippingQuotes(shippingQuote, packages, orderTotal, delivery, shippingOrigin, store, configuration, shippingModule, shippingConfiguration, shippingMethods, locale);
+						//TODO switch module if required
+						if(shippingQuote.getCurrentShippingModule()!=null && !shippingQuote.getCurrentShippingModule().getCode().equals(shippingModule.getCode())) {
+							shippingModule = shippingQuote.getCurrentShippingModule();//determines the shipping module
+							configuration = modules.get(shippingModule.getCode());
+							if(configuration!=null) {
+								if(configuration.isActive()) {
+									moduleName = shippingModule.getCode();
+									shippingQuoteModule = this.shippingModules.get(shippingModule.getCode());
+									configuration = modules.get(shippingModule.getCode());
+								} //TODO use default
+							}
+
 						}
-						
 					}
 				}
-			}
 
-			//invoke module
-			List<ShippingOption> shippingOptions = null;
-					
-			try {
-				shippingOptions = shippingQuoteModule.getShippingQuotes(shippingQuote, packages, orderTotal, delivery, shippingOrigin, store, configuration, shippingModule, shippingConfiguration, locale);
-			} catch(Exception e) {
-				LOGGER.error("Error while calculating shipping : " + e.getMessage(), e);
-/*				merchantLogService.save(
-						new MerchantLog(store,
-								"Can't process " + shippingModule.getModule()
-								+ " -> "
-								+ e.getMessage()));
-				shippingQuote.setQuoteError(e.getMessage());
-				shippingQuote.setShippingReturnCode(ShippingQuote.ERROR);
-				return shippingQuote;*/
-			}
-			
-			if(shippingOptions==null && !StringUtils.isBlank(delivery.getPostalCode())) {
-				
-				//absolutely need to use in this case store pickup or other default shipping quote
-				shippingQuote.setShippingReturnCode(ShippingQuote.NO_SHIPPING_TO_SELECTED_COUNTRY);
+				//invoke module
+				try {
+					shippingOptions = shippingQuoteModule.getShippingQuotes(shippingQuote, packages, orderTotal, delivery, shippingOrigin, store, configuration, shippingModule, shippingConfiguration, locale);
+				} catch(Exception e) {
+					LOGGER.error("Error while calculating shipping : " + e.getMessage(), e);
+				}
+
+				if(shippingOptions==null && !StringUtils.isBlank(delivery.getPostalCode())) {
+					shippingQuote.setShippingReturnCode(ShippingQuote.NO_SHIPPING_TO_SELECTED_COUNTRY);
+				}
+			} else {
+				// Free shipping: synthesise a FREE option so post-processors (e.g. storePickUp) can add themselves
+				String region = delivery.getZone() != null
+					? delivery.getZone().getCode()
+					: (delivery.getState() != null ? delivery.getState() : "");
+				ShippingOption freeOption = new ShippingOption();
+				freeOption.setShippingModuleCode(moduleName != null ? moduleName : "FREE");
+				freeOption.setOptionCode("FREE");
+				freeOption.setOptionId("FREE_" + region);
+				freeOption.setOptionName("Free Delivery");
+				freeOption.setOptionPrice(BigDecimal.ZERO);
+				freeOption.setOptionPriceText(pricingService.getDisplayAmount(BigDecimal.ZERO, store));
+				shippingOptions = new ArrayList<>();
+				shippingOptions.add(freeOption);
 			}
 			
 			
