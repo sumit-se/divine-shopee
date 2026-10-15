@@ -1,34 +1,4 @@
 /*------- 21. Checkout page  -----------*/
-.shippingRow {
-  display: flex;
-  align-items: flex-start;
-
-  ul {
-    display: block !important;
-    width: 40%;
-
-    &:nth-child(2) {
-      width: 60%;
-
-      li {
-        margin-bottom: 40px;
-
-        &:last-child {
-          margin-bottom: 0px;
-        }
-
-        .login-toggle-btn {
-          display: flex;
-          align-items: center;
-
-          label {
-            margin-bottom: 0px
-          }
-        }
-      }
-    }
-  }
-}
 
 .agreement-info-wrap {
   font-size: 14px;
@@ -265,52 +235,6 @@
         }
       }
 
-      .your-order-bottom {
-        margin-bottom: 18px;
-        padding: 0px 0 19px;
-        border-bottom: 1px solid #dee0e4;
-
-        ul {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-
-          li {
-            font-size: 14px;
-            font-weight: 400;
-
-            list-style: none;
-
-            input[type="radio"],
-            input[type="checkbox"] {
-              height: 15px;
-              margin: 0;
-              position: relative;
-              top: 1px;
-              width: 17px;
-              flex-shrink: 0;
-            }
-          }
-
-          li.your-order-shipping {
-            font-size: 16px;
-            font-weight: 400;
-
-            color: #212121;
-
-
-
-          }
-        }
-      }
-
-      .store-pickup-note {
-        font-size: 12px;
-        color: #777;
-        margin: 4px 0 14px;
-        line-height: 1.5;
-      }
-
       .your-order-sub-total {
         margin: 18px 0 18px;
         // padding: 0px 0 19px;
@@ -367,6 +291,49 @@
           }
         }
       }
+    }
+  }
+
+  // shipping option selector: sits between the order summary and payment method
+  .shipping-option-choice {
+    h5 {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 14px;
+      color: #212121;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+
+      li {
+        list-style: outside none none;
+        margin-bottom: 6px;
+      }
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      height: 15px;
+      margin: 0;
+      position: relative;
+      top: 2px;
+      width: 17px;
+      flex-shrink: 0;
+    }
+
+    label {
+      font-size: 15px;
+      margin-bottom: 0;
+      color: #333;
+    }
+
+    .shipping-option-note {
+      font-size: 12px;
+      color: #777;
+      margin: 4px 0 6px 24px;
+      line-height: 1.5;
     }
   }
 

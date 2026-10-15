@@ -1670,57 +1670,6 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                             }
 
                           </div>
-                          {
-                            config.displayShipping && shippingOptions &&
-                          <div className="your-order-bottom">
-                            <div className="shippingRow">
-                              <ul><li className="your-order-shipping">Shipping</li></ul>
-                              <ul>
-                                {shippingOptions.filter(o => !isStorePickup(o)).map((value, i) => (
-                                  <li key={i}>
-                                    <div className="login-toggle-btn">
-                                      <input
-                                        type="radio"
-                                        name="deliveryOption"
-                                        value={value.shippingQuoteOptionId}
-                                        onChange={() => {
-                                          setSelectedDeliveryOption(value.shippingQuoteOptionId);
-                                          if (!storePickupChecked) {
-                                            setSelectedOptions(value.shippingQuoteOptionId);
-                                            shippingQuoteChange(value.shippingQuoteOptionId);
-                                          }
-                                        }}
-                                        checked={selectedDeliveryOption === value.shippingQuoteOptionId}
-                                      />
-                                      <label className="ml-10 mb-20">{value.optionName} — {value.optionPriceText}</label>
-                                    </div>
-                                    {value.note && selectedDeliveryOption === value.shippingQuoteOptionId && !storePickupChecked && (
-                                      <p style={{ fontSize: 12, color: 'grey', marginLeft: 24, marginTop: 4 }}>{value.note}</p>
-                                    )}
-                                  </li>
-                                ))}
-                                {shippingOptions.filter(o => isStorePickup(o)).map((value, i) => (
-                                  <li key={'pickup-' + i}>
-                                    <div className="login-toggle-btn">
-                                      <input
-                                        type="checkbox"
-                                        checked={storePickupChecked}
-                                        onChange={(e) => onStorePickupChange(e.target.checked, value.shippingQuoteOptionId)}
-                                      />
-                                      <label className="ml-10 mb-20">{value.optionName} — {value.optionPriceText}</label>
-                                    </div>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            {storePickupChecked && shippingOptions && (() => {
-                              const pickup = shippingOptions.find(o => isStorePickup(o));
-                              return pickup && pickup.note
-                                ? <p className="store-pickup-note">{pickup.note}</p>
-                                : null;
-                            })()}
-                          </div>
-                          }
                           <div className="your-order-total">
                             <ul>
                               <li className="order-total">Total</li>
@@ -1738,6 +1687,51 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                         </div>
 
                       </div>
+                      {config.displayShipping && shippingOptions && (
+                        <div className="shipping-option-choice mt-25">
+                          <h5>{strings["Shipping"] || "Shipping"}</h5>
+                          <ul>
+                            {shippingOptions.filter(o => !isStorePickup(o)).map((value, i) => (
+                              <li key={i}>
+                                <div className="login-toggle-btn">
+                                  <input
+                                    type="radio"
+                                    name="deliveryOption"
+                                    value={value.shippingQuoteOptionId}
+                                    onChange={() => {
+                                      setSelectedDeliveryOption(value.shippingQuoteOptionId);
+                                      if (!storePickupChecked) {
+                                        setSelectedOptions(value.shippingQuoteOptionId);
+                                        shippingQuoteChange(value.shippingQuoteOptionId);
+                                      }
+                                    }}
+                                    checked={selectedDeliveryOption === value.shippingQuoteOptionId}
+                                  />
+                                  <label className="ml-10">{value.optionName} — {value.optionPriceText}</label>
+                                </div>
+                                {value.note && selectedDeliveryOption === value.shippingQuoteOptionId && !storePickupChecked && (
+                                  <p className="shipping-option-note">{value.note}</p>
+                                )}
+                              </li>
+                            ))}
+                            {shippingOptions.filter(o => isStorePickup(o)).map((value, i) => (
+                              <li key={'pickup-' + i}>
+                                <div className="login-toggle-btn">
+                                  <input
+                                    type="checkbox"
+                                    checked={storePickupChecked}
+                                    onChange={(e) => onStorePickupChange(e.target.checked, value.shippingQuoteOptionId)}
+                                  />
+                                  <label className="ml-10">{value.optionName} — {value.optionPriceText}</label>
+                                </div>
+                                {storePickupChecked && value.note && (
+                                  <p className="shipping-option-note">{value.note}</p>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                       {
                         // one way to pay needs no choosing; the block below it
                         // is the method itself
