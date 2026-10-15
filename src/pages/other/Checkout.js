@@ -529,14 +529,16 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
     try {
       let response = await WebService.post(action, param);
       if (response) {
-        if(response.shippingOptions === "null" || response.shippingOptions === null){
-          shippingQuoteChange('')
-        }else{
-          shippingQuoteChange(response.shippingOptions[response.shippingOptions.length - 1].shippingQuoteOptionId)
+        const opts = response.shippingOptions;
+        if (!opts || opts.length === 0) {
+          shippingQuoteChange('');
+          setShippingOptions(null);
+        } else {
+          const lastQuoteId = opts[opts.length - 1].shippingQuoteOptionId;
+          shippingQuoteChange(lastQuoteId);
+          setShippingOptions(opts);
+          setSelectedOptions(lastQuoteId);
         }
-        setShippingOptions(response.shippingOptions)
-        setSelectedOptions(response.shippingOptions[response.shippingOptions.length - 1].shippingQuoteOptionId)
-        
       }
     } catch (error) {
     }
@@ -1647,38 +1649,27 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                           {
                             config.displayShipping && shippingOptions &&
                           <div className="your-order-bottom">
-                            { 
-                              <div className="shippingRow">
-                                <ul><li className="your-order-shipping">Shipping Fees</li></ul>
-
-                                <ul>
-
-                                  {
-                                    shippingOptions.map((value, i) => {
-                                      return (<li key={i}>
-                                        <div className="login-toggle-btn">
-                                          <input type="radio" value={value.shippingQuoteOptionId} onChange={() => { setSelectedOptions(value.shippingQuoteOptionId); shippingQuoteChange(value.shippingQuoteOptionId) }} checked={selectedOptions === value.shippingQuoteOptionId} />
-                                          <label className="ml-10 mb-20">{value.optionName} - {value.optionPriceText}</label>
-                                        </div>
-                                      </li>)
-                                    })
-                                  }
-                                  <li style={{ textAlign: 'center', fontSize: 12, color: 'grey' }}> This option let you reserve you order items through the online system and pick
-                                        up your order by yourself at the store. this option is also offered when no
-                                        other shipping option is available for your region.</li>
-                                </ul>
-                              </div>
-
-                            }
-
-                            {/* {
-                              config.displayShipping && !shippingOptions &&
+                            <div className="shippingRow">
+                              <ul><li className="your-order-shipping">Shipping</li></ul>
                               <ul>
-                                <li className="your-order-shipping">Shipping Fees</li>
-                                <li>Free shipping</li>
+                                {shippingOptions.map((value, i) => (
+                                  <li key={i}>
+                                    <div className="login-toggle-btn">
+                                      <input
+                                        type="radio"
+                                        value={value.shippingQuoteOptionId}
+                                        onChange={() => { setSelectedOptions(value.shippingQuoteOptionId); shippingQuoteChange(value.shippingQuoteOptionId); }}
+                                        checked={selectedOptions === value.shippingQuoteOptionId}
+                                      />
+                                      <label className="ml-10 mb-20">{value.optionName} — {value.optionPriceText}</label>
+                                    </div>
+                                    {value.note && selectedOptions === value.shippingQuoteOptionId && (
+                                      <p style={{ fontSize: 12, color: 'grey', marginLeft: 24, marginTop: 4 }}>{value.note}</p>
+                                    )}
+                                  </li>
+                                ))}
                               </ul>
-                            } */}
-
+                            </div>
                           </div>
                           }
                           <div className="your-order-total">
