@@ -515,7 +515,7 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
     });
   }
   const isStorePickup = (opt) =>
-    (opt.shippingQuoteOptionId || '').toLowerCase().includes('storepickup') ||
+    (opt.optionCode || '').toLowerCase() === 'storepickup' ||
     (opt.optionName || '').toLowerCase().includes('store pick');
 
   const onStorePickupChange = (checked, pickupQuoteId) => {
