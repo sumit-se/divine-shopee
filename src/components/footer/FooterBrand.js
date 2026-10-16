@@ -8,10 +8,10 @@ import { connect } from "react-redux";
  * Left-hand footer column: logo, one-line brand statement, and the two direct
  * contact routes. Replaces the theme's FooterCopyright, whose "Copyright (c)
  * ... All Rights Reserved" line now lives in the orange bar at the very bottom
- * of Footer.js, matching divineshopee.com.
+ * of Footer.js, matching the previous site.
  *
  * Everything here comes from the MERCHANT_STORE record rather than being
- * hard-coded: divineshopee.com is the US entity (+1 phone, New Jersey office)
+ * hard-coded: the previous site is the US entity (+1 phone, New Jersey office)
  * while this build is the India store, so copying its contact block verbatim
  * would have shipped the wrong details.
  */

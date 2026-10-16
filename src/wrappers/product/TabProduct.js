@@ -8,7 +8,7 @@ import constant from '../../util/constant';
 import { setLoader } from "../../redux/actions/loaderActions";
 import { multilanguage } from "redux-multilanguage";
 import { connect } from "react-redux";
-// divineshopee.com shows 12 here, in three rows of four.
+// The previous site shows 12 here, in three rows of four.
 const FEATURED_LIMIT = 12;
 
 const TabProduct = ({
@@ -71,10 +71,10 @@ const TabProduct = ({
         } ${extraClass ? extraClass : ""}`}
     >
       <div className={`${containerClass ? containerClass : "container"}`}>
-        {/* matches the equivalent section heading on divineshopee.com */}
+        {/* matches the equivalent section heading on the previous site */}
         <SectionTitle titleText="Our Top Selling Product" positionClass="text-center" />
         {/*
-          A plain grid, as on divineshopee.com, which runs this section as 12
+          A plain grid, as on the previous site, which runs this section as 12
           products in a 4-wide grid with no filter control above it.
 
           The tab strip that used to sit here built one pill per category found

@@ -3,7 +3,7 @@ import React from "react";
 
 /**
  * Category hero + description, matching the archive template on
- * divineshopee.com: the category name in large white type over a darkened
+ * The previous site: the category name in large white type over a darkened
  * photo, with the category's own description underneath.
  *
  * The photograph is one shared image, not a per-category one -- on the source

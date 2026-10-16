@@ -3,7 +3,7 @@ import React from "react";
 import SectionTitle from "../../components/section-title/SectionTitle";
 
 /**
- * "Our Trending Videos" -- the section divineshopee.com runs between the
+ * "Our Trending Videos" -- the section the previous site runs between the
  * product grid and the trust badges.
  *
  * No video URLs were available when this was built, so it renders clearly

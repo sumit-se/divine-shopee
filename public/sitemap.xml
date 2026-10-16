@@ -16,6 +16,31 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://divineshopee.in/content/about-us</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/content/blog-feed</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/content/disc</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/content/privacy-policy-page</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/content/terms-conditions</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://divineshopee.in/category/rudraksha</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -618,24 +643,6 @@
   </url>
   <url>
     <loc>https://divineshopee.in/product/7-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/6-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/5-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/4-mukhi-rudrakshawswyg</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

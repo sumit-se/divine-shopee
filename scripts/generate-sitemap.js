@@ -51,10 +51,10 @@ const STATIC_PAGES = [
   { loc: '/contact', changefreq: 'yearly', priority: '0.3' }
 ];
 
-// /content/:id pages, by slug. The content listing endpoint returns a 500, so
-// these cannot be discovered automatically -- add them here as they are
-// created (about-us, privacy-policy, terms, shipping-policy and so on).
-const CONTENT_PAGES = [];
+// /content/:id pages that are NOT in the CMS listing. Normally empty: visible
+// pages are discovered from the API below. This is only for a page served some
+// other way that still deserves to be indexed.
+const EXTRA_CONTENT_PAGES = [];
 
 const xmlEscape = s =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -83,6 +83,48 @@ async function categories() {
   };
   (data.categories || []).forEach(walk);
   return { slugs: out, hidden };
+}
+
+/**
+ * Every visible CMS page.
+ *
+ * Keyed on `code`, not description.friendlyUrl: the storefront's /content/:id
+ * route fetches /content/pages/{code}, so the code is what actually resolves.
+ * They happen to match for about-us, but a page whose slug drifts from its code
+ * would otherwise land a 404 in the sitemap.
+ *
+ * Used to be impossible -- /content/pages answered 500 because its page and
+ * count parameters were bare ints that Spring could not bind when omitted, so
+ * the pages had to be listed by hand and went stale. Fixed in ContentApi.
+ *
+ * Unlike the catalogue this degrades rather than failing the build: missing a
+ * policy page costs a few URLs, while the dead-link risk that justifies a hard
+ * failure elsewhere does not apply -- nothing is being advertised that cannot
+ * be reached.
+ */
+async function contentPages() {
+  const out = [];
+  let skipped = 0;
+  try {
+    let page = 0, pages = 1;
+    while (page < pages) {
+      const data = await api(`content/pages?store=${STORE}&lang=${LANG}&page=${page}&count=100`);
+      pages = data.totalPages || 1;
+      for (const item of data.items || []) {
+        if (!item.code || !item.visible) { skipped++; continue; }
+        out.push(item.code);
+      }
+      page++;
+    }
+  } catch (err) {
+    console.warn(`  ! content pages could not be listed (${err.message})`);
+    console.warn('    continuing without them; the catalogue is unaffected');
+    return { codes: EXTRA_CONTENT_PAGES.slice(), skipped, degraded: true };
+  }
+  for (const extra of EXTRA_CONTENT_PAGES) {
+    if (!out.includes(extra)) out.push(extra);
+  }
+  return { codes: out, skipped, degraded: false };
 }
 
 /** Every listed, purchasable product, paged through until the API runs out. */
@@ -115,11 +157,12 @@ const urlEntry = ({ loc, lastmod, changefreq, priority }) =>
 (async () => {
   const { slugs: cats, hidden } = await categories();
   const { items: prods, skipped } = await products();
+  const { codes: content, skipped: contentHidden, degraded } = await contentPages();
 
   const entries = [
     ...STATIC_PAGES,
-    ...CONTENT_PAGES.map(slug => ({
-      loc: `/content/${slug}`, changefreq: 'yearly', priority: '0.3'
+    ...content.map(code => ({
+      loc: `/content/${code}`, changefreq: 'yearly', priority: '0.3'
     })),
     ...cats.map(slug => ({
       loc: `/category/${slug}`, changefreq: 'weekly', priority: '0.8'
@@ -144,7 +187,8 @@ const urlEntry = ({ loc, lastmod, changefreq, priority }) =>
   console.log(`sitemap.xml written to ${OUT}`);
   console.log(`  host              ${SITE}`);
   console.log(`  static pages      ${STATIC_PAGES.length}`);
-  console.log(`  content pages     ${CONTENT_PAGES.length}`);
+  console.log(`  content pages     ${content.length}  (${contentHidden} hidden, excluded)`
+    + (degraded ? '  [listing unavailable -- manual list only]' : ''));
   console.log(`  categories        ${cats.length}  (${hidden} hidden, excluded)`);
   console.log(`  products          ${prods.length}  (${skipped} unlisted or slugless, excluded)`);
   console.log(`  total URLs        ${entries.length}`);

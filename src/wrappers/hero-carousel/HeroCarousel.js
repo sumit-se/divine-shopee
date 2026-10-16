@@ -5,7 +5,7 @@ import "swiper/swiper.scss";
 
 /**
  * Full-width promotional carousel for the top of the home page, matching the
- * banner slider divineshopee.com runs above its intro copy: one slide in view,
+ * banner slider the previous site runs above its intro copy: one slide in view,
  * looping, 1200x450 at desktop.
  *
  * The source autoplays with no controls at all -- no arrows, no bullets -- so

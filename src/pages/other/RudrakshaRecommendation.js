@@ -15,7 +15,7 @@ import { setLoader } from "../../redux/actions/loaderActions";
 
 /**
  * Rudraksha recommendation request, modelled on the page of the same name on
- * divineshopee.com ("Connect with our team of experts who will suggest the best
+ * The previous site ("Connect with our team of experts who will suggest the best
  * Rudraksha for you as per astronumerology").
  *
  * Their form is gated behind a login, so its exact field list is not visible

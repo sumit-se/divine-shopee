@@ -1,4 +1,4 @@
-// Home-page sections specific to Divine Shopee, matched to divineshopee.com.
+// Home-page sections specific to Divine Shopee, matched to the previous site.
 // Imported after brand-header so it wins over the theme defaults.
 
 // ---- "Divine Shopee Experience" banner -------------------------------------
@@ -21,7 +21,7 @@
 }
 
 // ---- "A Divine Journey" intro block ----------------------------------------
-// Measured on divineshopee.com at a 1280 viewport: heading 40px Poppins 700 on
+// Measured on the previous site at a 1280 viewport: heading 40px Poppins 700 on
 // a 40px line, body 17px on 25.5px justified, both inside a 602px column, with
 // the artwork 469px wide on the right.
 //
@@ -127,7 +127,7 @@
 }
 
 // ---- home-page banner carousel ---------------------------------------------
-// One slide in view at 1200x450, as on divineshopee.com.
+// One slide in view at 1200x450, as on the previous site.
 .hero-carousel-area {
 
   .hero-carousel__slide {
@@ -219,7 +219,7 @@
 }
 
 // ---- category hero + description -------------------------------------------
-// Matched to the archive template on divineshopee.com: 303px tall, one shared
+// Matched to the archive template on the previous site: 303px tall, one shared
 // photo cover/centre under a 50% black wash, title 70px Poppins bold white.
 .category-banner {
 
@@ -1034,7 +1034,7 @@
 // ---- non-category links inside a category menu -----------------------------
 // "Rudraksha Recommendation" is a page, not a bead type. On the desktop
 // mega-menu it becomes a centred pill on its own full-width row beneath the
-// sub-category columns, as on divineshopee.com; in the stacked mobile menu it
+// sub-category columns, as on the previous site; in the stacked mobile menu it
 // is a separated, accented row.
 .header-area .main-menu ul.mega-menu > li.mega-menu__page-link {
   // the theme sizes direct children of .mega-menu at 33.33% for the columns

@@ -4,7 +4,7 @@ import React from "react";
 const BANNER = process.env.PUBLIC_URL + "/assets/img/banner/divine-shopee-experience";
 
 /**
- * The "Divine Shopee Experience" banner, which divineshopee.com runs full-bleed
+ * The "Divine Shopee Experience" banner, which the previous site runs full-bleed
  * between the hero and the product grid.
  *
  * On the source site this is a single flat image (Blue-Gradient-Header-Banner-3
@@ -16,7 +16,7 @@ const BANNER = process.env.PUBLIC_URL + "/assets/img/banner/divine-shopee-experi
  * to keep it available to screen readers and to search engines.
  *
  * Sits inside the page's content column rather than running edge to edge:
- * divineshopee.com bleeds this to the viewport, but every other section on our
+ * The previous site bleeds this to the viewport, but every other section on our
  * page stops at the 1170px column, so full-bleed left it visibly wider than
  * the rest of the page.
  *

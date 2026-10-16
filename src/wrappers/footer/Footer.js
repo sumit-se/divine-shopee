@@ -8,12 +8,12 @@ import { multilanguage } from "redux-multilanguage";
 import { connect } from "react-redux";
 
 /**
- * Footer aligned to divineshopee.com: a black band carrying three columns
+ * Footer aligned to the previous site: a black band carrying three columns
  * (brand / Useful Links / registered office + subscribe) above a solid orange
  * strip holding the rights line.
  *
  * The five policy links point at Shopizer's CMS route (/content/{slug}) and
- * deliberately reuse the slugs already published on divineshopee.com, the same
+ * deliberately reuse the slugs already published on the previous site, the same
  * convention the product and category migration followed, so inbound links and
  * search rankings survive the move. CONTENT is currently empty, so those pages
  * still have to be created in the admin before the links resolve.

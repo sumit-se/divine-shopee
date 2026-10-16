@@ -51,7 +51,7 @@
 
 
 :root {
-    /* Divine Shopee brand maroon, taken from the wordmark on divineshopee.com.
+    /* Divine Shopee brand maroon, taken from the wordmark on the previous site.
        App.js overwrites this at runtime from APP_THEME_COLOR; this value is the
        pre-hydration fallback so the page never flashes the old default red. */
     --theme-color: #7f0000;

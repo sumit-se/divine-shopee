@@ -62,7 +62,9 @@ const MobileNavMenu = ({ strings, categories, contents, setCategoryID, setConten
           })
         }
         {
-          contents.map((content, index) => {
+          contents
+            .filter(content => content.code && (content.code === 'blog-feed' || !content.code.startsWith('blog-')))
+            .map((content, index) => {
             return (
               content.visible && content.description &&
               <li key={index}> <Link to={"/content/" + content.description.friendlyUrl} onClick={() => onClickContent(content.code)}>{content.description.name}</Link></li>

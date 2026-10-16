@@ -1,7 +1,7 @@
 import React from "react";
 
 /**
- * Full-width strip above the header, as on divineshopee.com (sampled 23 Aug
+ * Full-width strip above the header, as on the previous site (sampled 23 Aug
  * 2026: #d50101 ground, white Poppins 700 / 20px, centred, 10px padding).
  *
  * The source copy is "Get it for just $349 or Enjoy free shipping" -- a dollar

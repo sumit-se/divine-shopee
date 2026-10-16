@@ -11,7 +11,7 @@ import { categoryTileUrl } from "./CategoryBanner";
 import { fetchCategoryTree } from "../../util/categoryTree";
 
 /**
- * Shop-by-category carousel, mirroring the category strip on divineshopee.com.
+ * Shop-by-category carousel, mirroring the category strip on the previous site.
  *
  * Reads the same tree the header nav uses. Root categories become slides; the
  * child count is surfaced so "Rudraksha" reads as a hub rather than a leaf.

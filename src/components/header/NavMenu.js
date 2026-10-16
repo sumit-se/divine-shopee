@@ -55,6 +55,7 @@ const NavMenu = ({ props, strings, menuWhiteClass, sidebarMenu, categories, cont
         } `}
     >
       <nav>
+        {/* Row 1: category navigation */}
         <ul>
           <li>
             <Link to={"/"}>
@@ -143,14 +144,6 @@ const NavMenu = ({ props, strings, menuWhiteClass, sidebarMenu, categories, cont
                     )
                   }
                 </li>
-              )
-            })
-          }
-          {
-            contents.map((content, index) => {
-              return (
-                content.visible && content.description &&
-                <li key={index}> <Link to={"/content/" + content.description.friendlyUrl} onClick={() => onClickContent(content.code)}> {content.description.name}</Link></li>
               )
             })
           }

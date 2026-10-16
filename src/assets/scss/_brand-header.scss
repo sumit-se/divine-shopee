@@ -1,4 +1,4 @@
-// Header styling matched to divineshopee.com (sampled 23 Aug 2026).
+// Header styling matched to the previous site (sampled 23 Aug 2026).
 //
 // Source header is two bands:
 //   row 1  white          logo | pill search (#eeeeee, radius 30px) | account | cart
@@ -102,12 +102,13 @@ $brand-maroon: #7f0000;
     // the band is its own row, so the menu can breathe horizontally
     margin-right: 28px;
   }
+
 }
 
 .header-area {
 
   // ---- logo ---------------------------------------------------------------
-  // Measured on divineshopee.com: the logo box renders 262x113 CSS px. The
+  // Measured on the previous site: the logo box renders 262x113 CSS px. The
   // artwork is 1378x595 (ratio 2.32), so capping height at 113px reproduces
   // the source width exactly without distorting it.
   .logo img {
@@ -283,7 +284,7 @@ $brand-maroon: #7f0000;
 // and `.header-right-wrap` 32px. A top margin grows the flex item as well as
 // offsetting its content, so centring the row could not undo them -- the three
 // columns landed on three different vertical centres (measured 70.5 / 63.5 /
-// 79.5 px at a 1280 viewport). divineshopee.com keeps its logo, search and cart
+// 79.5 px at a 1280 viewport). The previous site keeps its logo, search and cart
 // within 5px of one another (71 / 76 / 71).
 //
 // (The horizontal half of this -- the header sitting on a wider grid than the
@@ -293,7 +294,7 @@ $brand-maroon: #7f0000;
 
 
   // The top row was exactly as tall as the logo (113px), leaving it flush
-  // against the nav band. divineshopee.com keeps ~30px between the two.
+  // against the nav band. The previous site keeps ~30px between the two.
   .sticky-bar>.container {
     padding-top: 12px;
     padding-bottom: 14px;
@@ -333,7 +334,7 @@ $brand-maroon: #7f0000;
 }
 
 // ---- announcement bar ------------------------------------------------------
-// Full-bleed strip above the header. Sampled from divineshopee.com: #d50101
+// Full-bleed strip above the header. Sampled from the previous site: #d50101
 // ground, white Poppins 700 / 20px, centred, 10px padding.
 .announcement-bar {
   padding: 10px;

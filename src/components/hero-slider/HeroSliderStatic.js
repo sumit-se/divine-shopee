@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 
 /**
- * Home-page intro block, matched to the equivalent section on divineshopee.com:
+ * Home-page intro block, matched to the equivalent section on the previous site:
  * the copy on the left, the artwork on the right.
  *
  * The theme shipped this the other way round -- artwork left, copy right, set

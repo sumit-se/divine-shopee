@@ -36,13 +36,13 @@ const Home = ({ merchant, strings }) => {
         headerPaddingClass="header-padding-2"
         headerTop="visible"
       >
-        {/* Banner carousel, as divineshopee.com runs above its intro copy. */}
+        {/* Banner carousel, as the previous site runs above its intro copy. */}
         <HeroCarousel spaceTopClass="pt-30" spaceBottomClass="pb-20" />
         {/* intro copy + artwork */}
         <HeroSlider string={strings} />
         {/* "Divine Shopee Experience" banner. This is the slot the theme's Promo
             block used to occupy (a stock furniture banner, deleted -- copies in
-            backups/removed-promo/), and it is where divineshopee.com runs this
+            backups/removed-promo/), and it is where the previous site runs this
             artwork too: straight after the hero, ahead of the products. */}
         <ExperienceBanner spaceTopClass="pt-60" />
 
@@ -58,10 +58,10 @@ const Home = ({ merchant, strings }) => {
           spaceBottomClass="pb-60"
           spaceTopClass="pt-60"
         />
-        {/* divineshopee.com runs this between the product grid and the trust
+        {/* The previous site runs this between the product grid and the trust
             badges. Placeholders for now -- see TrendingVideos.js. */}
         <TrendingVideos spaceTopClass="pt-60" spaceBottomClass="pb-60" />
-        {/* trust badges -- divineshopee.com carries these directly above the
+        {/* trust badges -- The previous site carries these directly above the
             footer: Free Shipping, Secure Payments, Trusted Brand, Happy &
             Satisfied. The theme shipped this section commented out.
             containerClass is `container`, not the theme's `container-fluid`:

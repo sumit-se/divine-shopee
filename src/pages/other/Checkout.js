@@ -28,7 +28,15 @@ import { multilanguage } from "redux-multilanguage";
 
 
 
-const stripePromise = loadStripe(window._env_.APP_STRIPE_KEY);
+/*
+ * Only ask Stripe to load when there is a key to load it with. Calling
+ * loadStripe('') throws an IntegrationError out of a promise nobody awaits, so
+ * every checkout page logged an uncaught rejection once the store moved to
+ * Razorpay and the Stripe key was emptied.
+ */
+const stripePromise = window._env_.APP_STRIPE_KEY
+  ? loadStripe(window._env_.APP_STRIPE_KEY)
+  : null;
 const paymentForm = {
   firstName: {
     name: "firstName",
@@ -333,6 +341,31 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /*
+   * A store that ships to one country shows it as a fixed label instead of a
+   * select, so nothing ever fires the Controller's onChange and the form value
+   * has to be set here.
+   *
+   * It also has to wait for the form to exist. The whole billing form is only
+   * rendered once the cart has loaded, so when the country list arrives first
+   * -- a race, which is why this failed intermittently rather than always --
+   * the Controller is not registered yet and setValue goes nowhere. The
+   * country then stays empty, "Country is required" blocks the order, and the
+   * shopper has no field to correct because the label is not an input.
+   * Depending on formReady re-runs this the moment the form appears.
+   */
+  const formReady = isValidObject(cartItems)
+    && cartItems.products
+    && cartItems.products.length > 0;
+
+  useEffect(() => {
+    if (formReady && shipCountryData && shipCountryData.length === 1) {
+      setValue('country', shipCountryData[0].code);
+      getState(shipCountryData[0].code);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shipCountryData, formReady]);
+
   const getSummaryOrder = async () => {
     setLoader(true)
     console.log('GET SUMMARY')
@@ -561,7 +594,7 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
           setShippingOptions(opts);
           setSelectedOptions(defaultQuoteId);
           setSelectedDeliveryOption(defaultDeliveryId);
-          setStorePickupChecked(!!onlyPickup);
+          setStorePickupChecked(false);
         }
       }
     } catch (error) {
@@ -762,6 +795,53 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
    */
   const isRazorpay = paymentMethod === 'RAZORPAY';
 
+  /*
+   * Checkout runs in two steps. 'details' collects the addresses, the shipping
+   * choice and the payment method; 'review' shows back what is about to be
+   * bought and charged, and only there is the order actually placed.
+   *
+   * The payment blocks carry their own agree-to-terms checkbox and place-order
+   * button, so gating them on the review step is what makes the review
+   * unskippable: at 'details' there is nothing to press that takes money.
+   */
+  const [step, setStep] = useState('details');
+
+  // a new step is a new page as far as the shopper is concerned
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
+
+  /*
+   * The review is a statement about a particular cart. If the cart changes
+   * underneath it -- another tab, a back button, a stock correction -- the
+   * shopper is sent back to the details step rather than being allowed to
+   * confirm figures that no longer hold.
+   */
+  const cartSignature = ((cartItems && cartItems.products) || [])
+    .map(product => product.id + ':' + product.quantity).join(',');
+  useEffect(() => {
+    setStep('details');
+  }, [cartSignature]);
+
+  /** Readable name for a payment method, shared by the chooser and the review. */
+  const paymentMethodLabel = (method) => {
+    if (method === 'COD') return strings["Cash on delivery"] || "Cash on delivery";
+    if (method === 'MONEYORDER') return strings["Bank transfer / UPI"] || "Bank transfer / UPI";
+    if (method === 'RAZORPAY') return strings["Card / UPI / Netbanking"] || "Card / UPI / Netbanking";
+    return strings["Credit card"] || "Credit card";
+  };
+
+  /** Country names for the review; the form only holds the ISO code. */
+  const countryName = (code) => {
+    const match = (shipCountryData || []).find(country => country.code === code);
+    return (match && match.name) || code || '';
+  };
+
+  /** The shipping option the shopper picked, for the review. */
+  const chosenShippingOption = (shippingOptions || [])
+    .find(option => String(option.shippingQuoteOptionId) === String(selectedOptions));
+
+
   /** COD has nothing to tokenise, so it goes straight to placing the order. */
   const onSubmitCodOrder = async (data) => {
     if (isCashOnDelivery && !codAvailable) {
@@ -775,7 +855,31 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
       return;
     }
     setLoader(true);
-    onPayment(data, null);
+
+    // Re-fetch the totals immediately before placing the order so the amount
+    // is always current regardless of any race between the debounced
+    // onChangeShipping and the payment-method useEffect.
+    let freshAmount;
+    try {
+      const paymentParam = isCashOnDelivery ? '&paymentMethod=COD' : '';
+      const action = selectedOptions
+        ? constant.ACTION.CART + cartID + '/' + constant.ACTION.TOTAL
+            + '?quote=' + selectedOptions + '&store=' + defaultStore
+            + '&lang=' + currentLanguageCode + paymentParam
+        : constant.ACTION.CART + cartID + '/' + constant.ACTION.TOTAL
+            + '?store=' + defaultStore + '&lang=' + currentLanguageCode + paymentParam;
+      const response = await WebService.get(action);
+      if (response && response.totals && response.totals.length > 0) {
+        const totalLine = response.totals.find(q => q.code === 'order.total.total')
+          || response.totals[response.totals.length - 1];
+        freshAmount = totalLine.value;
+        setShippingQuote(response.totals);
+      }
+    } catch (e) {
+      // fall through — onPayment will use the state value
+    }
+
+    onPayment(data, null, freshAmount);
   };
 
   /**
@@ -861,11 +965,13 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
       const initAction = constant.ACTION.CART + cartID + '/payment/init'
         + '?store=' + defaultStore + '&lang=' + currentLanguageCode;
 
+      const totalLine = shippingQuote.find(q => q.code === 'order.total.total')
+        || shippingQuote[shippingQuote.length - 1];
       const initResponse = await WebService.post(initAction, {
         "paymentType": "CREDITCARD",
         "transactionType": "INIT",
         "paymentModule": "razorpay",
-        "amount": shippingQuote[shippingQuote.length - 1].value
+        "amount": totalLine ? totalLine.value : 0
       });
 
       const details = (initResponse && initResponse.transactionDetails) || {};
@@ -977,13 +1083,16 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
    * money is collected at the door, so the payload only names the module. Card
    * payments keep sending the Stripe token they always did.
    */
-  const paymentPayload = (result) => {
+  const paymentPayload = (result, overrideAmount) => {
+    const amount = overrideAmount !== undefined
+      ? overrideAmount
+      : shippingQuote[shippingQuote.length - 1].value;
     if (isBankTransfer) {
       return {
         "paymentType": "MONEYORDER",
         "transactionType": "AUTHORIZECAPTURE",
         "paymentModule": "moneyorder",
-        "amount": shippingQuote[shippingQuote.length - 1].value
+        "amount": amount
       };
     }
     if (isCashOnDelivery) {
@@ -991,7 +1100,7 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
         "paymentType": "COD",
         "transactionType": "AUTHORIZECAPTURE",
         "paymentModule": "cod",
-        "amount": shippingQuote[shippingQuote.length - 1].value
+        "amount": amount
       };
     }
     if (isRazorpay) {
@@ -1008,7 +1117,7 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
         "transactionType": "AUTHORIZECAPTURE",
         "paymentModule": "razorpay",
         "paymentToken": JSON.stringify(result || {}),
-        "amount": shippingQuote[shippingQuote.length - 1].value
+        "amount": amount
       };
     }
     return {
@@ -1016,11 +1125,11 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
       "transactionType": "CAPTURE",
       "paymentModule": "stripe",
       "paymentToken": result ? result.token : null,
-      "amount": shippingQuote[shippingQuote.length - 1].value
+      "amount": amount
     };
   };
 
-  const onPayment = async (data, result) => {
+  const onPayment = async (data, result, overrideAmount) => {
     let action;
 
     // console.log(data);
@@ -1031,7 +1140,7 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
       param = {
         "shippingQuote": selectedOptions,
         "currency": merchant.currency,
-        "payment": paymentPayload(result)
+        "payment": paymentPayload(result, overrideAmount)
       }
     } else {
       action = constant.ACTION.CART + cartID + '/' + constant.ACTION.CHECKOUT
@@ -1089,7 +1198,7 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
       param = {
         "shippingQuote": selectedOptions,
         "currency": merchant.currency,
-        "payment": paymentPayload(result),
+        "payment": paymentPayload(result, overrideAmount),
         "customer": customer
       }
     }
@@ -1311,7 +1420,18 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
               <form>
                 <div className="row">
                   <div className="col-lg-6">
-                    <div className="billing-info-wrap">
+                    {/*
+                      Hidden rather than unmounted at the review step.
+                      react-hook-form 6 unregisters an input when it unmounts,
+                      which would drop every address value the moment the
+                      review appeared and submit an order with empty fields.
+                      Keeping the inputs mounted keeps their values and their
+                      validation; the review simply covers them.
+                    */}
+                    <div
+                      className="billing-info-wrap"
+                      style={step === 'review' ? { display: 'none' } : undefined}
+                    >
                       <h3>{strings["Billing Details"]}</h3>
                       <div className="row">
 
@@ -1364,15 +1484,23 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                               control={control}
                               rules={paymentForm.country.validate}
                               render={props => {
+                                if (shipCountryData && shipCountryData.length === 1) {
+                                  return (
+                                    <select
+                                      value={props.value || shipCountryData[0].code}
+                                      onChange={(e) => { props.onChange(e.target.value); }}
+                                      disabled
+                                      className="billing-select-single"
+                                    >
+                                      <option value={shipCountryData[0].code}>{shipCountryData[0].name}</option>
+                                    </select>
+                                  );
+                                }
                                 return (
                                   <select onChange={(e) => { props.onChange(e.target.value); getState(e.target.value); onChangeShipping() }} value={props.value}>
                                     <option>{strings["Select a country"]}</option>
                                     {
-
-                                      shipCountryData.map((data, i) => {
-                                       //getShippingCountry(currentLanguageCode).map((data, i) => {
-                                        // shipCountryData.map((data, i) => {
-                                      
+                                      shipCountryData && shipCountryData.map((data, i) => {
                                         return <option key={i} value={data.code}>{data.name}</option>
                                       })
                                     }
@@ -1621,6 +1749,75 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                         </div>
                       </div>
                     </div>
+
+                    {/*
+                      The review step. Read-only on purpose: the shopper has
+                      said they are done editing, so this restates what is
+                      about to be charged and where it is going. Changing
+                      anything means going back, which also drops the review
+                      so nothing stale can be confirmed.
+                    */}
+                    {step === 'review' &&
+                    <div className="billing-info-wrap order-review-wrap">
+                      <h3>{strings["Review your order"] || "Review your order"}</h3>
+
+                      <div className="order-review-section mb-20">
+                        <h5>{strings["Billing Details"] || "Billing Details"}</h5>
+                        <p className="order-review-address">
+                          {watch('firstName')} {watch('lastName')}<br />
+                          {watch('company') && <>{watch('company')}<br /></>}
+                          {watch('address')}<br />
+                          {watch('city')}{watch('stateProvince') ? ', ' + watch('stateProvince') : ''} {watch('postalCode')}<br />
+                          {countryName(watch('country'))}<br />
+                          {watch('email')}
+                          {watch('phone') && <><br />{watch('phone')}</>}
+                        </p>
+                      </div>
+
+                      <div className="order-review-section mb-20">
+                        <h5>{strings["Shipping Details"] || "Shipping Details"}</h5>
+                        {isShipping ? (
+                          <p className="order-review-address">
+                            {watch('shipFirstName')} {watch('shipLastName')}<br />
+                            {watch('shipCompany') && <>{watch('shipCompany')}<br /></>}
+                            {watch('shipAddress')}<br />
+                            {watch('shipCity')}{watch('shipStateProvince') ? ', ' + watch('shipStateProvince') : ''} {watch('shipPostalCode')}<br />
+                            {countryName(watch('shipCountry'))}
+                          </p>
+                        ) : (
+                          <p className="order-review-address">
+                            {strings["Same as billing address"] || "Same as billing address"}
+                          </p>
+                        )}
+                      </div>
+
+                      {chosenShippingOption &&
+                        <div className="order-review-section mb-20">
+                          <h5>{strings["Shipping"] || "Shipping"}</h5>
+                          <p>
+                            {chosenShippingOption.optionName || chosenShippingOption.description}
+                            {chosenShippingOption.optionPriceText
+                              ? ' \u2014 ' + chosenShippingOption.optionPriceText : ''}
+                          </p>
+                        </div>
+                      }
+
+                      <div className="order-review-section mb-20">
+                        <h5>{strings["Payment method"] || "Payment method"}</h5>
+                        <p>{paymentMethodLabel(paymentMethod)}</p>
+                      </div>
+
+                      <div className="order-review-back">
+                        <button
+                          type="button"
+                          className="order-review-back-btn"
+                          onClick={() => setStep('details')}
+                        >
+                          {strings["Edit order details"] || "Edit order details"}
+                        </button>
+                      </div>
+                    </div>
+                    }
                   </div>
 
                   <div className="col-lg-6">
@@ -1687,7 +1884,7 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                         </div>
 
                       </div>
-                      {config.displayShipping && shippingOptions && (
+                      {step === 'details' && config.displayShipping && shippingOptions && (
                         <div className="shipping-option-choice mt-25">
                           <h5>{strings["Shipping"] || "Shipping"}</h5>
                           <ul>
@@ -1735,7 +1932,7 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                       {
                         // one way to pay needs no choosing; the block below it
                         // is the method itself
-                        enabledPayments.length > 1 &&
+                        step === 'details' && enabledPayments.length > 1 &&
                         <div className="payment-method-choice mt-25">
                           <h5>{strings["Payment method"] || "Payment method"}</h5>
                           <ul>
@@ -1777,6 +1974,26 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                           }
                         </div>
                       }
+                      {/*
+                        Nothing here takes money until the shopper has seen the
+                        review, which is why this button only moves the step on.
+                        It runs the same validation the place-order buttons used
+                        to, so invalid details are still caught here rather than
+                        one screen later.
+                      */}
+                      {step === 'details' &&
+                        <div className="place-order mt-25">
+                          <button
+                            type="button"
+                            className="btn-hover"
+                            onClick={handleSubmit(() => setStep('review'), onInvalidSubmit)}
+                          >
+                            {strings["Review your order"] || "Review your order"}
+                          </button>
+                        </div>
+                      }
+
+                      {step === 'review' && <Fragment>
                       {
                         isBankTransfer &&
                         <div className="payment-method mt-25">
@@ -1935,6 +2152,7 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                         background-color: #fb799c;"className="btn-hover">Pay now</button>
                       </form>'></iframe>
                       }
+                      </Fragment>}
                           </div>
                   </div>
 

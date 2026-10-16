@@ -11,18 +11,20 @@ import { connect } from 'react-redux';
 import { multilanguage } from "redux-multilanguage";
 import { isCheckValueAndSetParams } from '../../util/helper';
 
-const Content = ({ strings, contentID, setLoader, currentLanguageCode }) => {
+const Content = ({ strings, contentID, setLoader, currentLanguageCode, match }) => {
+    // Prefer URL param so direct navigation (footer links, bookmarks) works;
+    // fall back to Redux state for NavMenu-driven navigation.
+    const resolvedID = (match && match.params && match.params.id) || contentID;
 
     const [contentDetails, setContentDetail] = useState('');
     useEffect(() => {
-        console.log(contentID)
         getContent();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [contentID]);
+    }, [resolvedID]);
 
     const getContent = async () => {
         setLoader(true)
-        let action = `${constant.ACTION.CONTENT}${constant.ACTION.PAGES}${contentID}${isCheckValueAndSetParams('?lang=', currentLanguageCode)}`;
+        let action = `${constant.ACTION.CONTENT}${constant.ACTION.PAGES}${resolvedID}${isCheckValueAndSetParams('?lang=', currentLanguageCode)}`;
         try {
             let response = await WebService.get(action);
             if (response) {

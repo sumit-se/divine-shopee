@@ -120,7 +120,7 @@ const Header = ({
     <header
       className={`header-area clearfix ${headerBgClass ? headerBgClass : ""} ${headerPositionClass ? headerPositionClass : ""}`}>
       {/* The language/phone strip that used to sit here has been removed --
-          divineshopee.com opens straight into the logo + search row. */}
+          the previous site opens straight into the logo + search row. */}
       <div
         className={`${
           headerPaddingClass ? headerPaddingClass : ""
@@ -128,7 +128,7 @@ const Header = ({
           scroll > headerTop ? "stick" : ""
           }`}
       >
-        {/* Two-row header, matching divineshopee.com: a white row carrying the
+        {/* Two-row header, matching the previous site: a white row carrying the
             logo and account/cart icons, then a full-width saffron band holding
             the navigation. The theme originally packed all three into a single
             row, which left the nav band as a floating block that wrapped. */}
@@ -147,7 +147,7 @@ const Header = ({
 
             </div>
             <div className="col-xl-6 col-lg-6 d-none d-lg-block">
-              {/* centred product search, as on divineshopee.com */}
+              {/* centred product search, as on the previous site */}
               <HeaderSearch />
             </div>
             <div className="col-xl-3 col-lg-3 col-md-6 col-6">

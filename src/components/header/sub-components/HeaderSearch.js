@@ -6,7 +6,7 @@ import { visibleCategories, flattenCategories } from "../../../helpers/category"
 import { fetchCategoryTree } from "../../../util/categoryTree";
 
 /**
- * Header search, matching the pill field on divineshopee.com, with a
+ * Header search, matching the pill field on the previous site, with a
  * suggestion list under it.
  *
  * Submitting navigates to /search/:id, which SearchProduct reads via

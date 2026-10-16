@@ -317,7 +317,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
                 headerTop="visible">
                 {/* breadcrumb */}
                 <Breadcrumb />
-                {/* category hero + blurb, as on divineshopee.com */}
+                {/* category hero + blurb, as on the previous site */}
                 <CategoryBanner
                     name={productDetails && productDetails.description && productDetails.description.name}
                     description={productDetails && productDetails.description && productDetails.description.description}

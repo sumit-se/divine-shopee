@@ -13,7 +13,7 @@ const Layout = ({
 }) => {
   return (
     <Fragment>
-      {/* sits above the header on every page, as on divineshopee.com */}
+      {/* sits above the header on every page, as on the previous site */}
       <AnnouncementBar />
       <Header
         layout={headerContainerClass}
