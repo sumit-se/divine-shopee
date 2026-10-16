@@ -151,6 +151,92 @@
     }
   }
 
+  // ---- dynamic customer-support slide ----------------------------------------
+  .hero-carousel__support {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+
+    width: 100%;
+    height: 100%;
+    padding: 32px 48px;
+
+    background: linear-gradient(135deg, #f9a825 0%, #e8901a 100%);
+    border-radius: 8px;
+
+    &-icon {
+      flex: 0 0 auto;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      width: 110px;
+      height: 110px;
+
+      font-size: 52px;
+      color: #7f0000;
+      border: 4px solid rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    &-copy {
+      flex: 1;
+      color: #1a1a1a;
+
+      h3 {
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      p {
+        font-size: 14px;
+        line-height: 1.7;
+        margin: 0 0 18px;
+        text-align: justify;
+      }
+    }
+
+    &-email {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      padding: 10px 22px;
+
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      text-decoration: none;
+      white-space: nowrap;
+
+      border-radius: 4px;
+      background-color: #1a1a1a;
+
+      i { font-size: 14px; }
+
+      &:hover {
+        background-color: #7f0000;
+        color: #fff;
+      }
+    }
+
+    @media (max-width: 575px) {
+      flex-direction: column;
+      gap: 16px;
+      padding: 20px 16px;
+      text-align: center;
+
+      &-icon { width: 72px; height: 72px; font-size: 32px; }
+      &-copy h3 { font-size: 20px; }
+      &-copy p  { font-size: 12px; }
+    }
+  }
+
   // ---- controls (the source has none; see HeroCarousel.js) ----------------
   .hero-carousel__prev,
   .hero-carousel__next {

@@ -1,35 +1,80 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Swiper from "react-id-swiper";
 import "swiper/swiper.scss";
+import { connect } from "react-redux";
+import WebService from "../../util/webService";
+import constant from "../../util/constant";
 
 /**
- * Full-width promotional carousel for the top of the home page, matching the
- * banner slider the previous site runs above its intro copy: one slide in view,
- * looping, 1200x450 at desktop.
+ * Full-width promotional carousel for the top of the home page.
  *
- * The source autoplays with no controls at all -- no arrows, no bullets -- so
- * there is no way to go back to a slide you missed, and nothing for keyboard
- * users. Bullets and arrows are added here for that reason. Autoplay keeps
- * running after an interaction and pauses while the pointer is over the
- * banner, so a slide is never pulled away mid-read.
+ * One slide is a dynamic HTML slide whose content (title, body text, support
+ * email) is stored in the Shopizer CMS as a content page with the code
+ * "carousel-customer-support". To edit it:
+ *   Shopizer admin → Content → Manage Pages → carousel-customer-support
+ *   - Name field          → slide heading
+ *   - Description field   → slide body paragraph
+ *   - Meta Description    → support email address
  */
-const SLIDES = [
+
+const IMG_SLIDES = [
   { img: "slide-1.webp", alt: "Certified Rudraksha collection" },
-  { img: "slide-2.webp", alt: "Divine Shopee main banner" },
   { img: "slide-3.webp", alt: "Authentic tradition-rooted products" },
   { img: "slide-4.webp", alt: "Rudraksha and spiritual essentials" },
   { img: "slide-5.webp", alt: "Shop genuine lab-tested Rudraksha" }
 ];
 
-const HeroCarousel = ({ spaceTopClass, spaceBottomClass }) => {
+// Position in the final slide array where the dynamic support slide is inserted.
+const SUPPORT_SLIDE_INDEX = 1;
+
+const SupportSlide = ({ slideData }) => {
+  if (!slideData) return null;
+  const title = slideData.name || "Customer Support";
+  const body  = slideData.description || "";
+  const email = slideData.metaDescription || "";
+
+  return (
+    <div className="hero-carousel__support">
+      <div className="hero-carousel__support-icon" aria-hidden="true">
+        <i className="fa fa-headphones" />
+      </div>
+      <div className="hero-carousel__support-copy">
+        <h3>{title}</h3>
+        <p>{body}</p>
+        {email && (
+          <a href={`mailto:${email}`} className="hero-carousel__support-email">
+            <i className="fa fa-envelope" aria-hidden="true" /> {email}
+          </a>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const HeroCarousel = ({ spaceTopClass, spaceBottomClass, defaultStore, currentLanguageCode }) => {
+  const [slideData, setSlideData] = useState(null);
+
+  useEffect(() => {
+    const store = defaultStore || window._env_.APP_MERCHANT;
+    const lang  = currentLanguageCode || "en";
+    const url   = `${constant.ACTION.CONTENT}${constant.ACTION.PAGES}carousel-customer-support?lang=${lang}&store=${store}`;
+    WebService.get(url)
+      .then(res => setSlideData(res.description || null))
+      .catch(() => {});
+  }, [defaultStore, currentLanguageCode]);
+
+  // Build the ordered slide list: image slides with the support slide spliced in.
+  const slides = [
+    ...IMG_SLIDES.slice(0, SUPPORT_SLIDE_INDEX),
+    { type: "support" },
+    ...IMG_SLIDES.slice(SUPPORT_SLIDE_INDEX)
+  ];
+
   const settings = {
     loop: true,
     slidesPerView: 1,
     grabCursor: true,
-    // disableOnInteraction was true, which killed autoplay permanently the
-    // first time anyone touched an arrow or a bullet -- so the carousel stopped
-    // scrolling for the rest of the visit. It now resumes after an interaction.
     autoplay: {
       delay: 5000,
       disableOnInteraction: false,
@@ -54,32 +99,25 @@ const HeroCarousel = ({ spaceTopClass, spaceBottomClass }) => {
 
   return (
     <div
-      className={`hero-carousel-area ${spaceTopClass ? spaceTopClass : ""} ${
-        spaceBottomClass ? spaceBottomClass : ""
-      }`}
+      className={`hero-carousel-area ${spaceTopClass || ""} ${spaceBottomClass || ""}`}
     >
       <div className="container">
         <Swiper {...settings}>
-          {SLIDES.map((slide, i) => (
-            <div className="swiper-slide" key={slide.img}>
+          {slides.map((slide, i) => (
+            <div className="swiper-slide" key={slide.type || slide.img}>
               <div className="hero-carousel__slide">
-                {/*
-                  Artwork is 1365x538 and the frame is 1200x450, so `cover`
-                  trims a little top and bottom rather than squashing it --
-                  the same fit the source uses.
-
-                  The first slide is the page's largest above-the-fold image,
-                  so it loads eagerly and the rest lazily; without that split
-                  every slide in the loop is fetched before first paint.
-                */}
-                <img
-                  src={process.env.PUBLIC_URL + "/assets/img/hero-carousel/" + slide.img}
-                  alt={slide.alt}
-                  width="1365"
-                  height="538"
-                  loading={i === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                />
+                {slide.type === "support" ? (
+                  <SupportSlide slideData={slideData} />
+                ) : (
+                  <img
+                    src={process.env.PUBLIC_URL + "/assets/img/hero-carousel/" + slide.img}
+                    alt={slide.alt}
+                    width="1365"
+                    height="538"
+                    loading={i === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                  />
+                )}
               </div>
             </div>
           ))}
@@ -94,4 +132,9 @@ HeroCarousel.propTypes = {
   spaceBottomClass: PropTypes.string
 };
 
-export default HeroCarousel;
+const mapStateToProps = state => ({
+  defaultStore:        state.merchantData.defaultStore,
+  currentLanguageCode: state.multilanguage.currentLanguageCode
+});
+
+export default connect(mapStateToProps)(HeroCarousel);
