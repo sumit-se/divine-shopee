@@ -31,7 +31,7 @@ public class ReadableTaxRateMapper implements Mapper<TaxRate, ReadableTaxRate> {
 		Validate.notNull(source, "source TaxRate cannot be null");
 		destination.setId(source.getId());
 		destination.setCountry(source.getCountry().getIsoCode());
-		destination.setZone(source.getZone().getCode());
+		destination.setZone(zoneOf(source));
 		destination.setRate(source.getTaxRate().toString());
 		destination.setCode(source.getCode());
 		destination.setPriority(source.getTaxPriority());
@@ -42,9 +42,37 @@ public class ReadableTaxRateMapper implements Mapper<TaxRate, ReadableTaxRate> {
 		return destination;
 	}
 	
+	/**
+	 * How this rate names the area it applies to.
+	 *
+	 * A tax rate targets either a known zone or a free-text province, and the
+	 * write side puts the same string into both: setZone(byCode(s)) leaves the
+	 * zone null when s is not a zone code, and setStateProvince(s) keeps the
+	 * text regardless. Reading the zone back first and falling back to the text
+	 * mirrors that, so a rate survives a read-edit-save round trip unchanged.
+	 *
+	 * Null when the rate has neither, which is not a broken row: a rate that
+	 * applies to a whole country has no zone to name. India's GST rates are
+	 * exactly this -- national, not per state -- and dereferencing the zone
+	 * here is what made the tax rate list return 500 for the whole store.
+	 */
+	private String zoneOf(TaxRate source) {
+		if (source.getZone() != null) {
+			return source.getZone().getCode();
+		}
+		return source.getStateProvince();
+	}
+
 	private Optional<ReadableTaxRateDescription> convertDescription(List<TaxRateDescription> descriptions, Language language) {
-		Validate.notEmpty(descriptions,"List of TaxRateDescriptions should not be empty");
-		
+		/*
+		 * No descriptions is a thin rate, not a server fault: the caller
+		 * already handles an absent description, so returning empty keeps one
+		 * incomplete rate from failing the whole list the way the zone did.
+		 */
+		if (descriptions == null || descriptions.isEmpty()) {
+			return Optional.empty();
+		}
+
 	    Optional<TaxRateDescription> description = descriptions.stream()
 	            .filter(desc -> desc.getLanguage().getCode().equals(language.getCode())).findAny();
 	        if (description.isPresent()) {
