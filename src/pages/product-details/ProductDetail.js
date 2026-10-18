@@ -4,6 +4,8 @@ import MetaTags from "react-meta-tags";
 import { BreadcrumbsItem } from "react-breadcrumbs-dynamic";
 import { connect } from "react-redux";
 import Layout from "../../layouts/Layout";
+import { canonicalUrl } from "../../util/seo";
+
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 // import RelatedProductSlider from "../../wrappers/product/RelatedProductSlider";
 import ProductDescriptionTab from "../../wrappers/product/ProductDescriptionTab";
@@ -78,10 +80,26 @@ const ProductDetails = ({ strings, location, productID, currentLanguageCode, set
   return (
     <Fragment>
       <MetaTags>
-        <title>{productDetails && productDetails.description.title}</title>
+        <link rel="canonical" href={canonicalUrl()} />
+        {/*
+          A product that has been sold or unlisted still answers 200 and shows
+          the "no longer available" panel, so without this it reads to a
+          crawler as a real page with an empty title -- a soft 404. Google
+          already knows these URLs from the old catalogue, so they are the ones
+          most likely to be re-crawled.
+        */}
+        {unavailable && !productDetails && (
+          <meta name="robots" content="noindex, follow" />
+        )}
+        <title>
+          {productDetails
+            ? productDetails.description.title
+            : (strings["This product is no longer available"]
+              || "This product is no longer available")}
+        </title>
         <meta
           name="description"
-          content={productDetails && productDetails.description.metaDescription}
+          content={(productDetails && productDetails.description.metaDescription) || ""}
         />
         {/* Open Graph, so the page previews properly when shared */}
         {productDetails && (

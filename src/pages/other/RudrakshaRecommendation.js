@@ -8,6 +8,8 @@ import { connect } from "react-redux";
 import { multilanguage } from "redux-multilanguage";
 
 import Layout from "../../layouts/Layout";
+import { canonicalUrl } from "../../util/seo";
+
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import WebService from "../../util/webService";
 import constant from "../../util/constant";
@@ -94,6 +96,7 @@ const RudrakshaRecommendation = ({ strings, location, merchant, setLoader }) => 
   return (
     <Fragment>
       <MetaTags>
+          <link rel="canonical" href={canonicalUrl()} />
         <title>{merchant.name} | Rudraksha Recommendation</title>
         <meta
           name="description"

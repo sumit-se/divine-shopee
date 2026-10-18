@@ -3,6 +3,8 @@ import React, { useEffect, Fragment, useState } from "react";
 import MetaTags from "react-meta-tags";
 import { BreadcrumbsItem } from "react-breadcrumbs-dynamic";
 import WebService from '../../util/webService';
+import { canonicalUrl } from "../../util/seo";
+
 import constant from '../../util/constant';
 import { setLoader } from "../../redux/actions/loaderActions";
 import Layout from "../../layouts/Layout";
@@ -39,6 +41,7 @@ const Content = ({ strings, contentID, setLoader, currentLanguageCode, match }) 
     return (
         <Fragment>
             <MetaTags>
+          <link rel="canonical" href={canonicalUrl()} />
                 <title>{contentDetails && contentDetails.description.title}</title>
                 <meta
                     name="description"

@@ -1,6 +1,8 @@
 import React, { Fragment } from "react";
 import MetaTags from "react-meta-tags";
 import Layout from "../../layouts/Layout";
+import { canonicalUrl } from "../../util/seo";
+
 import HeroSlider from "../../wrappers/hero-slider/HeroSlider";
 import HeroCarousel from "../../wrappers/hero-carousel/HeroCarousel";
 import TabProduct from "../../wrappers/product/TabProduct";
@@ -19,6 +21,7 @@ const Home = ({ merchant, strings }) => {
   return (
     <Fragment>
       <MetaTags>
+          <link rel="canonical" href={canonicalUrl()} />
         {/*
           The title stays data-driven off merchant.name, with a descriptive tail
           so the tab and the search result say what the shop actually sells.

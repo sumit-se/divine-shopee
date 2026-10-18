@@ -7,6 +7,10 @@ window._env_ = {
   APP_MAP_API_KEY: "",
   APP_NUVEI_TERMINAL_ID: "",
   APP_NUVEI_SECRET: "",
+  // Canonical origin for <link rel="canonical"> and absolute SEO URLs. Must be
+  // the host the pages are really served from -- apex and www are different
+  // sites to a crawler. Blank falls back to https://divineshopee.in.
+  APP_SITE_URL: "https://divineshopee.in",
   APP_PAYMENT_TYPE: "MONEYORDER,RAZORPAY,COD",
   // Cash on delivery is offered only below this amount, and carries a
   // convenience fee of 10% of the order with a floor of 50 (both enforced

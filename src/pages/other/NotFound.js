@@ -12,11 +12,24 @@ const NotFound = ({ location, strings }) => {
   return (
     <Fragment>
       <MetaTags>
-        <title>Importa | {strings["Page Not Found"]}</title>
-        {/* <meta
-          name="description"
-          content="404 page of flone react minimalist eCommerce template."
-        /> */}
+        {/*
+          "Importa" was the theme's own name, left in the template and shown to
+          anyone who hit a bad link.
+        */}
+        <title>Divine Shopee | {strings["Page Not Found"]}</title>
+        {/*
+          The store serves HTTP 200 for every path -- .htaccess rewrites
+          anything that is not a real file to index.html -- so a crawler asking
+          for a URL that does not exist is told the page is fine and shown this
+          view. That is a soft 404, and without this tag every mistyped or
+          stale link is a candidate for the index.
+
+          noindex is the only lever available from here; the status code itself
+          cannot be changed client side and needs the host to answer 404 for
+          unknown routes. follow is kept so the links out of this page still
+          pass authority back to the real ones.
+        */}
+        <meta name="robots" content="noindex, follow" />
       </MetaTags>
       <BreadcrumbsItem to={process.env.PUBLIC_URL + "/"}>{strings["Home"]}</BreadcrumbsItem>
       <BreadcrumbsItem to={"/login"}>

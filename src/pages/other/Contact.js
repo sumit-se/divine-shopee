@@ -3,6 +3,8 @@ import React, { Fragment } from "react";
 import MetaTags from "react-meta-tags";
 import { BreadcrumbsItem } from "react-breadcrumbs-dynamic";
 import Layout from "../../layouts/Layout";
+import { canonicalUrl } from "../../util/seo";
+
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 // import LocationMap from "../../components/contact/LocationMap";
 import { useForm } from "react-hook-form";
@@ -86,6 +88,7 @@ const Contact = ({ strings, location, merchant, setLoader }) => {
   return (
     <Fragment>
       <MetaTags>
+          <link rel="canonical" href={canonicalUrl()} />
         <title>{merchant.name} | {strings["Contact"]}</title>
         {/* <meta
           name="description"

@@ -7,6 +7,8 @@ import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic';
 import { connect } from 'react-redux';
 // import { getSortedProducts } from '../../helpers/product';
 import Layout from '../../layouts/Layout';
+import { canonicalUrl } from "../../util/seo";
+
 import Breadcrumb from '../../wrappers/breadcrumb/Breadcrumb';
 import CategoryBanner from '../../wrappers/category/CategoryBanner';
 import ShopSidebar from '../../wrappers/product/ShopSidebar';
@@ -295,6 +297,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
     return (
         <Fragment>
             <MetaTags>
+          <link rel="canonical" href={canonicalUrl()} />
                 <title>{productDetails && productDetails.description.title}</title>
                 <meta name="description" content={productDetails && productDetails.description.metaDescription} />
             </MetaTags>
