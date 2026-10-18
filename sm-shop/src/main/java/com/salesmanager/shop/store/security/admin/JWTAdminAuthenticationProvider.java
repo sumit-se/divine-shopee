@@ -43,25 +43,19 @@ public class JWTAdminAuthenticationProvider extends DaoAuthenticationProvider {
         }
         
         String pass = credentials.toString();
-        String usr = name;
-        
-        if(!passwordMatch(pass, usr)) {
+
+        if(!passwordEncoder.matches(pass, user.getPassword())) {
         	throw new BadCredentialsException("Username/Password does not match for " + auth.getPrincipal());
         }
-        
-        
+
+
         /**
          * username password auth
          */
 
-        
+
         return new UsernamePasswordAuthenticationToken(user, credentials, user.getAuthorities());
     }
-	
-	
-    private boolean passwordMatch(String rawPassword, String user) {
-		    return passwordEncoder.matches(rawPassword, user);
-	}
 	
     @Override
     public boolean supports(Class<?> authentication) {
