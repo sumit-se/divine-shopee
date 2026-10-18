@@ -165,12 +165,35 @@
 			class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 			<beans:property name="ignoreUnresolvablePlaceholders"
 				value="false" />
+			<!-- the deployment secrets file below is optional -->
+			<beans:property name="ignoreResourceNotFound" value="true" />
 			<beans:property name="locations">
 				<beans:list>
 					<beans:value>classpath:profiles/mysql/database.properties</beans:value>
 					<beans:value>classpath:email.properties</beans:value>
 					<beans:value>classpath:profiles/mysql/shopizer-core.properties</beans:value>
 					<beans:value>classpath:authentication.properties</beans:value>
+					<!--
+						Deployment secrets, kept off the classpath and out of the
+						jar: the master encryption key and the real mail account.
+						Comes last so it overrides the values above, which are
+						the committed development placeholders. secretKey in
+						particular ships as Shopizer's stock 7070200000000007,
+						which is public knowledge.
+
+						Lives beside api.env in /opt/dsindian, the same place
+						the systemd unit reads its EnvironmentFile from, so
+						everything a deployment has to be told sits together.
+
+						WARNING: this is optional so a checkout still builds and
+						a developer can run the mysql profile without it. That
+						means a server missing the file falls back silently to
+						the committed key and cannot decrypt anything written
+						under the real one: payment, shipping and email config
+						all go unreadable at once. If those break after a
+						rebuild, check this file exists and is readable first.
+					-->
+					<beans:value>file:/opt/dsindian/api-secrets.properties</beans:value>
 				</beans:list>
 			</beans:property>
 		</beans:bean>
