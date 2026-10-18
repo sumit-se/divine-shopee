@@ -1,0 +1,25 @@
+[Unit]
+Description=DSIndian Shopizer API
+After=network.target mysql.service
+Requires=mysql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/dsindian/api/sm-shop
+EnvironmentFile=/opt/dsindian/api.env
+ExecStart=/usr/bin/java \
+  -Xms512m -Xmx1024m \
+  -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} \
+  -Ddb.jdbcUrl=${DB_JDBC_URL} \
+  -Ddb.user=${DB_USER} \
+  -Ddb.password=${DB_PASSWORD} \
+  -jar /opt/dsindian/api/sm-shop/target/shopizer.jar
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dsindian-api
+
+[Install]
+WantedBy=multi-user.target
