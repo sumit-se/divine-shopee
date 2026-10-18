@@ -33,6 +33,9 @@ sm-shop/src/main/resources/database.properties
 # Infinispan / local CMS binary stores — media now lives in Cloudflare R2
 sm-shop/files/
 sm-core/files/
+# same stores again, written to the repo root when the jar is run from here
+# (java -jar sm-shop/target/shopizer.jar) rather than from inside sm-shop
+/files/
 
 # Build/run logs
 build.log
