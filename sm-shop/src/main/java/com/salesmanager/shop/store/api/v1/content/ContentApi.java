@@ -90,8 +90,15 @@ public class ContentApi {
 	public ReadableEntityList<ReadableContentPage> pages(
 			@ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language,
-			int page,
-			int count) {
+			/*
+			 * Declared with defaults rather than as bare primitives. Without an
+			 * annotation Spring still treats these as request parameters, and a
+			 * call that omits them has nothing to bind to an int, so the whole
+			 * endpoint answered 500 unless both were supplied -- which is why
+			 * nothing could enumerate the store's CMS pages.
+			 */
+			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+			@RequestParam(value = "count", required = false, defaultValue = "100") Integer count) {
 		return contentFacade
 				.getContentPages(merchantStore, language, page, count);
 	}

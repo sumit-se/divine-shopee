@@ -592,6 +592,15 @@ public class ContentFacadeImpl implements ContentFacade {
 		desc.setFriendlyUrl(description.getSeUrl());
 		desc.setId(description.getId());
 		desc.setLanguage(description.getLanguage().getCode());
+		/*
+		 * The meta tags. Authored in the admin and stored on the description,
+		 * but never copied onto the readable model, so every CMS page served a
+		 * meta description of nothing while a perfectly good one sat in the
+		 * database. The storefront reads description.metaDescription, so
+		 * without this the <meta name="description"> tag renders empty.
+		 */
+		desc.setMetaDescription(description.getMetatagDescription());
+		desc.setKeyWords(description.getMetatagKeywords());
 		return desc;
 	}
 
