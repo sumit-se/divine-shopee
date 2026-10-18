@@ -82,15 +82,27 @@ public class ProductFileManagerImpl extends ProductFileManager {
 
       // Open new InputStreams using the recorded bytes
       // Can be repeated as many times as you wish
-      InputStream is1 = new ByteArrayInputStream(baos.toByteArray());
-      InputStream is2 = new ByteArrayInputStream(baos.toByteArray());
+      byte[] imageBytes = baos.toByteArray();
+      InputStream is1 = new ByteArrayInputStream(imageBytes);
+      InputStream is2 = new ByteArrayInputStream(imageBytes);
 
-      BufferedImage bufferedImage = ImageIO.read(is2);
-
+      BufferedImage bufferedImage = null;
+      try {
+        bufferedImage = ImageIO.read(is2);
+      } catch (Exception e) {
+        LOGGER.warn("Could not decode uploaded image (will upload raw without resizing): "
+            + productImage.getProductImage(), e);
+      }
 
       if (bufferedImage == null) {
-        LOGGER.error("Cannot read image format for " + productImage.getProductImage());
-        throw new Exception("Cannot read image format " + productImage.getProductImage());
+        // Image format not readable by ImageIO (corrupt, Apple CgBI PNG, unsupported variant, etc.)
+        // Upload the raw bytes without resizing so the upload still succeeds.
+        LOGGER.warn("ImageIO could not read " + productImage.getProductImage()
+            + " -- uploading raw bytes without resize");
+        contentImage.setFile(is1);
+        contentImage.setFileContentType(FileContentType.PRODUCT);
+        uploadImage.addProductImage(productImage, contentImage);
+        return;
       }
 
       // contentImage.setBufferedImage(bufferedImage);
