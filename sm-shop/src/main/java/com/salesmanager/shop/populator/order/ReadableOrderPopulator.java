@@ -151,8 +151,7 @@ public class ReadableOrderPopulator extends
 					v = v.add(totalTotal.getValue());
 					taxTotal.setValue(v);
 				}
-				target.setTax(totalTotal);
-				totals.add(totalTotal);
+				// individual lines collected; consolidated total added after the loop
 			}
 			else if(t.getOrderTotalType().name().equals(OrderTotalType.SHIPPING.name())) {
 				com.salesmanager.shop.model.order.total.OrderTotal totalTotal = createTotal(t);
@@ -188,7 +187,14 @@ public class ReadableOrderPopulator extends
 				totals.add(otherTotal);
 			}
 		}
-		
+
+		// Add the consolidated tax line once; skip it when all rates summed to zero.
+		if(taxTotal != null && taxTotal.getValue() != null
+				&& taxTotal.getValue().compareTo(BigDecimal.ZERO) > 0) {
+			target.setTax(taxTotal);
+			totals.add(taxTotal);
+		}
+
 		target.setTotals(totals);
 		
 		return target;
