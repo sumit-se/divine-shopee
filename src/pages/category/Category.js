@@ -53,12 +53,16 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
     // const [sortedProducts, setSortedProducts] = useState([]);
 
     const { pathname } = location;
+    const priceBands = PRICE_BANDS
+        .map(band => ({ ...band, count: priceBandCounts[band.id] || 0 }))
+        .filter(band => band.count > 0 || band.id === activePriceBand);
     // the sidebar only has content when at least one facet is populated
     const hasSidebar =
         subCategory.length > 0 ||
         color.length > 0 ||
         size.length > 0 ||
-        manufacture.length > 0;
+        manufacture.length > 0 ||
+        priceBands.length > 0;
 
     const getLayout = (layout) => {
         setLayout(layout)
@@ -213,10 +217,6 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeCategoryId, defaultStore, currentLanguageCode]);
 
-    const priceBands = PRICE_BANDS
-        .map(band => ({ ...band, count: priceBandCounts[band.id] || 0 }))
-        .filter(band => band.count > 0 || band.id === activePriceBand);
-
     const getProductList = async (categoryid, size, manufacture) => {
         // Product calls take ~2.5s, so two quick menu clicks can resolve out of
         // order; only the most recent request may write to the page.
@@ -331,37 +331,17 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
 
                 <div className="shop-area pt-95 pb-100">
                     <div className="container">
-                        {
-                            productData.length > 0 ?
-                                (<div className="row">
-                                    {/* Leaf categories have no sub-categories, and
-                                        nothing in this catalogue carries colours,
-                                        sizes or a manufacturer, so ShopSidebar
-                                        renders nothing at all on them. The column
-                                        itself stayed though -- 300px wide and
-                                        ~1000px tall of empty space -- pushing the
-                                        grid to x=355 while every other section on
-                                        the page starts at 55. Drop the column when
-                                        it has no facets and let the grid use the
-                                        full width. */}
-                                    {hasSidebar &&
-                                    <div className="col-lg-3 order-2 order-lg-1">
-                                        {/* shop sidebar */}
-                                        {/* <ShopSidebar products={products} getSortParams={getSortParams} sideSpaceClass="mr-30" /> */}
-                                        <ShopSidebar string={strings} getSortParams={getSortParams} getCategoryParams={getCategoryParams} uniqueCategories={subCategory} priceBands={priceBands} activePriceBandId={activePriceBand} getPriceParams={getPriceParams} uniqueColors={color} uniqueSizes={size} uniqueManufacture={manufacture} sideSpaceClass="mr-30" />
-                                    </div>
-                                    }
-                                    <div className={`${hasSidebar ? "col-lg-9" : "col-lg-12"} order-1 order-lg-2`}>
-                                        {/* shop topbar default */}
-                                        {/* <ShopTopbar getLayout={getLayout} getFilterSortParams={getFilterSortParams} productCount={products.length} sortedProductCount={productData.length} /> */}
+                        <div className="row">
+                            {hasSidebar &&
+                            <div className="col-lg-3 order-2 order-lg-1">
+                                <ShopSidebar string={strings} getSortParams={getSortParams} getCategoryParams={getCategoryParams} uniqueCategories={subCategory} priceBands={priceBands} activePriceBandId={activePriceBand} getPriceParams={getPriceParams} uniqueColors={color} uniqueSizes={size} uniqueManufacture={manufacture} sideSpaceClass="mr-30" />
+                            </div>
+                            }
+                            <div className={`${hasSidebar ? "col-lg-9" : "col-lg-12"} order-1 order-lg-2`}>
+                                {productData.length > 0 ? (
+                                    <>
                                         <ShopTopbar strings={strings} getLayout={getLayout} productCount={totalProduct} offset={offset + 1} pageLimit={pageLimit} sortedProductCount={productData.length} />
-
-                                        {/* shop page content default */}
                                         <ShopProducts strings={strings} layout={layout} products={productData} />
-
-                                        {/* shop product pagination */}
-
-
                                         <div className="pro-pagination-style text-center mt-30">
                                             <ReactPaginate
                                                 previousLabel={'«'}
@@ -375,23 +355,19 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
                                                 activeClassName={'page-item active'}
                                             />
                                         </div>
-
-                                    </div>
-                                </div>)
-                                :
-                                (
-                                    !isLoading && <div className="col-lg-12">
-                                        <div className="item-empty-area text-center">
-                                            <div className="item-empty-area__icon mb-30">
-                                                <i className="pe-7s-shopbag"></i>
-                                            </div>
-                                            <div className="item-empty-area__text">
-                                                {strings["No items found in category"]}<br />{" "}
-
-                                            </div>
+                                    </>
+                                ) : (
+                                    !isLoading && <div className="item-empty-area text-center">
+                                        <div className="item-empty-area__icon mb-30">
+                                            <i className="pe-7s-shopbag"></i>
                                         </div>
-                                    </div>)
-                        }
+                                        <div className="item-empty-area__text">
+                                            {strings["No items found in category"]}<br />{" "}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </Layout>
