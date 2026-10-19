@@ -17,14 +17,15 @@ import ShopManufacture from "../../components/product/ShopManufacture";
 // activeCategoryId is optional: the search page passes it so the chosen
 // facet can show as selected, the category page leaves it off because there
 // the same list navigates rather than filters.
-const ShopSidebar = ({ string, getCategoryParams, getSortParams, sideSpaceClass, uniqueCategories, activeCategoryId, priceBands, activePriceBandId, getPriceParams, uniqueColors, uniqueSizes, uniqueManufacture }) => {
-  // const uniqueCategories = getIndividualCategories(products);
-  // const uniqueColors = getIndividualColors(products);
-  // const uniqueSizes = getProductsIndividualSizes(products);
-  // const uniqueTags = getIndividualTags(products);
-  // debugger
+const ShopSidebar = ({ string, getCategoryParams, getSortParams, sideSpaceClass, uniqueCategories, activeCategoryId, priceBands, activePriceBandId, getPriceParams, uniqueColors, uniqueSizes, uniqueManufacture, hasActiveFilters, clearFilters }) => {
   return (
     <div className={`sidebar-style ${sideSpaceClass ? sideSpaceClass : ""}`}>
+      {hasActiveFilters && (
+        <button type="button" className="clear-filter-btn" onClick={clearFilters}>
+          {(string && string["Clear Filter"]) || "Clear Filter"} ×
+        </button>
+      )}
+
       {/* shop search */}
       {/* <ShopSearch strings={strings} /> */}
 

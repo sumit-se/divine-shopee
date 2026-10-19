@@ -50,12 +50,14 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
     const [size, setSize] = useState([]);
     const [selectedOption, setSelectedOption] = useState([]);
     const [selectedManufature, setSelectedManufature] = useState([]);
+    const [sidebarResetKey, setSidebarResetKey] = useState(0);
     // const [sortedProducts, setSortedProducts] = useState([]);
 
     const { pathname } = location;
     const priceBands = PRICE_BANDS
         .map(band => ({ ...band, count: priceBandCounts[band.id] || 0 }))
         .filter(band => band.count > 0 || band.id === activePriceBand);
+    const hasActiveFilters = activePriceBand !== null || selectedOption.length > 0 || selectedManufature.length > 0;
     // the sidebar only has content when at least one facet is populated
     const hasSidebar =
         subCategory.length > 0 ||
@@ -179,6 +181,20 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         getProductList(activeCategoryId, [], [])
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeCategoryId, offset, activePriceBand]);
+    const clearFilters = () => {
+        const wasNull = activePriceBand === null;
+        setActivePriceBand(null);
+        setSelectedOption([]);
+        setSelectedManufature([]);
+        setOffset(0);
+        setSidebarResetKey(k => k + 1);
+        // If the band was already null the useEffect won't fire, so reload explicitly.
+        // The closure still sees activePriceBand === null, which is correct.
+        if (wasNull) {
+            getProductList(categoryValue, [], []);
+        }
+    };
+
     /** Pick a band, or clear it by picking the one already on. */
     const getPriceParams = (bandId) => {
         setActivePriceBand(prev => (prev === bandId ? null : bandId));
@@ -334,7 +350,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
                         <div className="row">
                             {hasSidebar &&
                             <div className="col-lg-3 order-2 order-lg-1">
-                                <ShopSidebar string={strings} getSortParams={getSortParams} getCategoryParams={getCategoryParams} uniqueCategories={subCategory} priceBands={priceBands} activePriceBandId={activePriceBand} getPriceParams={getPriceParams} uniqueColors={color} uniqueSizes={size} uniqueManufacture={manufacture} sideSpaceClass="mr-30" />
+                                <ShopSidebar key={sidebarResetKey} string={strings} getSortParams={getSortParams} getCategoryParams={getCategoryParams} uniqueCategories={subCategory} priceBands={priceBands} activePriceBandId={activePriceBand} getPriceParams={getPriceParams} uniqueColors={color} uniqueSizes={size} uniqueManufacture={manufacture} sideSpaceClass="mr-30" hasActiveFilters={hasActiveFilters} clearFilters={clearFilters} />
                             </div>
                             }
                             <div className={`${hasSidebar ? "col-lg-9" : "col-lg-12"} order-1 order-lg-2`}>

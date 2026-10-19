@@ -1,5 +1,26 @@
 /*---- 17. Sidebar style  ------*/
 
+.clear-filter-btn {
+  display: block;
+  width: 100%;
+  padding: 7px 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: $theme-color;
+  background: transparent;
+  border: 1px solid $theme-color;
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    color: #fff;
+    background: $theme-color;
+  }
+}
+
 .sidebar-style {
   @media #{$lg-layout} {
     &.mr-30 {
