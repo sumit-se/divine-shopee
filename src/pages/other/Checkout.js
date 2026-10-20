@@ -561,6 +561,15 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
     shippingQuoteChange(quoteId);
   };
 
+  // delivery is priced by state: ask again when the state that applies changes
+  const quotedState = isShipping ? watch('shipStateProvince') : watch('stateProvince');
+  useEffect(() => {
+    if (cartID && quotedState) {
+      onChangeShipping();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quotedState, isShipping]);
+
   const onChangeShipping = async () => {
     // every /cart/* call is store-scoped; without store= it falls back to
     // DEFAULT and 404s, which silently broke shipping and totals at checkout.
@@ -570,10 +579,13 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
 
     //console.log('CHANGE SHIPPING');
 
+    // the state goes too: delivery is priced by state (weightBased regions).
+    // It used to be sent only for billing, misspelt ("zpneCode") and read from
+    // the shipping field, so the server never saw a state at all.
     if (isShipping) {
-      param = { 'postalCode': watch('shipPostalCode'), 'countryCode': watch('shipCountry') }
+      param = { 'postalCode': watch('shipPostalCode'), 'countryCode': watch('shipCountry'), 'zoneCode': watch('shipStateProvince') || null }
     } else {
-      param = { 'postalCode': watch('postalCode'), 'countryCode': watch('country'), "zpneCode": watch('shipStateProvince') }
+      param = { 'postalCode': watch('postalCode'), 'countryCode': watch('country'), 'zoneCode': watch('stateProvince') || null }
     }
     try {
       let response = await WebService.post(action, param);
@@ -1691,7 +1703,7 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                                       rules={paymentForm.shipStateProvince.validate}
                                       render={props => {
                                         return (
-                                          <select onChange={(a) => console.log('-----'+a)} value={props.value}>
+                                          <select onChange={(e) => props.onChange(e.target.value)} value={props.value}>
                                             <option>{strings["State / Province"]}</option>
                                             {
                                               shipStateData.map((data, i) => {
