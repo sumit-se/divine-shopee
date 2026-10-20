@@ -94,7 +94,12 @@ public class CustomWeightBasedShippingQuote implements ShippingQuoteModule {
 			ShippingConfiguration shippingConfiguration, Locale locale)
 			throws IntegrationException {
 
-		if(StringUtils.isBlank(delivery.getPostalCode())) {
+		// prices depend on the state, so a chosen state is enough to quote: the
+		// shopper sees the delivery price as soon as they pick it, before typing
+		// a postcode
+		boolean hasState = (delivery.getZone() != null && StringUtils.isNotBlank(delivery.getZone().getCode()))
+				|| StringUtils.isNotBlank(delivery.getState());
+		if(StringUtils.isBlank(delivery.getPostalCode()) && !hasState) {
 			return null;
 		}
 		
@@ -109,38 +114,29 @@ public class CustomWeightBasedShippingQuote implements ShippingQuoteModule {
 		try {
 			
 
-			for(CustomShippingQuotesRegion region : customConfiguration.getRegions()) {
-	
-				for(String countryCode : region.getCountries()) {
-					if(countryCode.equals(delivery.getCountry().getIsoCode())) {
-						
-						
-						//determine shipping weight
-						double weight = 0;
-						for(PackageDetails packageDetail : packages) {
-							weight = weight + packageDetail.getShippingWeight();
-						}
-						
-						//see the price associated with the width
-						List<CustomShippingQuoteWeightItem> quoteItems = region.getQuoteItems();
-						for(CustomShippingQuoteWeightItem quoteItem : quoteItems) {
-							if(weight<= quoteItem.getMaximumWeight()) {
-								shippingOption = new ShippingOption();
-								shippingOption.setOptionCode(new StringBuilder().append(CUSTOM_WEIGHT).toString());
-								shippingOption.setOptionId(new StringBuilder().append(CUSTOM_WEIGHT).append("_").append(region.getCustomRegionName()).toString());
-								shippingOption.setOptionPrice(quoteItem.getPrice());
-								shippingOption.setOptionPriceText(productPriceUtils.getStoreFormatedAmountWithCurrency(store, quoteItem.getPrice()));
-								break;
-							}
-						}
-						
-					}
-					
-					
-				}
-				
+			// parcel weight, in the store's unit (kg)
+			double weight = 0;
+			for(PackageDetails packageDetail : packages) {
+				weight = weight + packageDetail.getShippingWeight();
 			}
-			
+
+			CustomShippingQuotesRegion region = matchingRegion(regions, delivery);
+			if(region != null && region.getQuoteItems() != null) {
+				// lightest band first, whatever order they were saved in
+				List<CustomShippingQuoteWeightItem> quoteItems = new ArrayList<CustomShippingQuoteWeightItem>(region.getQuoteItems());
+				quoteItems.sort(java.util.Comparator.comparingDouble(CustomShippingQuoteWeightItem::getMaximumWeight));
+				for(CustomShippingQuoteWeightItem quoteItem : quoteItems) {
+					if(weight <= quoteItem.getMaximumWeight()) {
+						shippingOption = new ShippingOption();
+						shippingOption.setOptionCode(new StringBuilder().append(CUSTOM_WEIGHT).toString());
+						shippingOption.setOptionId(new StringBuilder().append(CUSTOM_WEIGHT).append("_").append(region.getCustomRegionName()).toString());
+						shippingOption.setOptionPrice(quoteItem.getPrice());
+						shippingOption.setOptionPriceText(productPriceUtils.getStoreFormatedAmountWithCurrency(store, quoteItem.getPrice()));
+						break;
+					}
+				}
+			}
+
 			if(shippingOption!=null) {
 				List<ShippingOption> options = new ArrayList<ShippingOption>();
 				options.add(shippingOption);
@@ -156,5 +152,35 @@ public class CustomWeightBasedShippingQuote implements ShippingQuoteModule {
 	}
 
 
+
+
+	/**
+	 * The region that prices a delivery: one naming the delivery's state
+	 * (zones) wins over one that only names its country, so "UP & Delhi" and
+	 * "Rest of India" can sit side by side. Zone is matched on its code, or on
+	 * the state text when the address carries no zone.
+	 */
+	private CustomShippingQuotesRegion matchingRegion(List<CustomShippingQuotesRegion> regions, Delivery delivery) {
+		if(regions == null || delivery.getCountry() == null) {
+			return null;
+		}
+		String country = delivery.getCountry().getIsoCode();
+		String zone = delivery.getZone() != null && StringUtils.isNotBlank(delivery.getZone().getCode())
+				? delivery.getZone().getCode() : delivery.getState();
+		CustomShippingQuotesRegion countryWide = null;
+		for(CustomShippingQuotesRegion region : regions) {
+			if(region.getCountries() == null || !region.getCountries().contains(country)) {
+				continue;
+			}
+			if(region.getZones() == null || region.getZones().isEmpty()) {
+				if(countryWide == null) {
+					countryWide = region;
+				}
+			} else if(zone != null && region.getZones().stream().anyMatch(z -> z.equalsIgnoreCase(zone.trim()))) {
+				return region;
+			}
+		}
+		return countryWide;
+	}
 
 }

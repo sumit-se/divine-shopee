@@ -5,7 +5,8 @@ import org.json.simple.JSONObject;
 
 public class CustomShippingQuoteWeightItem extends CustomShippingQuoteItem implements JSONAware {
 	
-	private int maximumWeight;
+	/** in the store's weight unit (kg here), so 0.2 is 200 g; was an int, which could not say 200 g */
+	private double maximumWeight;
 	
 	private String priceText;
 
@@ -17,11 +18,11 @@ public class CustomShippingQuoteWeightItem extends CustomShippingQuoteItem imple
 		this.priceText = priceText;
 	}
 
-	public void setMaximumWeight(int maximumWeight) {
+	public void setMaximumWeight(double maximumWeight) {
 		this.maximumWeight = maximumWeight;
 	}
 
-	public int getMaximumWeight() {
+	public double getMaximumWeight() {
 		return maximumWeight;
 	}
 

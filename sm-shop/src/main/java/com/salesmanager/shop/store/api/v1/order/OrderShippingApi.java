@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.salesmanager.core.business.services.catalog.pricing.PricingService;
 import com.salesmanager.core.business.services.customer.CustomerService;
 import com.salesmanager.core.business.services.reference.country.CountryService;
+import com.salesmanager.core.business.services.reference.zone.ZoneService;
 import com.salesmanager.core.model.common.Delivery;
+import com.salesmanager.core.model.reference.zone.Zone;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.country.Country;
@@ -66,6 +68,8 @@ public class OrderShippingApi {
   @Inject private PricingService pricingService;
   
   @Inject private CountryService countryService;
+
+  @Inject private ZoneService zoneService;
 
   /**
    * Get shipping quote for a given shopping cart
@@ -224,7 +228,16 @@ public class OrderShippingApi {
       }
       addr.setCountry(c);
 
-      
+      // the state, so delivery can be priced by state (weightBased regions with zones)
+      if (StringUtils.isNotBlank(address.getZoneCode())) {
+        Zone zone = zoneService.getByCode(address.getZoneCode().trim());
+        if (zone != null && zone.getCountry() != null && zone.getCountry().getIsoCode().equals(c.getIsoCode())) {
+          addr.setZone(zone);
+        } else {
+          addr.setState(address.getZoneCode().trim());
+        }
+      }
+
       Customer temp = new Customer();
       temp.setAnonymous(true);
       temp.setDelivery(addr);

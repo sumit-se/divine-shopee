@@ -49,12 +49,20 @@ public class ShippingProduct {
 	}
 
 	/*
+	 * Weight to ship with: the product's packed (parcel) weight, in the store's
+	 * weight unit (kg). Not the variant's: a bead's own weight is its few grams,
+	 * shown to shoppers in g (APP_BEAD_WEIGHT_UNIT), and read as kg it priced a
+	 * single 7.94 g bead as a 7.94 kg parcel. Null when not set (packaging then
+	 * assumes 1 kg).
+	 */
+	public BigDecimal getShippingWeight() {
+		return product.getProductWeight();
+	}
+
+	/*
 	 * Dimensions to ship with: the variant's own where it has one, otherwise the
 	 * product's. May still be null when neither is set.
 	 */
-	public BigDecimal getShippingWeight() {
-		return variant != null && variant.getVariantWeight() != null ? variant.getVariantWeight() : product.getProductWeight();
-	}
 	public BigDecimal getShippingWidth() {
 		return variant != null && variant.getVariantWidth() != null ? variant.getVariantWidth() : product.getProductWidth();
 	}

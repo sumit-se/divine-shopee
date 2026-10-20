@@ -8,6 +8,12 @@ public class CustomShippingQuotesRegion implements JSONAware {
 	
 	private String customRegionName;//a name given by the merchant for this custom region
 	private List<String> countries;//a list of country code for this region
+	/**
+	 * optional: state / province codes (ZONE.ZONE_CODE, e.g. "UttarPradesh") the
+	 * region is limited to. Empty means the whole of its countries. A region
+	 * naming the delivery state wins over one that only names its country.
+	 */
+	private List<String> zones;
 	
 	private List<CustomShippingQuoteWeightItem> quoteItems;//price max weight
 
@@ -25,6 +31,14 @@ public class CustomShippingQuotesRegion implements JSONAware {
 
 	public List<String> getCountries() {
 		return countries;
+	}
+
+	public List<String> getZones() {
+		return zones;
+	}
+
+	public void setZones(List<String> zones) {
+		this.zones = zones;
 	}
 
 	public void setCustomRegionName(String customRegionName) {
@@ -62,6 +76,17 @@ public class CustomShippingQuotesRegion implements JSONAware {
 			returnString.append("\"countries\"").append(":").append(coutriesList.toString());
 		}
 		
+		if(zones!=null) {
+			returnString.append(",\"zones\":[");
+			for(int i = 0; i < zones.size(); i++) {
+				returnString.append("\"").append(zones.get(i)).append("\"");
+				if(i < zones.size() - 1) {
+					returnString.append(",");
+				}
+			}
+			returnString.append("]");
+		}
+
 		if(quoteItems!=null) {
 			returnString.append(",");
 			StringBuilder quotesList = new StringBuilder();

@@ -11,6 +11,16 @@ public class AddressLocation implements Serializable {
 	
 	private String postalCode;
 	private String countryCode;
+	/** state / province code (ZONE.ZONE_CODE, e.g. "UttarPradesh"); shipping can be priced by state */
+	private String zoneCode;
+
+	public String getZoneCode() {
+		return zoneCode;
+	}
+
+	public void setZoneCode(String zoneCode) {
+		this.zoneCode = zoneCode;
+	}
 	
 	public String getPostalCode() {
 		return postalCode;

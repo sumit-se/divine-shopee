@@ -1197,8 +1197,13 @@ public class OrderFacadeImpl implements OrderFacade {
 		billing.setCountry(store.getCountry());
 
 
-		// adjust shipping and billing
-		if (customer.getDelivery() == null || StringUtils.isBlank(customer.getDelivery().getPostalCode())) {
+		// adjust shipping and billing. A delivery address with a state but no
+		// postcode yet is kept: delivery is priced by state, and replacing it
+		// with the (empty) billing address threw the state away
+		Delivery given = customer.getDelivery();
+		boolean deliveryUsable = given != null && (StringUtils.isNotBlank(given.getPostalCode())
+				|| given.getZone() != null || StringUtils.isNotBlank(given.getState()));
+		if (!deliveryUsable) {
 			if(customer.getBilling()!=null) {
 				billing = customer.getBilling();
 			}
