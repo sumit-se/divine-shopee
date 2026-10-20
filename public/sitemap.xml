@@ -21,7 +21,12 @@
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/content/blog-feed</loc>
+    <loc>https://divineshopee.in/content/privacy-policy-page</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/content/terms-conditions</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -31,12 +36,37 @@
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/content/privacy-policy-page</loc>
+    <loc>https://divineshopee.in/content/blog-feed</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/content/terms-conditions</loc>
+    <loc>https://divineshopee.in/content/blog-9-mukhi-navratri</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/content/blog-sphatik-mala</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/content/blog-tiger-eye-beads</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/content/blog-rudraksha-shravan</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/content/blog-rudraksha-zodiac</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/content/carousel-customer-support</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -52,11 +82,6 @@
   </url>
   <url>
     <loc>https://divineshopee.in/category/nirmukhi-rudraksha</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/category/rudraksh-malla</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -161,7 +186,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/category/mala-and-jaap-mala</loc>
+    <loc>https://divineshopee.in/category/rudraksh-malla</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -186,361 +211,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/product/pure-natural-unprocessed-dakshinavarti-shankh</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-unprocessed-surya-shankh</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-certified-tigers-eye-stone-wysiwyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/certified-sphatik-lingam</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/original-sphatik-shivling</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-certified-rainbow-moonstone</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-certified-fresh-water-pearl</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-certified-irani-turquoise-irani-firoza-stone-wysiwyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-pyrite-stone-wysiwyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-bloodstone-healing-bracelet</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-black-agate-hakik-healing-bracelet</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-amazonite-healing-bracelet</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-unakite-healing-bracelet</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-amethyst-healing-bracelet</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-rose-quartz-bracelet</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-green-aventurine-bracelet</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-sodalite-healing-bracelet</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-yellow-calcite-bracelet</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/rare-and-original-rahu-ketu-shankh</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/buy-rare-original-shani-shankh</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/natural-cats-eye-quartz-knotted-mala</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/genuine-natural-selenite-knotted-japa-mala-1081-beads-wysiwyg-6mm</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/rose-quartz-gulabi-billore-knotted-mala</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/natural-citrine-knotted-japa-mala</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/natural-bloodstone-chalcedony-knotted-japa-mala-108-1-6-mm-wysiwyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/natural-carnelian-chalcedony-knotted-japa-mala-108-1-6-mm-wysiwyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-howlite-magnesite-japa-mala</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/lapis-lazuli-knotted-mala-108-beads</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/natural-jasper-chalcedony-knotted-mala</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/natural-amethyst-quartz-kathela-knotted-mala-108-beads-7mm</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/genuine-mother-of-pearl-knotted-japa-mala-1081-beads-wysiwyg-7mm</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/5-mukhi-rudraksha-certified-mala-108-1</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-tiger-eye-mala-1081-beads-divineshopee</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-genuine-moti-mala</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/natural-green-aventurine-jaap-mala</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/rainbow-moonstone-japa-mala</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-kala-hakik-mala</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/lava-1081-beads-japa-mala-grounding-energizing-meditation-beads</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/9-mukhi-ganesh-rudraksha-wswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/8-mukhi-ganesh-rudraksha-wswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/18-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/17-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/10-mukhi-ganesh-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/11-mukhi-gauri-shankar-rudraksha</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/2-mukhi-rudraksha-full-seedwswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/3-mukhi-rudraksha-full-seedwswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/6-mukhi-rudraksha-full-seedwswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/4-mukhi-rudraksha-full-seedwswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/5-mukhi-rudraksha-full-seedwswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/7-mukhi-rudraksha-full-seedwswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://divineshopee.in/product/9-mukhi-rudraksha-full-seedwswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/10-mukhi-rudraksha-full-seed-wswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/8-mukhi-ganesh-rudraksha-full-seed-wswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/8-mukhi-rudraksha-full-seed-wswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-unprocessed-pink-shankh</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-unprocessed-panchmukhi-shankh</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/pure-natural-untouched-unprocessed-annapurna-shankh</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/sphatik-diamond-cut-jaap-mala</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/natural-blowing-shankh</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/1-mukhi-33-beads-rudraksha-kantha</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -552,79 +223,103 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://divineshopee.in/product/1-mukhi-33-beads-rudraksha-kantha</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/natural-blowing-shankh</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-untouched-unprocessed-annapurna-shankh</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-unprocessed-panchmukhi-shankh</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-unprocessed-pink-shankh</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/8-mukhi-rudraksha-full-seed-wswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/8-mukhi-ganesh-rudraksha-full-seed-wswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/10-mukhi-rudraksha-full-seed-wswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://divineshopee.in/product/1-14-mukhi-siddh-mala</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/product/sawar-rudraksha</loc>
+    <loc>https://divineshopee.in/product/5-mukhi-rudraksha-full-seedwswyg</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/product/13-mukhi-gauri-shankar-rudraksha</loc>
+    <loc>https://divineshopee.in/product/4-mukhi-rudraksha-full-seedwswyg</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/product/5-mukhi-ganesh-rudrakshawswyg</loc>
+    <loc>https://divineshopee.in/product/6-mukhi-rudraksha-full-seedwswyg</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/product/4-mukhi-ganesh-rudrakshawswyg</loc>
+    <loc>https://divineshopee.in/product/3-mukhi-rudraksha-full-seedwswyg</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/product/16-mukhi-rudrakshawswyg</loc>
+    <loc>https://divineshopee.in/product/2-mukhi-rudraksha-full-seedwswyg</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/product/1-14-mukhi-rudraksha-bracelet-with-silver-capping</loc>
+    <loc>https://divineshopee.in/product/11-mukhi-gauri-shankar-rudraksha</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/product/15-mukhi-rudrakshawswyg</loc>
+    <loc>https://divineshopee.in/product/17-mukhi-rudrakshawswyg</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/product/14-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/13-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/12-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/11-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/10-mukhi-rudrakshawswyg</loc>
+    <loc>https://divineshopee.in/product/18-mukhi-rudrakshawswyg</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -636,37 +331,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/product/8-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/7-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/3-mukhi-rudraksha</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/2-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/1-mukhi-rudrakshawswyg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://divineshopee.in/product/4-mukhi-rudraksha</loc>
+    <loc>https://divineshopee.in/product/6-mukhi-rudraksha</loc>
     <lastmod>2026-09-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -678,8 +343,308 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://divineshopee.in/product/6-mukhi-rudraksha</loc>
+    <loc>https://divineshopee.in/product/4-mukhi-rudraksha</loc>
     <lastmod>2026-09-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/1-mukhi-rudrakshawswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/2-mukhi-rudrakshawswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/3-mukhi-rudraksha</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/7-mukhi-rudrakshawswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/8-mukhi-rudrakshawswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/lava-1081-beads-japa-mala-grounding-energizing-meditation-beads</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/10-mukhi-rudrakshawswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/11-mukhi-rudrakshawswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/12-mukhi-rudrakshawswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/13-mukhi-rudrakshawswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/14-mukhi-rudrakshawswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/15-mukhi-rudrakshawswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/1-14-mukhi-rudraksha-bracelet-with-silver-capping</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/16-mukhi-rudrakshawswyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-bloodstone-healing-bracelet</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-yellow-calcite-bracelet</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-sodalite-healing-bracelet</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-green-aventurine-bracelet</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-rose-quartz-bracelet</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-amethyst-healing-bracelet</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-unakite-healing-bracelet</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-amazonite-healing-bracelet</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-black-agate-hakik-healing-bracelet</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/rare-and-original-rahu-ketu-shankh</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-pyrite-stone-wysiwyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-certified-irani-turquoise-irani-firoza-stone-wysiwyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-certified-fresh-water-pearl</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-certified-rainbow-moonstone</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/original-sphatik-shivling</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/certified-sphatik-lingam</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-certified-tigers-eye-stone-wysiwyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-unprocessed-surya-shankh</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/lapis-lazuli-knotted-mala-108-beads</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-kala-hakik-mala</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/rainbow-moonstone-japa-mala</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/natural-green-aventurine-jaap-mala</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-genuine-moti-mala</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-tiger-eye-mala-1081-beads-divineshopee</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/genuine-mother-of-pearl-knotted-japa-mala-1081-beads-wysiwyg-7mm</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/natural-amethyst-quartz-kathela-knotted-mala-108-beads-7mm</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/natural-jasper-chalcedony-knotted-mala</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-natural-unprocessed-dakshinavarti-shankh</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/pure-howlite-magnesite-japa-mala</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/natural-carnelian-chalcedony-knotted-japa-mala-108-1-6-mm-wysiwyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/natural-bloodstone-chalcedony-knotted-japa-mala-108-1-6-mm-wysiwyg</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/natural-citrine-knotted-japa-mala</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/rose-quartz-gulabi-billore-knotted-mala</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/genuine-natural-selenite-knotted-japa-mala-1081-beads-wysiwyg-6mm</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/natural-cats-eye-quartz-knotted-mala</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://divineshopee.in/product/buy-rare-original-shani-shankh</loc>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

@@ -2,9 +2,16 @@
 
 User-agent: *
 
-# One shopper's own pages. Nothing here belongs in an index, and most of it
-# redirects or empties out for anyone who is not signed in, so a crawler that
-# follows these spends its budget on pages it cannot read.
+# Public paths crawlers should index
+Allow: /
+Allow: /category/
+Allow: /product/
+Allow: /content/
+Allow: /contact
+Allow: /rudraksha-recommendation
+
+# Private shopper pages -- nothing here belongs in an index, and most
+# redirect or render empty for anyone who is not signed in.
 Disallow: /cart
 Disallow: /checkout
 Disallow: /order-confirm
@@ -16,9 +23,14 @@ Disallow: /register
 Disallow: /forgot-password
 Disallow: /customer/
 
-# Search results are endless re-cuts of the same catalogue. Letting them be
-# indexed competes with the category pages that are meant to rank for those
-# words, using the same products to do it.
+# Search results are endless re-cuts of the same catalogue. Indexing them
+# competes with the category pages that are meant to rank for those terms.
 Disallow: /search/
+
+# Deliberately NOT disallowed: /static/ and /api/. This is a JavaScript app --
+# a crawler has to load /static/ (the JS and CSS) to render a page at all, and
+# the page then fetches its products, prices and descriptions from /api/.
+# Blocking either leaves Google an empty shell with nothing to index. Private
+# API calls need a sign-in, so nothing private is exposed by allowing them.
 
 Sitemap: https://divineshopee.in/sitemap.xml
