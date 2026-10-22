@@ -282,7 +282,10 @@
                     </thead>
                     <tbody>
                       <tr *ngFor="let product of orderDetailsData.products">
-                        <td><span>{{product.productName}} -</span><span class="blueTxt">{{product.sku}}</span></td>
+                        <td>
+                          <span>{{product.productName}} -</span>
+                          <span class="blueTxt">{{product.variantSku || product.sku}}</span>
+                        </td>
                         <td>{{product.orderedQuantity}}</td>
                         <td class="boldTxt">{{product.price}}</td>
                         <td class="boldTxt">{{product.subTotal}}</td>
