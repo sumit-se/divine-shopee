@@ -2,6 +2,7 @@ package com.salesmanager.shop.store.api.v1.shoppingCart;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,8 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.pricing.PricingService;
+import com.salesmanager.core.business.services.catalog.product.variant.ProductVariantService;
 import com.salesmanager.core.business.services.customer.CustomerService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
+import com.salesmanager.core.model.catalog.product.variant.ProductVariant;
 import com.salesmanager.core.model.catalog.product.description.ProductDescription;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -67,6 +70,9 @@ public class CartAdminApi {
 
 	@Inject
 	private PricingService pricingService;
+
+	@Inject
+	private ProductVariantService productVariantService;
 
 	@Inject
 	private AuthorizationUtils authorizationUtils;
@@ -128,12 +134,23 @@ public class CartAdminApi {
 			ReadableCartDetail detail = new ReadableCartDetail();
 			summary(cart, detail, new HashMap<>());
 
+			// Batch-fetch all variants referenced by the cart items in one query.
+			List<Long> variantIds = cart.getLineItems().stream()
+					.map(ShoppingCartItem::getVariant).filter(v -> v != null)
+					.distinct().collect(Collectors.toList());
+			Map<Long, String> variantSkuById = variantIds.isEmpty() ? new HashMap<>()
+					: productVariantService.getByIds(variantIds, merchantStore).stream()
+							.collect(Collectors.toMap(ProductVariant::getId, v -> v.getSku() != null ? v.getSku() : ""));
+
 			BigDecimal total = BigDecimal.ZERO;
 			for (ShoppingCartItem item : cart.getLineItems()) {
 				ReadableCartDetailItem line = new ReadableCartDetailItem();
 				line.setProductId(item.getProductId());
 				line.setSku(item.getSku());
 				line.setVariant(item.getVariant());
+				if (item.getVariant() != null) {
+					line.setVariantSku(variantSkuById.get(item.getVariant()));
+				}
 				line.setQuantity(item.getQuantity());
 				line.setAvailable(!item.isObsolete());
 				if (!item.isObsolete()) {

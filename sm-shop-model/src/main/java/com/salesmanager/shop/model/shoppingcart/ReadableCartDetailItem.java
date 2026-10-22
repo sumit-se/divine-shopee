@@ -14,6 +14,7 @@ public class ReadableCartDetailItem implements Serializable {
 	private String sku;
 	private String name;
 	private Long variant;
+	private String variantSku;
 	private int quantity;
 	private String displayPrice;
 	private String displaySubTotal;
@@ -49,6 +50,14 @@ public class ReadableCartDetailItem implements Serializable {
 
 	public void setVariant(Long variant) {
 		this.variant = variant;
+	}
+
+	public String getVariantSku() {
+		return variantSku;
+	}
+
+	public void setVariantSku(String variantSku) {
+		this.variantSku = variantSku;
 	}
 
 	public int getQuantity() {
