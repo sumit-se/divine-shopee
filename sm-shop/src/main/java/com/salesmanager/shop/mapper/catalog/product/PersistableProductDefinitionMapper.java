@@ -99,13 +99,17 @@ public class PersistableProductDefinitionMapper implements Mapper<PersistablePro
 
 			
 			//PRODUCT TYPE
-			if(!StringUtils.isBlank(source.getType())) {
-				ProductType type = productTypeService.getByCode(source.getType(), store, language);
-				if(type == null) {
-					throw new ConversionException("Product type [" + source.getType() + "] does not exist");
+			if(source.getType() != null) {
+				if(!source.getType().isEmpty()) {
+					ProductType type = productTypeService.getByCode(source.getType(), store, language);
+					if(type == null) {
+						throw new ConversionException("Product type [" + source.getType() + "] does not exist");
+					}
+					destination.setType(type);
+				} else {
+					// Empty string explicitly sent = clear the product type
+					destination.setType(null);
 				}
-
-				destination.setType(type);
 			}
 
 			
