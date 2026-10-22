@@ -95,11 +95,13 @@ public class OrderProductPopulator extends
 			 * Carry the chosen variant onto the order line. Without it the order
 			 * recorded only the parent sku: which bead was sold was lost, and the
 			 * stock came off the parent's inventory rather than the variant's.
+			 * Use modelProduct (fetched above) so we never trigger a lazy-load on
+			 * the transient source.getProduct() reference.
 			 */
 			if (source.getVariant() != null) {
 				target.setVariant(source.getVariant());
-				if (source.getProduct().getVariants() != null) {
-					source.getProduct().getVariants().stream()
+				if (modelProduct.getVariants() != null) {
+					modelProduct.getVariants().stream()
 							.filter(v -> source.getVariant().equals(v.getId()))
 							.findFirst()
 							.ifPresent(v -> target.setVariantSku(v.getSku()));

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -428,6 +429,24 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 			PersistableShoppingCartItem shoppingCartItem = oShoppingCartItem.get();
 			item.setQuantity(shoppingCartItem.getQuantity());
 			item.setShoppingCart(cartModel);
+
+			// Variant selection — mirrors the logic in createCartItem so the bulk path
+			// stores the chosen variant id and prices from the variant, not the product.
+			if (CollectionUtils.isNotEmpty(p.getVariants())) {
+				Long chosen = shoppingCartItem.getVariant();
+				final String pSku = p.getSku();
+				ProductVariant instance;
+				if (chosen != null) {
+					instance = p.getVariants().stream().filter(v -> chosen.equals(v.getId())).findFirst()
+							.orElseThrow(() -> new ResourceNotFoundException(
+									"Variant [" + chosen + "] does not belong to product with sku " + pSku));
+				} else {
+					instance = p.getVariants().stream().filter(ProductVariant::isDefaultSelection).findFirst()
+							.orElse(p.getVariants().iterator().next());
+				}
+				item.setVariant(instance.getId());
+				item.setItemPrice(pricingService.calculateProductPrice(instance).getFinalPrice());
+			}
 
 			/**
 			 * Check if product is available Check if product quantity is 0 Check if date
@@ -1061,11 +1080,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		// loop over incoming items since they drive changes
 		for (com.salesmanager.core.model.shoppingcart.ShoppingCartItem newItemValue : inCartItemList) {
 
-			// check that item exist in persisted cart
+			// check that item exist in persisted cart — match on both SKU and variant so
+			// two lines of the same product but different variants are told apart.
 			Optional<com.salesmanager.core.model.shoppingcart.ShoppingCartItem> oOldItem = existingItems.stream()
 					.filter(i -> i.getSku().equals(newItemValue.getSku())
-
-					).findFirst();
+							&& Objects.equals(i.getVariant(), newItemValue.getVariant()))
+					.findFirst();
 
 			if (oOldItem.isPresent()) {
 				// update of existing cartItem
