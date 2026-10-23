@@ -220,7 +220,7 @@ const SLIDES = [
     titleEm: "Whenever You Need Us",
     body: "Unsure about a bead count, need help choosing the right gemstone, or have a question about your order? Just reach out — you’ll hear back from a real person, not a bot.",
     support: true,
-    email: "support@divineshopee.com",
+    email: "support@divineshopee.in",
     phone: "+91-9368635044",
   },
 ];
