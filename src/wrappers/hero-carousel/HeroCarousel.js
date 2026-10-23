@@ -193,7 +193,7 @@ const SLIDES = [
     eyebrow: "Bring the Temple Experience Home",
     titleLine1: "Sacred",
     titleEm: "Pooja Essentials",
-    body: "A temple isn’t just stone and gold — it is intention, arranged with care. We bring that same reverence to every brass diya, copper kalash and sacred item we stock. Because when your pooja space feels right, every prayer that rises from it feels right too.",
+    body: "A temple isn’t just stone and gold — it is devotion and intention, arranged with care in every detail. We bring that same reverence to every brass diya, copper kalash and sacred item we stock. When your pooja space truly feels right, every prayer that rises from it feels right too.",
     cta: "Shop Pooja →",
     ctaTo: "/category/poojaproducts",
     cta2: "Browse All ↗",
