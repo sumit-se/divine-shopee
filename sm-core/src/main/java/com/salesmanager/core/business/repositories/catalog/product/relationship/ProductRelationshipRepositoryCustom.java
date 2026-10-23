@@ -14,6 +14,9 @@ public interface ProductRelationshipRepositoryCustom {
 			Language language);
 
 	List<ProductRelationship> getByType(MerchantStore store, String type,
+			Language language, int maxResults);
+
+	List<ProductRelationship> getByType(MerchantStore store, String type,
 			Product product, Language language);
 
 	List<ProductRelationship> getByGroup(MerchantStore store, String group);

@@ -107,4 +107,7 @@ public interface ProductRelationshipService extends
 	List<ProductRelationship> getByGroup(MerchantStore store, String groupName,
 			Language language) throws ServiceException;
 
+	List<ProductRelationship> getByGroup(MerchantStore store, String groupName,
+			Language language, int maxResults) throws ServiceException;
+
 }

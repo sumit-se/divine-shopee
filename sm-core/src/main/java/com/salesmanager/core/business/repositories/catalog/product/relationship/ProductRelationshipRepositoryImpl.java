@@ -161,6 +161,17 @@ public class ProductRelationshipRepositoryImpl implements ProductRelationshipRep
 
   @Override
   @SuppressWarnings("unchecked")
+  public List<ProductRelationship> getByType(MerchantStore store, String type, Language language, int maxResults) {
+    return entityManager.createQuery(HQL_GET_PRODUCT_BY_CODE_AND_STORE_ID_AND_LANG_ID)
+        .setParameter("code", type)
+        .setParameter("langId", language.getId())
+        .setParameter("storeId", store.getId())
+        .setMaxResults(maxResults)
+        .getResultList();
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
   public List<ProductRelationship> getByGroup(MerchantStore store, String group) {
     return entityManager.createQuery(HQL_GET_GROUP_BY_CODE_AND_STORE_ID)
         .setParameter("code", group)

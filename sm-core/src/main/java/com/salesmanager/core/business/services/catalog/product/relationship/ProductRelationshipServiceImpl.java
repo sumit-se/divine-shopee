@@ -136,6 +136,13 @@ public class ProductRelationshipServiceImpl extends
 		return productRelationshipRepository.getByType(store, groupName, language);
 
 	}
+
+	@Override
+	public List<ProductRelationship> getByGroup(MerchantStore store, String groupName, Language language, int maxResults) throws ServiceException {
+
+		return productRelationshipRepository.getByType(store, groupName, language, maxResults);
+
+	}
 	
 	@Override
 	public List<ProductRelationship> getByType(MerchantStore store, Product product, ProductRelationshipType type) throws ServiceException {

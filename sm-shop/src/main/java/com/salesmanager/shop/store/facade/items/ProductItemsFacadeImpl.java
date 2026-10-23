@@ -127,8 +127,8 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 	public ReadableProductList listItemsByGroup(String group, MerchantStore store, Language language) throws Exception {
 
 
-		//get product group
-		List<ProductRelationship> groups = productRelationshipService.getByGroup(store, group, language);
+		//get product group — capped at 8 items at the DB level
+		List<ProductRelationship> groups = productRelationshipService.getByGroup(store, group, language, 8);
 
 		if(group!=null) {
 			// Use the products already loaded by getByGroup() — they carry the full
