@@ -44,23 +44,20 @@ const Home = ({ merchant }) => {
             block used to occupy (a stock furniture banner, deleted -- copies in
             backups/removed-promo/), and it is where the previous site runs this
             artwork too: straight after the hero, ahead of the products. */}
-        <ExperienceBanner spaceTopClass="pt-60" />
+        <ExperienceBanner spaceTopClass="pt-40" spaceBottomClass="pb-40" />
 
         {/* shop-by-category carousel */}
-        <CategoryCarousel spaceTopClass="pt-60" spaceBottomClass="pb-60" />
+        <CategoryCarousel spaceTopClass="pt-40" spaceBottomClass="pb-40" />
 
         {/* tab product */}
-        {/* Same 60/60 rhythm as the category strip above: these two sections
-            sit flush against each other, and 20-bottom against 100-top made
-            the spacing above and below the category strip visibly uneven. */}
         <TabProduct
           category="fashion"
-          spaceBottomClass="pb-60"
-          spaceTopClass="pt-60"
+          spaceBottomClass="pb-40"
+          spaceTopClass="pt-40"
         />
         {/* The previous site runs this between the product grid and the trust
             badges. Placeholders for now -- see TrendingVideos.js. */}
-        <TrendingVideos spaceTopClass="pt-60" spaceBottomClass="pb-60" />
+        <TrendingVideos spaceTopClass="pt-40" spaceBottomClass="pb-40" />
         {/* trust badges -- The previous site carries these directly above the
             footer: Free Shipping, Secure Payments, Trusted Brand, Happy &
             Satisfied. The theme shipped this section commented out.
@@ -68,10 +65,9 @@ const Home = ({ merchant }) => {
             as fluid these badges started at x=10 while every other section on
             the page starts at x=55. */}
         <FeatureIcon
-          bgImg="/assets/img/bg/shape.png"
           containerClass="container"
           gutterClass="padding-10-row-col"
-          spaceTopClass="pt-50"
+          spaceTopClass="pt-40"
           spaceBottomClass="pb-40"
         />
         {/* The theme's full-width "Subscribe to our newsletter!" band was

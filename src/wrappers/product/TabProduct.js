@@ -8,8 +8,8 @@ import constant from '../../util/constant';
 import { setLoader } from "../../redux/actions/loaderActions";
 import { multilanguage } from "redux-multilanguage";
 import { connect } from "react-redux";
-// The previous site shows 12 here, in three rows of four.
-const FEATURED_LIMIT = 12;
+// Capped at 8 to keep the home-page DB query fast.
+const FEATURED_LIMIT = 8;
 
 const TabProduct = ({
   setLoader,
@@ -85,9 +85,8 @@ const TabProduct = ({
         */}
         <div className="row">
           <ProductGrid
-            products={featuredProducts}
+            products={featuredProducts.slice(0, FEATURED_LIMIT)}
             type="men"
-            limit={FEATURED_LIMIT}
             spaceBottomClass="mb-25"
           />
         </div>

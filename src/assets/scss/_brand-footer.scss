@@ -22,12 +22,12 @@ $ds-footer-muted: rgba(255, 255, 255, 0.75);
   background: $ds-footer-bg;
 
   &__main {
-    padding: 70px 0 40px;
+    padding: 40px 0 25px;
     background: $ds-footer-bg;
   }
 
   &__rights {
-    padding: 22px 0;
+    padding: 14px 0;
     background: $ds-footer-rights-bg;
 
     p {
@@ -274,7 +274,7 @@ $ds-footer-muted: rgba(255, 255, 255, 0.75);
 @media only screen and (max-width: 767px) {
   .footer-brand-area {
     &__main {
-      padding: 50px 0 10px;
+      padding: 30px 0 10px;
     }
 
     &__rights p {
