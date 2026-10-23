@@ -69,7 +69,10 @@
               {{ item.name || ('#' + item.productId) }}
               <div *ngIf="!item.available" class="muted">{{ 'CART.UNAVAILABLE' | translate }}</div>
             </td>
-            <td>{{ item.variantSku || item.sku }}</td>
+            <td>
+              <div>{{ item.sku }}</div>
+              <div *ngIf="item.variantSku" class="muted">{{ item.variantSku }}</div>
+            </td>
             <td class="num">{{ item.quantity }}</td>
             <td class="num">{{ item.displayPrice }}</td>
             <td class="num">{{ item.displaySubTotal }}</td>

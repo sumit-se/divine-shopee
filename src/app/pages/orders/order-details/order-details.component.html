@@ -283,8 +283,8 @@
                     <tbody>
                       <tr *ngFor="let product of orderDetailsData.products">
                         <td>
-                          <span>{{product.productName}} -</span>
-                          <span class="blueTxt">{{product.variantSku || product.sku}}</span>
+                          <div>{{product.productName}} - <span class="blueTxt">{{product.sku}}</span></div>
+                          <div *ngIf="product.variantSku" class="muted">{{product.variantSku}}</div>
                         </td>
                         <td>{{product.orderedQuantity}}</td>
                         <td class="boldTxt">{{product.price}}</td>
