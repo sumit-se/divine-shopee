@@ -128,16 +128,27 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 		List<ProductRelationship> groups = productRelationshipService.getByGroup(store, group, language);
 
 		if(group!=null) {
-			List<Long> ids = new ArrayList<Long>();
+			// Use the products already loaded by getByGroup() — they carry the full
+			// graph (attributes, images, prices, etc.) via the relationship query.
+			// Previously: IDs were extracted here and listByStore() was called again,
+			// firing 3 more queries and loading the same objects a second time.
+			ReadableProductPopulator populator = new ReadableProductPopulator();
+			populator.setPricingService(pricingService);
+			populator.setimageUtils(imageUtils);
+
+			ReadableProductList list = new ReadableProductList();
 			for(ProductRelationship relationship : groups) {
-				Product product = relationship.getRelatedProduct();
-				ids.add(product.getId());
+				ReadableProduct readProduct = populator.populate(
+						relationship.getRelatedProduct(), new ReadableProduct(), store, language);
+				list.getProducts().add(readProduct);
 			}
-			
-			ReadableProductList list = listItemsByIds(store, language, ids, 0, 0);
+
 			// groups (featured items...) are shown in the shop: leave out
 			// products unlisted in the admin (available off)
-			List<ReadableProduct> prds = list.getProducts().stream().filter(ReadableProduct::isAvailable).sorted(Comparator.comparing(ReadableProduct::getSortOrder)).collect(Collectors.toList());
+			List<ReadableProduct> prds = list.getProducts().stream()
+					.filter(ReadableProduct::isAvailable)
+					.sorted(Comparator.comparing(ReadableProduct::getSortOrder))
+					.collect(Collectors.toList());
 			list.setProducts(prds);
 			list.setTotalPages(1);//no paging
 			return list;
