@@ -39,5 +39,9 @@
      <cache name="languageByCode" maxElementsInMemory="50" eternal="false"
     	overflowToDisk="false" memoryStoreEvictionPolicy="LFU" />
 
+     <cache name="productGroups" maxElementsInMemory="100" eternal="false"
+    	overflowToDisk="false" timeToIdleSeconds="600" timeToLiveSeconds="600"
+    	memoryStoreEvictionPolicy="LFU" />
+
 
 </ehcache>

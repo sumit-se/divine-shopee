@@ -10,6 +10,8 @@ import javax.inject.Inject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import com.salesmanager.core.business.exception.ServiceException;
@@ -121,6 +123,7 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 	}
 
 	@Override
+	@Cacheable(value = "productGroups", key = "#store.id + '_' + #group + '_' + #language.id")
 	public ReadableProductList listItemsByGroup(String group, MerchantStore store, Language language) throws Exception {
 
 
@@ -158,6 +161,7 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 	}
 
 	@Override
+	@CacheEvict(value = "productGroups", allEntries = true)
 	public ReadableProductList addItemToGroup(Product product, String group, MerchantStore store, Language language) {
 		
 		Validate.notNull(product,"Product must not be null");
@@ -198,6 +202,7 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 	}
 
 	@Override
+	@CacheEvict(value = "productGroups", allEntries = true)
 	public ReadableProductList removeItemFromGroup(Product product, String group, MerchantStore store,
 			Language language) throws Exception {
 		
@@ -213,6 +218,7 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 	}
 
 	@Override
+	@CacheEvict(value = "productGroups", allEntries = true)
 	public void deleteGroup(String group, MerchantStore store) {
 		
 		Validate.notNull(group, "Group cannot be null");
