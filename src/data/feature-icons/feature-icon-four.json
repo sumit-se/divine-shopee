@@ -1,30 +1,44 @@
 [
   {
     "id": 1,
-    "titleImage": "/assets/img/icon-img/support-8.png",
     "title": "Free Shipping",
-    "iconImage": "/assets/img/icon-img/support-5.png",
+    "subTitle": "FREE SHIPPING",
+    "iconImage": "https://pub-6842d1427d924e079769795f478d314f.r2.dev/icon-img/dsi-support-shipping.svg",
     "backgroundColor": "#fdf1e0"
   },
   {
     "id": 2,
-    "titleImage": "/assets/img/icon-img/support-9.png",
-    "title": "Secure Payments",
-    "iconImage": "/assets/img/icon-img/support-6.png",
+    "title": "Money Return",
+    "subTitle": "SECURE PAYMENTS",
+    "iconImage": "https://pub-6842d1427d924e079769795f478d314f.r2.dev/icon-img/dsi-support-payment.svg",
     "backgroundColor": "#f7e7e7"
   },
   {
     "id": 3,
-    "titleImage": "/assets/img/icon-img/support-10.png",
     "title": "Trusted Brand",
-    "iconImage": "/assets/img/icon-img/support-7.png",
-    "backgroundColor": "#fdf1e0"
+    "subTitle": "TRUSTED BRAND",
+    "iconImage": "https://pub-6842d1427d924e079769795f478d314f.r2.dev/icon-img/dsi-support-brand.svg",
+    "backgroundColor": "#e8f4ec"
   },
   {
     "id": 4,
-    "titleImage": "/assets/img/icon-img/support-8.png",
-    "title": "Happy & Satisfied",
-    "iconImage": "/assets/img/icon-img/support-5.png",
-    "backgroundColor": "#f7e7e7"
+    "title": "100% Satisfied",
+    "subTitle": "HAPPY & SATISFIED",
+    "iconImage": "https://pub-6842d1427d924e079769795f478d314f.r2.dev/icon-img/dsi-support-satisfied.svg",
+    "backgroundColor": "#ede5f7"
+  },
+  {
+    "id": 5,
+    "title": "What You See",
+    "subTitle": "IS WHAT YOU GET",
+    "iconImage": "https://pub-6842d1427d924e079769795f478d314f.r2.dev/icon-img/dsi-support-wysiwyg.svg",
+    "backgroundColor": "#e0f4f2"
+  },
+  {
+    "id": 6,
+    "title": "Lab Certified",
+    "subTitle": "AUTHENTIC PRODUCTS",
+    "iconImage": "https://pub-6842d1427d924e079769795f478d314f.r2.dev/icon-img/dsi-support-labcert.svg",
+    "backgroundColor": "#e8ecf7"
   }
 ]

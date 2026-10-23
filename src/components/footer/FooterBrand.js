@@ -45,6 +45,23 @@ const FooterBrand = ({ spaceBottomClass, merchant, strings }) => {
           )}
         </ul>
       )}
+      <div className="footer-brand__social">
+        <h4 className="footer-brand__social-heading">Follow Us</h4>
+        <div className="footer-brand__social-icons">
+          <a href="https://www.instagram.com/divineshopee.us" target="_blank" rel="noopener noreferrer" className="footer-social-btn footer-social-btn--instagram">
+            <span className="footer-social-btn__circle"><i className="fa fa-instagram" /></span>
+            <span className="footer-social-btn__label">Instagram</span>
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=61592637353436" target="_blank" rel="noopener noreferrer" className="footer-social-btn footer-social-btn--facebook">
+            <span className="footer-social-btn__circle"><i className="fa fa-facebook" /></span>
+            <span className="footer-social-btn__label">Facebook</span>
+          </a>
+          <a href="https://www.youtube.com/@DivineShopee-g3y" target="_blank" rel="noopener noreferrer" className="footer-social-btn footer-social-btn--youtube">
+            <span className="footer-social-btn__circle"><i className="fa fa-youtube-play" /></span>
+            <span className="footer-social-btn__label">YouTube</span>
+          </a>
+        </div>
+      </div>
     </div>
   );
 };

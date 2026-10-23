@@ -3,11 +3,10 @@ import MetaTags from "react-meta-tags";
 import Layout from "../../layouts/Layout";
 import { canonicalUrl } from "../../util/seo";
 
-import HeroSlider from "../../wrappers/hero-slider/HeroSlider";
-import HeroCarousel from "../../wrappers/hero-carousel/HeroCarousel";
 import TabProduct from "../../wrappers/product/TabProduct";
 import CategoryCarousel from "../../wrappers/category/CategoryCarousel";
 import ExperienceBanner from "../../wrappers/banner/ExperienceBanner";
+import HeroCarousel from "../../wrappers/hero-carousel/HeroCarousel";
 import FeatureIcon from "../../wrappers/feature-icon/FeatureIcon";
 import TrendingVideos from "../../wrappers/trending-videos/TrendingVideos";
 import { multilanguage } from "redux-multilanguage";
@@ -17,7 +16,7 @@ const HOME_META_DESCRIPTION =
   "Buy certified Rudraksha, jaap malas, gemstones and pooja essentials at " +
   "Divine Shopee. Authentic, lab-tested and shipped across India.";
 
-const Home = ({ merchant, strings }) => {
+const Home = ({ merchant }) => {
   return (
     <Fragment>
       <MetaTags>
@@ -39,10 +38,8 @@ const Home = ({ merchant, strings }) => {
         headerPaddingClass="header-padding-2"
         headerTop="visible"
       >
-        {/* Banner carousel, as the previous site runs above its intro copy. */}
-        <HeroCarousel spaceTopClass="pt-30" spaceBottomClass="pb-20" />
-        {/* intro copy + artwork */}
-        <HeroSlider string={strings} />
+        <HeroCarousel />
+
         {/* "Divine Shopee Experience" banner. This is the slot the theme's Promo
             block used to occupy (a stock furniture banner, deleted -- copies in
             backups/removed-promo/), and it is where the previous site runs this

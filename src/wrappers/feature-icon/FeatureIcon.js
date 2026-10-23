@@ -29,6 +29,9 @@ const FeatureIcon = ({
           gutterClass ? gutterClass : ""
           }`}
       >
+        <div className="section-title-5 text-center mb-35">
+          <h2>Our Promise to You</h2>
+        </div>
         <div className="row">
           {featureIconData &&
             featureIconData.map((single, key) => {

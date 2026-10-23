@@ -108,6 +108,74 @@ $ds-footer-muted: rgba(255, 255, 255, 0.75);
     }
   }
 
+  // ---- social icons -------------------------------------------------------
+  .footer-brand__social {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .footer-brand__social-heading {
+    font-family: $poppins;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+    margin: 0 0 16px;
+  }
+
+  .footer-brand__social-icons {
+    display: flex;
+    gap: 14px;
+  }
+
+  .footer-social-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.22s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      color: #fff;
+
+      .footer-social-btn__circle {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        filter: brightness(1.1);
+      }
+    }
+
+    &__circle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      font-size: 20px;
+      transition: box-shadow 0.22s ease, filter 0.22s ease;
+    }
+
+    &__label {
+      font-family: $poppins;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: rgba(255, 255, 255, 0.65);
+      text-transform: uppercase;
+    }
+
+    &--instagram .footer-social-btn__circle {
+      background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    }
+    &--facebook .footer-social-btn__circle  { background: #1877f2; }
+    &--youtube .footer-social-btn__circle   { background: #ff0000; }
+  }
+
   // ---- headings + link lists ---------------------------------------------
   .footer-widget {
     .footer-title h3 {

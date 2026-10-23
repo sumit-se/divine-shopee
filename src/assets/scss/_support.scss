@@ -149,41 +149,59 @@
 
 .support-wrap-3 {
   position: relative;
-
   overflow: hidden;
+  padding: 22px 10px 20px;
 
-  padding: 30px 10px 24px;
   .support-icon-2 {
-    position: absolute;
-    right: 0;
-    bottom: 0;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+
+    img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+    }
   }
   .support-content-3 {
+    .support-title-text {
+      font-size: 15px;
+      font-weight: 600;
+      font-style: italic;
+      margin: 0 0 4px;
+      color: #2a2a2a;
+      font-family: Georgia, 'Times New Roman', serif;
+      @media #{$xs-layout} {
+        font-size: 13px;
+      }
+    }
     p {
-      font-size: 16px;
+      font-size: 11px;
 
-      margin: 4px 0 0;
+      margin: 2px 0 0;
 
       text-transform: uppercase;
+      letter-spacing: 0.08em;
 
-      color: #000000;
+      color: #666666;
       @media #{$xs-layout} {
-        font-size: 15px;
-      }
-      @media #{$sm-layout} {
-        font-size: 14px;
+        font-size: 10px;
       }
     }
 
     &.support-content-3-white {
-      p {
-        color: #fff;
-      }
+      .support-title-text { color: #fff; }
+      p { color: rgba(255,255,255,0.8); }
     }
   }
   &:hover .support-icon-2 img {
     animation: 500ms ease-in-out 0s normal none 1 running tada;
   }
+}
+
+/* Support section theme background — warm cream matching #7f0000 maroon palette */
+.support-area {
+  background-color: #fdf6f0;
 }
 
 @media #{$xs-layout} {

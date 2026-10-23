@@ -6,16 +6,19 @@ import SectionTitle from "../../components/section-title/SectionTitle";
  * "Our Trending Videos" -- the section the previous site runs between the
  * product grid and the trust badges.
  *
- * No video URLs were available when this was built, so it renders clearly
- * labelled placeholders rather than inventing content. To go live, drop entries
- * into VIDEOS; the moment the array is non-empty the placeholders disappear and
- * each entry renders as a real embed. Nothing else needs to change.
+ * Add or change a video by editing VIDEOS below. Watch, youtu.be and embed
+ * links are all accepted. `title` is not drawn on the page: it is the frame's
+ * accessible name, which is what a screen reader announces in place of the
+ * video, so it should say which bead the film is about.
  *
- *   const VIDEOS = [
- *     { title: "5 Mukhi Rudraksha", url: "https://www.youtube.com/watch?v=XXXXXXXXXXX" }
- *   ];
+ * Empty the array and the section falls back to labelled placeholders rather
+ * than rendering three blank frames.
  */
-const VIDEOS = [];
+const VIDEOS = [
+  { title: "4 Mukhi Rudraksha", url: "https://youtu.be/A8fv54VjBlg" },
+  { title: "5 Mukhi Rudraksha", url: "https://youtu.be/Rh9PrvVuHg8" },
+  { title: "6 Mukhi Rudraksha", url: "https://youtu.be/2oiL3Uu6fzc" }
+];
 
 // how many empty tiles to show while VIDEOS is empty; matches the 3-up row
 const PLACEHOLDER_COUNT = 3;
