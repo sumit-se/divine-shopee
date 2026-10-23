@@ -11,6 +11,8 @@ import java.util.Optional;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
+import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,7 +172,8 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 
 			PutObjectRequest request = sizedRequest(bucketName,
 					nodePath + inputStaticContentData.getFileName(),
-					inputStaticContentData.getFile(), inputStaticContentData.getMimeType());
+					inputStaticContentData.getFile(), inputStaticContentData.getMimeType(),
+					cacheControl(inputStaticContentData.getFileContentType()));
 
 			s3.putObject(request);
 
@@ -327,16 +330,69 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 	 * intermittent. Reading the bytes first and declaring the length always
 	 * sends an ordinary signed PUT.
 	 */
-	private PutObjectRequest sizedRequest(String bucketName, String key, InputStream content, String mimeType)
-			throws IOException {
+	private PutObjectRequest sizedRequest(String bucketName, String key, InputStream content, String mimeType,
+			String cacheControl) throws IOException {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		IOUtils.copy(content, buffer);
 		byte[] bytes = buffer.toByteArray();
 		ObjectMetadata metadata = new ObjectMetadata();
-		if (mimeType != null) {
-			metadata.setContentType(mimeType);
-		}
+		metadata.setContentType(contentType(mimeType, key));
 		metadata.setContentLength(bytes.length);
+		metadata.setCacheControl(cacheControl);
 		return new PutObjectRequest(bucketName, key, new ByteArrayInputStream(bytes), metadata);
+	}
+
+	/*
+	 * Nothing written here carried a Cache-Control, so browsers fell back to
+	 * guessing freshness from the object's age -- which caches a file least
+	 * when it is new and most when it is old, the opposite of what is wanted.
+	 *
+	 * How long we can promise depends on whether the key can ever come back
+	 * with different bytes behind it. A variant image cannot: ProductVariantImageApi
+	 * names it variant-<id>-<millis>.jpg, so every upload is its own key and the
+	 * old one is simply abandoned. A logo or a content file is stored under
+	 * whatever name the caller chose, and re-uploading an edited logo keeps that
+	 * name, so those only get a day -- long enough to be worth caching, short
+	 * enough that a replacement is not stuck behind it.
+	 */
+	private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
+
+	/*
+	 * A null mime type used to mean no Content-Type header at all, and S3 then
+	 * stores the object as application/octet-stream. ProductImageApi never sets
+	 * one -- it only hands over the stream and the filename -- so product images
+	 * uploaded through it were served as a download rather than a picture. Thirteen
+	 * objects in the bucket were found that way and corrected by hand; deriving the
+	 * type from the key here is what stops the next upload recreating them.
+	 */
+	private String contentType(String mimeType, String key) {
+		if (!StringUtils.isBlank(mimeType)) {
+			return mimeType;
+		}
+		String extension = FilenameUtils.getExtension(key);
+		if (extension == null) {
+			return DEFAULT_CONTENT_TYPE;
+		}
+		switch (extension.toLowerCase(Locale.ROOT)) {
+		case "jpg":
+		case "jpeg":
+			return "image/jpeg";
+		case "png":
+			return "image/png";
+		case "gif":
+			return "image/gif";
+		case "webp":
+			return "image/webp";
+		case "svg":
+			return "image/svg+xml";
+		default:
+			return DEFAULT_CONTENT_TYPE;
+		}
+	}
+
+	private String cacheControl(FileContentType fileContentType) {
+		return FileContentType.VARIANT.equals(fileContentType)
+				? "public, max-age=31536000, immutable"
+				: "public, max-age=86400";
 	}
 }

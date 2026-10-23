@@ -13,6 +13,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
+import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -396,16 +398,65 @@ public class S3ProductContentFileManager
    * intermittent. Reading the bytes first and declaring the length always
    * sends an ordinary signed PUT.
    */
+  /*
+   * These went up with no Cache-Control at all, which leaves every browser to
+   * guess. Heuristic freshness is a fraction of how old the object already is,
+   * so the guess came out backwards: a picture uploaded minutes ago was
+   * revalidated on almost every request, while one sitting here since spring
+   * could be held for weeks.
+   *
+   * A day is deliberate rather than the year an immutable asset would get.
+   * Product images are keyed on the name of the file the admin uploaded
+   * (ProductImageApi), and the THUMB beside them reuses that same name, so
+   * replacing a photo can land on a key browsers are already holding. A day is
+   * the longest anyone then waits to see the new one.
+   */
+  private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
+
+  /*
+   * A null mime type used to mean no Content-Type header at all, and S3 then
+   * stores the object as application/octet-stream. ProductImageApi never sets
+   * one -- it only hands over the stream and the filename -- so product images
+   * uploaded through it were served as a download rather than a picture. Thirteen
+   * objects in the bucket were found that way and corrected by hand; deriving the
+   * type from the key here is what stops the next upload recreating them.
+   */
+  private String contentType(String mimeType, String key) {
+    if (!StringUtils.isBlank(mimeType)) {
+      return mimeType;
+    }
+    String extension = FilenameUtils.getExtension(key);
+    if (extension == null) {
+      return DEFAULT_CONTENT_TYPE;
+    }
+    switch (extension.toLowerCase(Locale.ROOT)) {
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "png":
+      return "image/png";
+    case "gif":
+      return "image/gif";
+    case "webp":
+      return "image/webp";
+    case "svg":
+      return "image/svg+xml";
+    default:
+      return DEFAULT_CONTENT_TYPE;
+    }
+  }
+
+  private static final String CACHE_CONTROL = "public, max-age=86400";
+
   private PutObjectRequest sizedRequest(String bucketName, String key, InputStream content, String mimeType)
       throws IOException {
     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     IOUtils.copy(content, buffer);
     byte[] bytes = buffer.toByteArray();
     ObjectMetadata metadata = new ObjectMetadata();
-    if (mimeType != null) {
-      metadata.setContentType(mimeType);
-    }
+    metadata.setContentType(contentType(mimeType, key));
     metadata.setContentLength(bytes.length);
+    metadata.setCacheControl(CACHE_CONTROL);
     return new PutObjectRequest(bucketName, key, new ByteArrayInputStream(bytes), metadata);
   }
 
