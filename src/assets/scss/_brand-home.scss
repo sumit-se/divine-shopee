@@ -306,14 +306,13 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 7px 13px;
-    background: rgba(201, 165, 64, 0.12);
-    border: 1px solid rgba(201, 165, 64, 0.35);
-    border-radius: 4px;
+    padding: 0;
+    background: none;
+    border: none;
     font-family: $poppins;
     font-size: 11px;
     line-height: 1.5;
-    color: rgba(255, 255, 255, 0.80);
+    color: #e8c860;
     white-space: nowrap;
 
     &__check {
