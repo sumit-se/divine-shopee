@@ -304,7 +304,7 @@
   // ── WYSIWYG USP badge ───────────────────────────────────────────────────────
   .hc-usp {
     display: inline-flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 8px;
     padding: 7px 13px;
     background: rgba(201, 165, 64, 0.12);
@@ -314,7 +314,7 @@
     font-size: 11px;
     line-height: 1.5;
     color: rgba(255, 255, 255, 0.80);
-    max-width: 380px;
+    white-space: nowrap;
 
     &__check {
       flex-shrink: 0;
