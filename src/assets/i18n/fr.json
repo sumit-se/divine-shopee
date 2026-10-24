@@ -306,6 +306,8 @@
     "PRODUCT_UPDATED": "Produit mis à jour.",
     "PRODUCT_CREATED": "Produit créé.",
     "PRODUCT_REMOVED": "Produit retiré.",
+    "PRODUCT_COPIED": "Produit dupliqué avec succès.",
+    "PRODUCT_COPY_FAILED": "Impossible de dupliquer le produit, veuillez réessayer.",
     "DEFINITION": "Définition du produit",
     "SELECT": "Sélectionner un produit"
   },

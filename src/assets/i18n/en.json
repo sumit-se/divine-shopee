@@ -328,6 +328,8 @@
     "PRODUCT_UPDATED": "Product updated.",
     "PRODUCT_CREATED": "Product created.",
     "PRODUCT_REMOVED": "Product removed.",
+    "PRODUCT_COPIED": "Product duplicated successfully.",
+    "PRODUCT_COPY_FAILED": "Could not duplicate the product, please try again.",
     "DEFINITION": "Product definition",
     "SELECT": "Select product"
   },

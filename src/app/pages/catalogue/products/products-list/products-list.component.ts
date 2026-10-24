@@ -229,6 +229,7 @@ export class ProductsListComponent implements OnInit {
         sort: true,
         custom: [
           { name: 'edit', title: '<i class="nb-edit"></i>' },
+          { name: 'copy', title: '<i class="nb-copy"></i>' },
           { name: 'remove', title: '<i class="nb-trash"></i>' }
         ],
       },
@@ -362,10 +363,25 @@ export class ProductsListComponent implements OnInit {
     this.getList();
   }
   route(e) {
-    if (e.action == 'remove') {
-      this.deleteRecord(e)
+    if (e.action === 'remove') {
+      this.deleteRecord(e);
+    } else if (e.action === 'copy') {
+      this.duplicateRecord(e);
     } else {
       this.router.navigate(['pages/catalogue/products/product/' + e.data.id]);
     }
+  }
+
+  duplicateRecord(e) {
+    this.loadingList = true;
+    this.productService.duplicateProduct(e.data.id)
+      .subscribe(created => {
+        this.loadingList = false;
+        this.toastr.success(this.translate.instant('PRODUCT.PRODUCT_COPIED'));
+        this.router.navigate(['pages/catalogue/products/product/' + created.id]);
+      }, err => {
+        this.loadingList = false;
+        this.toastr.error(this.translate.instant('PRODUCT.PRODUCT_COPY_FAILED'));
+      });
   }
 }
