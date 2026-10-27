@@ -554,13 +554,20 @@ const mapStateToProps = state => {
 };
 
 function defaultImage(product) {
-  if (product.images && product.images.length > 0) {
-    return product.images[0].imageUrl;
-  } else if (product.image != null) {
-    return product.imageUrl;
-  } else {
-    return null;
+  // product.image is the backend-designated default (isDefaultImage flag); prefer it
+  if (product.image && product.image.imageUrl) {
+    return product.image.imageUrl;
   }
+  if (product.images && product.images.length > 0) {
+    // images[] comes from a Java Set — iteration order is not guaranteed, so
+    // search explicitly: default non-video first, then any non-video
+    const defImg = product.images.find(img => img.defaultImage && img.imageType !== 1);
+    if (defImg) return defImg.imageUrl;
+    const nonVideo = product.images.find(img => img.imageType !== 1);
+    if (nonVideo) return nonVideo.imageUrl;
+    return product.images[0].imageUrl;
+  }
+  return null;
 }
 
 const mapDispatchToProps = dispatch => {

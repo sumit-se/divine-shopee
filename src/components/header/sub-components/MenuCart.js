@@ -97,13 +97,17 @@ MenuCart.propTypes = {
 };
 
 function defaultImage(product) {
-  if(product.images && product.images.length > 0) {
-    return product.images[0].imageUrl;
-  } else if(product.image != null) {
-    return product.imageUrl;
-  } else {
-    return null;
+  if (product.image && product.image.imageUrl) {
+    return product.image.imageUrl;
   }
+  if (product.images && product.images.length > 0) {
+    const defImg = product.images.find(img => img.defaultImage && img.imageType !== 1);
+    if (defImg) return defImg.imageUrl;
+    const nonVideo = product.images.find(img => img.imageType !== 1);
+    if (nonVideo) return nonVideo.imageUrl;
+    return product.images[0].imageUrl;
+  }
+  return null;
 }
 
 const mapStateToProps = state => {
