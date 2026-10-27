@@ -113,6 +113,18 @@ export class ProductsImagesComponent implements OnInit {
 
   /** end image component */
 
+  setDefaultImage(imageId) {
+    this.loading = true;
+    this.productImageService.setDefaultImage(this.id, imageId)
+      .subscribe(() => {
+        this.load();
+        this.toastr.success(this.translate.instant('PRODUCT.PRODUCT_UPDATED'));
+      }, error => {
+        this.toastr.error(error && error.error ? error.error.message : error);
+        this.loading = false;
+      });
+  }
+
   addVideo() {
     const url = (this.videoUrl || '').trim();
     if (!url) {

@@ -196,3 +196,33 @@
   color: #fff;
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.9);
 }
+
+/* filled gold star shown on the current default image */
+.default-badge {
+  position: absolute;
+  top: 5px;
+  left: 8px;
+  font-size: 20px;
+  color: #f5a623;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* hollow star button — click to make this the default */
+.set-default-icon {
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  font-size: 18px;
+  color: #ccc;
+  cursor: pointer;
+  line-height: 1;
+  &:hover i {
+    color: #f5a623;
+  }
+}
+
+.example-box.is-default {
+  border-color: #f5a623;
+  box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.4);
+}

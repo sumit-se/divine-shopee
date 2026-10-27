@@ -60,4 +60,8 @@ export class ProductImageService {
     return this.crudService.patch(`/v1/private/product/${productId}/images/order`, ids);
   }
 
+  setDefaultImage(productId, imageId): Observable<any> {
+    return this.crudService.patch(`/v1/private/product/${productId}/image/${imageId}?defaultImage=true`, []);
+  }
+
 }

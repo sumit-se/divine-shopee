@@ -10,14 +10,15 @@
     <small class="add-video__hint">{{ 'PRODUCT.ADD_VIDEO_HINT' | translate }}</small>
 </form>
 <p *ngIf="loaded" class="top-20">
-    <ngx-image-uploading 
-        [images]="images" 
-        (update)="updateImage($event)" 
+    <ngx-image-uploading
+        [images]="images"
+        (update)="updateImage($event)"
         (remove)="removeImage($event)"
-        (error)="errorImage($event)" 
-        (success)="addedImage($event)" 
+        (error)="errorImage($event)"
+        (success)="addedImage($event)"
         [addImageUrl]="addImageUrlComponent"
-        (fileAdded)="fileAdded($event)">
+        (fileAdded)="fileAdded($event)"
+        (setDefault)="setDefaultImage($event)">
     </ngx-image-uploading>
 </p>
 </div>

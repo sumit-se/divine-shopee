@@ -57,6 +57,7 @@ export class ImageUploadingComponent implements OnInit {
   @Output() error = new EventEmitter<string>();
   @Output() success = new EventEmitter<string>();
   @Output() fileAdded = new EventEmitter<any>();
+  @Output() setDefault = new EventEmitter<any>();
 
   // imageList: Image[] = [];
 
@@ -215,6 +216,10 @@ export class ImageUploadingComponent implements OnInit {
 
   removeImage(image) {
     this.remove.emit(image.id);
+  }
+
+  markAsDefault(image) {
+    this.setDefault.emit(image.id);
   }
 
   // updateImage(index, id) {
