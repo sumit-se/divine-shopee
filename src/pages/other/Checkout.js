@@ -1471,10 +1471,12 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                         <div className="col-lg-12">
                           <div className="billing-info mb-20">
                             <label>{strings["Street Address"]}</label>
-                            <Script
-                              url={"https://maps.googleapis.com/maps/api/js?key=" + window._env_.APP_MAP_API_KEY + "&libraries=places"}
-                              onLoad={handleScriptLoad}
-                            />
+                            {window._env_.APP_MAP_API_KEY && (
+                              <Script
+                                url={"https://maps.googleapis.com/maps/api/js?key=" + window._env_.APP_MAP_API_KEY + "&libraries=places"}
+                                onLoad={handleScriptLoad}
+                              />
+                            )}
                             <input
                               className="billing-address"
                               placeholder={strings["House number and street name"]}
