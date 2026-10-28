@@ -36,7 +36,9 @@ export class ProductVariantService {
   }
 
   updateVariant(productId, variantId, variant): Observable<any> {
-    return this.crudService.put(`/v2/private/product/${productId}/variant/${variantId}`, variant);
+    // PUT returns HTTP 200 with an empty body; use responseType:'text' to avoid
+    // Angular's JSON parse error firing the error callback on success.
+    return this.crudService.put(`/v2/private/product/${productId}/variant/${variantId}`, variant, { responseType: 'text' as 'json' });
   }
 
   deleteVariant(productId, variantId): Observable<any> {
@@ -60,7 +62,9 @@ export class ProductVariantService {
   }
 
   updateInventory(productId, inventoryId, inventory): Observable<any> {
-    return this.crudService.put(`/v1/private/product/${productId}/inventory/${inventoryId}`, inventory);
+    // PUT returns HTTP 200 with an empty body; use responseType:'text' to avoid
+    // Angular's JSON parse error firing the error callback on success.
+    return this.crudService.put(`/v1/private/product/${productId}/inventory/${inventoryId}`, inventory, { responseType: 'text' as 'json' });
   }
 
   /**
