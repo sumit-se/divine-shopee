@@ -2,6 +2,15 @@
 @import "~swiper/css/swiper.css";
 @import "~animate.css/animate.min.css";
 @import "~lightgallery.js/dist/css/lightgallery.css";
+@font-face {
+  font-family: 'lg';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('~lightgallery.js/dist/fonts/lg.ttf') format('truetype'),
+       url('~lightgallery.js/dist/fonts/lg.woff') format('woff'),
+       url('~lightgallery.js/dist/fonts/lg.svg#lg') format('svg');
+}
 /*
  * react-modal-video's stylesheet is not imported: nothing in the app renders
  * its component or its markup, so it was ~2KB of rules that could never match.

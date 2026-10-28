@@ -2061,3 +2061,51 @@ a.default-btn {
 .main-color {
   color: $theme-color
 }
+
+.member-discount-ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background-color: #0d47a1;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+
+  &__icon {
+    font-size: 16px;
+  }
+
+  &__text {
+    flex: 1;
+  }
+
+  &__link {
+    color: #ffeb3b;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+      text-decoration: underline;
+      color: #fff176;
+    }
+  }
+}
+
+.member-discount-cart-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #0066cc;
+  margin-top: 4px;
+
+  a {
+    color: #0066cc;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+}

@@ -1,24 +1,52 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { connect } from "react-redux";
 
-/**
- * Full-width strip above the header, as on the previous site (sampled 23 Aug
- * 2026: #d50101 ground, white Poppins 700 / 20px, centred, 10px padding).
- *
- * The source copy is "Get it for just $349 or Enjoy free shipping" -- a dollar
- * price and a US shipping rule. This store prices in rupees and ships only
- * within India, so the threshold below is a rupee figure rather than a
- * conversion of $349. It is a guess at a sensible round number, NOT a real
- * published offer: change it (and the wording) to whatever the actual policy
- * is before this goes in front of customers.
- */
 const FREE_SHIPPING_THRESHOLD = "₹5,000";
 
-const AnnouncementBar = () => (
-  <div className="announcement-bar">
-    <p className="announcement-bar__text">
-      Free shipping on all orders over {FREE_SHIPPING_THRESHOLD}
-    </p>
-  </div>
-);
+const DEFAULT_MEMBER_MESSAGE =
+  "Member Exclusive Pricing Available — Log in to save 5% on selected products!";
 
-export default AnnouncementBar;
+const AnnouncementBar = ({ userData, merchant }) => {
+  const raw =
+    merchant && merchant.memberDiscountMessage
+      ? merchant.memberDiscountMessage
+      : DEFAULT_MEMBER_MESSAGE;
+
+  // Split on newlines, filter blank lines
+  const messages = raw
+    .split("\n")
+    .map(m => m.trim())
+    .filter(Boolean);
+
+  // Build the scrolling track: duplicate for seamless loop
+  const track = [...messages, ...messages];
+
+  return (
+    <div className="announcement-bar announcement-bar--member">
+      <div className="announcement-bar__ticker-wrap">
+        <div className="announcement-bar__ticker">
+          {track.map((msg, i) => (
+            <span key={i} className="announcement-bar__ticker-item">
+              <span className="announcement-bar__icon">&#128274;</span>
+              {" "}{msg}{" "}
+              {!userData && (
+                <Link to="/login" className="announcement-bar__cta">
+                  Log in &rsaquo;
+                </Link>
+              )}
+              <span className="announcement-bar__sep">&nbsp;&bull;&nbsp;</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const mapStateToProps = state => ({
+  userData: state.userData.userData,
+  merchant: state.merchantData.merchant,
+});
+
+export default connect(mapStateToProps)(AnnouncementBar);

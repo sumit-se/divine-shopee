@@ -336,13 +336,25 @@ $brand-maroon: #7f0000;
 // ---- announcement bar ------------------------------------------------------
 // Full-bleed strip above the header. Sampled from the previous site: #d50101
 // ground, white Poppins 700 / 20px, centred, 10px padding.
+@keyframes ribbon-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 .announcement-bar {
   padding: 10px;
 
   text-align: center;
   background-color: #d50101;
+
+  &--member {
+    padding: 0;
+    overflow: hidden;
+    background-color: #7f0000;
+  }
 }
 
+// Static free-shipping text (logged-in state)
 .announcement-bar__text {
   margin: 0;
 
@@ -354,7 +366,75 @@ $brand-maroon: #7f0000;
   color: #ffffff;
 
   @media (max-width: 767px) {
-    font-size: 15px;
+    font-size: 14px;
+  }
+}
+
+// --- scrolling ticker (anonymous member ribbon) ---
+
+.announcement-bar__ticker-wrap {
+  overflow: hidden;
+  padding: 10px 0;
+}
+
+.announcement-bar__ticker {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ribbon-scroll 28s linear infinite;
+
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
+.announcement-bar__ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  font-family: $poppins;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  padding-right: 16px;
+
+  @media (max-width: 767px) {
+    font-size: 13px;
+  }
+}
+
+.announcement-bar__icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+.announcement-bar__sep {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+}
+
+.announcement-bar__cta {
+  flex-shrink: 0;
+  display: inline-block;
+  padding: 1px 12px;
+
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+
+  font-family: $poppins;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  white-space: nowrap;
+
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background-color: #ffffff;
+    color: #7f0000;
+    text-decoration: none;
   }
 }
 

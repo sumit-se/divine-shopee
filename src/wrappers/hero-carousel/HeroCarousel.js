@@ -276,6 +276,7 @@ const HeroCarousel = ({ spaceTopClass, spaceBottomClass }) => {
                     aria-hidden="true"
                     style={{ objectPosition: slide.photoPos || "center" }}
                     loading={i === 0 ? "eager" : "lazy"}
+                    fetchPriority={i === 0 ? "high" : undefined}
                     decoding="async"
                   />
                 ) : (

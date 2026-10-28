@@ -891,6 +891,21 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
       // fall through — onPayment will use the state value
     }
 
+    // For logged-in members with member pricing, reduce freshAmount by member discount
+    if (freshAmount !== undefined && userData && cartItems.products &&
+        cartItems.products.some(i => i.memberExclusiveEnabled && i.memberExclusivePrice)) {
+      const regularSubtotal = cartItems.products.reduce(
+        (sum, i) => sum + (i.price || 0) * (i.quantity || 1), 0);
+      const memberSubtotal = cartItems.products.reduce((sum, i) => {
+        if (i.memberExclusiveEnabled && i.memberExclusivePrice && i.price) {
+          return sum + i.price * (1 - (i.memberDiscountPercent || 0) / 100) * (i.quantity || 1);
+        }
+        return sum + (i.price || 0) * (i.quantity || 1);
+      }, 0);
+      const memberDiscount = regularSubtotal - memberSubtotal;
+      freshAmount = Math.round(Math.max(0, freshAmount - memberDiscount) * 100) / 100;
+    }
+
     onPayment(data, null, freshAmount);
   };
 
@@ -979,11 +994,30 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
 
       const totalLine = shippingQuote.find(q => q.code === 'order.total.total')
         || shippingQuote[shippingQuote.length - 1];
+      let razorpayAmount = totalLine ? totalLine.value : 0;
+
+      // For logged-in members with member pricing, charge the member total:
+      // subtract member discount savings from the grand total so shipping/tax
+      // are included at their regular rates.
+      if (userData && cartItems.products &&
+          cartItems.products.some(i => i.memberExclusiveEnabled && i.memberExclusivePrice)) {
+        const regularSubtotal = cartItems.products.reduce(
+          (sum, i) => sum + (i.price || 0) * (i.quantity || 1), 0);
+        const memberSubtotal = cartItems.products.reduce((sum, i) => {
+          if (i.memberExclusiveEnabled && i.memberExclusivePrice && i.price) {
+            return sum + i.price * (1 - (i.memberDiscountPercent || 0) / 100) * (i.quantity || 1);
+          }
+          return sum + (i.price || 0) * (i.quantity || 1);
+        }, 0);
+        const memberDiscount = regularSubtotal - memberSubtotal;
+        razorpayAmount = Math.round(Math.max(0, razorpayAmount - memberDiscount) * 100) / 100;
+      }
+
       const initResponse = await WebService.post(initAction, {
         "paymentType": "CREDITCARD",
         "transactionType": "INIT",
         "paymentModule": "razorpay",
-        "amount": totalLine ? totalLine.value : 0
+        "amount": razorpayAmount
       });
 
       const details = (initResponse && initResponse.transactionDetails) || {};
@@ -1848,17 +1882,38 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                           <div className="your-order-middle">
                             <ul>
                               {cartItems.products.map((cartItem, key) => {
+                                const hasMemberPrice = userData && cartItem.memberExclusiveEnabled && cartItem.memberExclusivePrice;
+                                const fmtINR = (n) => '₹' + Number(n.toFixed(2)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                const memberLineTotal = hasMemberPrice && cartItem.price
+                                  ? fmtINR(cartItem.price * (1 - (cartItem.memberDiscountPercent || 0) / 100) * (cartItem.quantity || 1))
+                                  : null;
 
                                 return (
                                   <li key={key}>
                                     <span className="order-middle-left" style={{ width: 220 }}>
                                       {cartItem.description.name}
+                                      {hasMemberPrice && (
+                                        <span className="member-exclusive-badge" style={{ display: 'block', fontSize: '0.75em' }}>
+                                          &#128274; {cartItem.memberDiscountPercent}% member discount
+                                        </span>
+                                      )}
+                                      {!userData && cartItem.memberExclusiveEnabled && (
+                                        <div className="member-discount-cart-notice">
+                                          <span>&#128274;</span>
+                                          <Link to="/login">Log in to save {cartItem.memberDiscountPercent || 5}%</Link>
+                                        </div>
+                                      )}
                                     </span>{" "}
                                     <span>X {cartItem.quantity}</span>
                                     <span className="order-price">
-                                      {
-                                        cartItem.finalPrice
-                                      }
+                                      {hasMemberPrice ? (
+                                        <Fragment>
+                                          <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '0.85em', marginRight: 4 }}>
+                                            {cartItem.finalPrice}
+                                          </span>
+                                          <span className="member-price-highlight">{memberLineTotal}</span>
+                                        </Fragment>
+                                      ) : cartItem.finalPrice}
                                     </span>
                                   </li>
                                 );
@@ -1881,6 +1936,41 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                             }
 
                           </div>
+                          {userData && cartItems.products && cartItems.products.some(i => i.memberExclusiveEnabled && i.memberExclusivePrice) ? (() => {
+                            const regularGrandTotal = shippingQuote.length > 0
+                              ? (shippingQuote.find(q => q.code === 'order.total.total') || shippingQuote[shippingQuote.length - 1]).value
+                              : 0;
+                            const regularSubtotal = cartItems.products.reduce(
+                              (sum, i) => sum + (i.price || 0) * (i.quantity || 1), 0);
+                            const memberSubtotal = cartItems.products.reduce((sum, i) => {
+                              if (i.memberExclusiveEnabled && i.memberExclusivePrice && i.price) {
+                                return sum + i.price * (1 - (i.memberDiscountPercent || 0) / 100) * (i.quantity || 1);
+                              }
+                              return sum + (i.price || 0) * (i.quantity || 1);
+                            }, 0);
+                            const memberDiscount = regularSubtotal - memberSubtotal;
+                            const memberGrandTotal = Math.round(Math.max(0, regularGrandTotal - memberDiscount) * 100) / 100;
+                            const fmtINR = (n) => '₹' + Number(n.toFixed(2)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            const regularTotalStr = shippingQuote.length > 0
+                              ? shippingQuote.map((q, i) => q.title === 'Total' && q.total)
+                              : null;
+                            return (
+                              <Fragment>
+                                <div className="your-order-total" style={{ opacity: 0.6 }}>
+                                  <ul>
+                                    <li className="order-total" style={{ textDecoration: 'line-through' }}>Regular Total</li>
+                                    <li style={{ textDecoration: 'line-through' }}>{regularTotalStr}</li>
+                                  </ul>
+                                </div>
+                                <div className="your-order-total">
+                                  <ul>
+                                    <li className="order-total">&#128274; Member Total (You Pay)</li>
+                                    <li className="member-price-highlight">{fmtINR(memberGrandTotal)}</li>
+                                  </ul>
+                                </div>
+                              </Fragment>
+                            );
+                          })() : (
                           <div className="your-order-total">
                             <ul>
                               <li className="order-total">Total</li>
@@ -1891,10 +1981,10 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
                                     return quote.title === 'Total' && quote.total
                                   })
                                 }
-                                {/* {cartItems.displayTotal} */}
                               </li>
                             </ul>
                           </div>
+                          )}
                         </div>
 
                       </div>

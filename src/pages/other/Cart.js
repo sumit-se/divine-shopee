@@ -87,7 +87,8 @@ const Cart = ({
   merchant,
   isLoading,
   setLoader,
-  cartCount
+  cartCount,
+  userData
   // deleteAllFromCart,
 
 }) => {
@@ -262,14 +263,16 @@ const Cart = ({
                         <tbody>
                           {cartItems.products.map((cartItem, key) => {
 
-                            // const finalProductPrice = cartItem.originalPrice;
                             const finalDiscountedPrice = cartItem.finalPrice;
+                            const hasMemberPrice = userData && cartItem.memberExclusiveEnabled && cartItem.memberExclusivePrice;
+                            const memberPriceNum = hasMemberPrice
+                              ? (cartItem.price || 0) * (1 - (cartItem.memberDiscountPercent || 0) / 100)
+                              : null;
+                            const memberSubtotalNum = memberPriceNum != null
+                              ? memberPriceNum * (cartItem.quantity || 1)
+                              : null;
+                            const fmtINR = (n) => '₹' + Number(n.toFixed(2)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-                            // The cart's product lines carry no SEF url -- the
-                            // cart mapper never fills it in -- so every link
-                            // here pointed at /product/undefined and went
-                            // nowhere. The product route takes a numeric id as
-                            // well as a slug, so fall back to the id.
                             const productLink =
                               "/product/" +
                               ((cartItem.description && cartItem.description.friendlyUrl) ||
@@ -287,39 +290,44 @@ const Cart = ({
                                   <Link to={productLink}>
                                     {cartItem.description.name}
                                   </Link>
+                                  {!userData && cartItem.memberExclusiveEnabled && (
+                                    <div className="member-discount-cart-notice">
+                                      <span>&#128274;</span>
+                                      <Link to="/login">Log in to save {cartItem.memberDiscountPercent || 5}% (Member price)</Link>
+                                    </div>
+                                  )}
                                 </td>
 
                                 <td className="product-price-cart">
-                                  {/* {cartItem.discounted ? (
+                                  {hasMemberPrice ? (
                                     <Fragment>
-                                      <span className="amount old">
-                                        {finalProductPrice}
-                                      </span>
-                                      <span className="amount">
+                                      <span className="amount old" style={{ textDecoration: 'line-through', color: '#999', fontSize: '0.85em' }}>
                                         {finalDiscountedPrice}
                                       </span>
+                                      <br />
+                                      <span className="amount member-price-highlight">
+                                        {cartItem.memberExclusivePrice}
+                                      </span>
+                                      <span className="member-exclusive-badge" style={{ display: 'block', fontSize: '0.75em' }}>
+                                        &#128274; {cartItem.memberDiscountPercent}% off
+                                      </span>
                                     </Fragment>
-                                  ) : ( */}
-                                  <span className="amount">
-                                    {finalDiscountedPrice}
-                                  </span>
-                                  {/* )} */}
+                                  ) : (
+                                    <span className="amount">{finalDiscountedPrice}</span>
+                                  )}
                                 </td>
 
                                 <td className="product-quantity">
                                   <div className="cart-plus-minus">
-                                    {/* <button className="dec qtybutton" onClick={() => decreaseQuantity(cartItems, key, cartItem, addToast, cartItems.code, cartItem.quantity - 1, defaultStore)} > - </button>
-                                    <input className="cart-plus-minus-box" onChange={() => getValue()} type="text" value={cartItem.quantity} />
-                                    <button className="inc qtybutton" onClick={() => increaseQuantity(cartItem, cartID, cartItem.quantity + 1, addToast)}>+</button> */}
                                     <button className="dec qtybutton" onClick={() => decreaseQuantity(cartItem, addToast, cartItems.code, cartItem.quantity - 1, defaultStore)} > - </button>
                                     <input className="cart-plus-minus-box" type="text" value={cartItem.quantity} readOnly />
                                     <button className="inc qtybutton" onClick={() => increaseQuantity(cartItem, addToast, cartItems.code, cartItem.quantity + 1, defaultStore)}>+</button>
-
                                   </div>
                                 </td>
                                 <td className="product-subtotal">
-                                  {
-                                    cartItem.displaySubTotal
+                                  {hasMemberPrice && memberSubtotalNum != null
+                                    ? <span className="member-price-highlight">{fmtINR(memberSubtotalNum)}</span>
+                                    : cartItem.displaySubTotal
                                   }
                                 </td>
 
@@ -470,6 +478,21 @@ const Cart = ({
                             {cartItems.displaySubTotal}
                           </span>
                         </h5>
+                        {userData && cartItems.products && cartItems.products.some(i => i.memberExclusiveEnabled && i.memberExclusivePrice) && (() => {
+                          const memberTotal = cartItems.products.reduce((sum, i) => {
+                            if (i.memberExclusiveEnabled && i.memberExclusivePrice && i.price) {
+                              return sum + i.price * (1 - (i.memberDiscountPercent || 0) / 100) * (i.quantity || 1);
+                            }
+                            return sum + (i.price || 0) * (i.quantity || 1);
+                          }, 0);
+                          const fmtINR = (n) => '₹' + Number(n.toFixed(2)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                          return (
+                            <h5 className="member-price-highlight">
+                              &#128274; Member Total{" "}
+                              <span>{fmtINR(memberTotal)}</span>
+                            </h5>
+                          );
+                        })()}
                         <h4 className="grand-totall-title">
                           {strings["Grand Total"]}{" "}
                           <span>
@@ -549,7 +572,8 @@ const mapStateToProps = state => {
     countryData: state.userData.country,
     stateData: state.userData.state,
     merchant: state.merchantData.merchant,
-    isLoading: state.loading.isLoading
+    isLoading: state.loading.isLoading,
+    userData: state.userData.userData
   };
 };
 

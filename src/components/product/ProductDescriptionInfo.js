@@ -381,6 +381,37 @@ const ProductDescriptionInfo = ({
         </Fragment>
         )}
       </div>
+      {/* Member-exclusive price: shown as actual price for logged-in members,
+          or as a login teaser for anonymous visitors when the product has
+          member pricing configured. */}
+      {userData && product.memberExclusivePrice && (
+        <div className="member-exclusive-price">
+          <span className="member-exclusive-badge">
+            &#128274; {strings["Member exclusive"] || "Member exclusive"}
+          </span>
+          {" "}
+          <span className="member-exclusive-amount">
+            {product.memberExclusivePrice}
+          </span>
+          {" — "}
+          <span className="member-exclusive-note">
+            {product.memberDiscountPercent
+              ? `${product.memberDiscountPercent}% off for members`
+              : (strings["5% off for members"] || "5% off for members")}
+          </span>
+        </div>
+      )}
+      {!userData && product.memberExclusiveEnabled && (
+        <div className="member-exclusive-teaser">
+          <span>&#128274;</span>
+          <span>
+            Member Exclusive pricing available on this product &mdash;{" "}
+            <Link to="/login">
+              Log in to save {product.memberDiscountPercent || 5}%
+            </Link>
+          </span>
+        </div>
+      )}
       {/* {product.rating && product.rating > 0 ? ( */}
       <div className="pro-details-rating-wrap">
         <div className="pro-details-rating">
