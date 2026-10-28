@@ -6,9 +6,7 @@ import { ProductService } from '../../services/product.service';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfigService } from '../../../../shared/services/config.service';
-import * as moment from 'moment';
 import { InventoryService } from '../../services/inventory.service';
-import { formatMoney } from '../../../../shared/validation/price-validation';
 import { slugify } from '../../../../shared/utils/slugifying';
 import { Location } from '@angular/common';
 
@@ -85,13 +83,28 @@ export class PriceFormComponent implements OnInit {
   }
 
   transformTotal() {
-    const value = '' + this.form.controls.productAttributePrice.value;
-    if (value !== '') {
-      this.form.controls.productAttributePrice.setValue(
-        formatMoney(value.replace(/,/g, '')),
-        { emitEvent: false }
-      );
-    }
+    // no-op: price fields are type="number", no currency formatting needed here
+  }
+
+  /** Strip currency symbol and commas to get a plain number */
+  private stripCurrency(val: string | number): number {
+    if (typeof val === 'number') return val;
+    return parseFloat(('' + val).replace(/[^\d.]/g, '')) || 0;
+  }
+
+  /** Convert a ReadableProductPrice (from GET) to the shape PersistableProductPrice (for PUT) expects */
+  private toPersistedPrice(el: any): any {
+    return {
+      id: el.id,
+      code: el.code || 'DEFAULT',
+      defaultPrice: el.defaultPrice,
+      discounted: el.discounted,
+      price: this.stripCurrency(el.originalPrice || '0'),
+      discountedPrice: el.discounted ? this.stripCurrency(el.finalPrice || '0') : null,
+      discountStartDate: el.discountStartDate || null,
+      discountEndDate: el.discountEndDate || null,
+      descriptions: el.descriptions || (el.description ? [el.description] : []),
+    };
   }
 
   private createForm() {
@@ -124,10 +137,13 @@ export class PriceFormComponent implements OnInit {
   }
 
   fillForm() {
+    // originalPrice = the list/regular price (always set)
+    // finalPrice    = discounted amount when discounted==true, else same as originalPrice
+    const sliceNum = (s: string) => s ? s.replace(/[^\d.]/g, '') : '';
     this.form.patchValue({
-      finalPrice: this.price.finalPrice.slice(3),
-      originalPrice: this.price.originalPrice.slice(3),
-      discountedPrice: this.price.discountedPrice ? this.price.discountedPrice.slice(3) : '',
+      originalPrice: sliceNum(this.price.originalPrice),
+      finalPrice: sliceNum(this.price.finalPrice),
+      discountedPrice: this.price.discounted ? sliceNum(this.price.finalPrice) : '',
       discounted: this.price.discounted,
       descriptions: [],
       selectedLanguage: 'en',
@@ -136,18 +152,23 @@ export class PriceFormComponent implements OnInit {
   }
 
   fillFormArray() {
+    // ReadableProductPrice has `description` (single) or `descriptions` (array, full mode)
+    const descList: any[] = this.price.descriptions
+      ? this.price.descriptions
+      : (this.price.description ? [this.price.description] : []);
+
     this.form.value.descriptions.forEach((desc, index) => {
-      this.price.descriptions.forEach((description) => {
+      descList.forEach((description) => {
         if (desc.language === description.language) {
           (<FormArray>this.form.get('descriptions')).at(index).patchValue({
             language: description.language,
-            name: description.name,
-            highlights: description.highlights,
-            friendlyUrl: description.friendlyUrl,
-            description: description.description,
-            title: description.title,
-            keyWords: description.keyWords,
-            metaDescription: description.metaDescription,
+            name: description.name || '',
+            highlights: description.highlights || '',
+            friendlyUrl: description.friendlyUrl || '',
+            description: description.description || '',
+            title: description.title || '',
+            keyWords: description.keyWords || '',
+            metaDescription: description.metaDescription || '',
           });
         }
       });
@@ -169,66 +190,73 @@ export class PriceFormComponent implements OnInit {
   }
 
   save() {
-    const priceObject = this.form.value;
-    priceObject.dateAvailable = moment(priceObject.dateAvailable).format('yyyy-MM-DD');
-    // save important values for filling empty field in result object
-    const tmpObj = {
-      name: '',
-      friendlyUrl: ''
-    };
-    priceObject.descriptions.forEach((el) => {
-      if (tmpObj.name === '' && el.name !== '') {
-        tmpObj.name = el.name;
-      }
-      if (tmpObj.friendlyUrl === '' && el.friendlyUrl !== '') {
-        tmpObj.friendlyUrl = el.friendlyUrl;
-      }
-      for (const elKey in el) {
-        if (el.hasOwnProperty(elKey)) {
-          if (!tmpObj.hasOwnProperty(elKey) && el[elKey] !== '') {
-            tmpObj[elKey] = el[elKey];
-          }
-        }
-      }
+    const formValue = this.form.value;
+
+    // Validate: at least one description must have name + friendlyUrl
+    const tmpObj = { name: '', friendlyUrl: '' };
+    (formValue.descriptions || []).forEach((el) => {
+      if (tmpObj.name === '' && el.name) tmpObj.name = el.name;
+      if (tmpObj.friendlyUrl === '' && el.friendlyUrl) tmpObj.friendlyUrl = el.friendlyUrl;
     });
-
-    if (tmpObj.name === '' || tmpObj.friendlyUrl === '' || priceObject.sku === '') {
+    if (!tmpObj.name || !tmpObj.friendlyUrl) {
       this.toastr.error(this.translate.instant('COMMON.FILL_REQUIRED_FIELDS'));
-    } else {
-      priceObject.descriptions.forEach((el) => {
-        // fill empty fields
-        for (const elKey in el) {
-          if (el.hasOwnProperty(elKey)) {
-            if (el[elKey] === '' && tmpObj[elKey] !== '') {
-              el[elKey] = tmpObj[elKey];
-            }
-          }
-        }
-      });
-      // check for undefined
-      priceObject.descriptions.forEach(el => {
-        for (const elKey in el) {
-          if (el.hasOwnProperty(elKey)) {
-            if (typeof el[elKey] === 'undefined') {
-              el[elKey] = '';
-            }
-          }
-        }
-      });
-
-      this.inventory.store = this.inventory.store.code;
-      this.inventory.prices.forEach((el) => {
-        const originalPriceIndex = el.originalPrice.match(/\d/).index;
-        el.originalPrice = el.originalPrice.slice(originalPriceIndex);
-        const finalPriceIndex = el.finalPrice.match(/\d/).index;
-        el.finalPrice = el.finalPrice.slice(finalPriceIndex);
-      });
-      this.inventory.prices = [...this.inventory.prices, priceObject];
-      // save as inventory updating
-      this.inventoryService.updateInventory(this.params.productId, this.inventory.id, this.inventory)
-        .subscribe((res) => {
-        });
+      return;
     }
+
+    // Build the PersistableProductPrice payload from the form.
+    // Backend expects `price` (BigDecimal) — NOT `finalPrice`/`originalPrice`.
+    const newPrice: any = {
+      defaultPrice: true,
+      discounted: formValue.discounted || false,
+      price: this.stripCurrency(formValue.originalPrice) || this.stripCurrency(formValue.finalPrice),
+      discountedPrice: formValue.discountedPrice ? this.stripCurrency(formValue.discountedPrice) : null,
+      code: (this.price && this.price.code) ? this.price.code : 'DEFAULT',
+      descriptions: formValue.descriptions,
+    };
+    if (this.priceId && this.price) {
+      newPrice.id = this.price.id;
+    }
+
+    // Build the prices array: replace the edited price or append if new
+    let prices: any[];
+    if (this.priceId) {
+      prices = (this.inventory.prices || []).map((el) =>
+        el.id === this.priceId ? newPrice : this.toPersistedPrice(el)
+      );
+    } else {
+      prices = [
+        ...(this.inventory.prices || []).map(el => this.toPersistedPrice(el)),
+        newPrice,
+      ];
+    }
+
+    // Build the full PersistableInventory payload.
+    // `productId` is @NotNull on the backend — must be included in the body.
+    const store = this.inventory.store;
+    const inventoryPayload: any = {
+      productId: parseInt(this.params.productId, 10),
+      store: (store && store.code) ? store.code : store,
+      quantity: this.inventory.quantity,
+      region: this.inventory.region,
+      regionVariant: this.inventory.regionVariant,
+      owner: this.inventory.owner,
+      dateAvailable: this.inventory.dateAvailable,
+      available: this.inventory.available,
+      productQuantityOrderMin: this.inventory.productQuantityOrderMin,
+      productQuantityOrderMax: this.inventory.productQuantityOrderMax,
+      prices,
+    };
+
+    this.loader = true;
+    this.inventoryService.updateInventory(this.params.productId, this.inventory.id, inventoryPayload)
+      .subscribe(() => {
+        this.loader = false;
+        this.toastr.success(this.translate.instant('PRODUCT.PRODUCT_UPDATED'));
+        this.location.back();
+      }, (err) => {
+        this.loader = false;
+        this.toastr.error((err.error && err.error.message) ? err.error.message : this.translate.instant('COMMON.ERROR'));
+      });
   }
 
 }
