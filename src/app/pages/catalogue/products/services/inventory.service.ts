@@ -43,7 +43,10 @@ export class InventoryService {
   }
 
   updateInventory(idProduct, idInventory, inventory): Observable<any> {
-    return this.crudService.put(`/v1/private/product/${idProduct}/inventory/${idInventory}`, inventory);
+    // The API returns HTTP 200 with an empty body; Angular's default responseType:'json'
+    // would throw a JSON parse error on the empty string, firing the error callback even
+    // on success.  Use responseType:'text' to avoid that silent false-error.
+    return this.crudService.put(`/v1/private/product/${idProduct}/inventory/${idInventory}`, inventory, { responseType: 'text' as 'json' });
   }
 
 }
