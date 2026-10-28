@@ -376,7 +376,10 @@
     "DISCOUNTED_PRICE": "Discounted price",
     "DISCOUNTED": "Discounted",
     "PERCENTAGE_OFF": "Percentage off",
-    "REBATE_PRICE": "Rebate price"
+    "REBATE_PRICE": "Rebate price",
+    "MEMBER_EXCLUSIVE_PRICE": "Member exclusive price",
+    "MEMBER_EXCLUSIVE_DESC": "Member exclusive - 5% off on selected products",
+    "MEMBER_EXCLUSIVE_LOGIN_ONLY": "For logged-in members only"
   },
   "PRODUCT_GROUP": {
     "CREATE_PRODUCT_GROUP": "Create group",

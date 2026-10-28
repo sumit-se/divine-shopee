@@ -218,6 +218,8 @@ export class ProductFormComponent implements OnInit {
       // price the shop strikes through. Optional -- left empty, the item sells
       // at `price` and nothing is struck through.
       discountedPrice: [''],
+      memberExclusiveEnabled: [false],
+      memberDiscountPercent: [5],
       // percentageOff: [Validators.pattern(validators.number)],
       // rebatePrice: [Validators.required, Validators.pattern(validators.number)],
       // startDate: [new Date()],
@@ -268,6 +270,8 @@ export class ProductFormComponent implements OnInit {
       // null when the product carries no discount, and an empty field is how
       // that has to read -- a 0 here would be saved as a 0 discount
       discountedPrice: this.product.discountedPrice == null ? '' : this.product.discountedPrice,
+      memberExclusiveEnabled: this.product.memberExclusiveEnabled || false,
+      memberDiscountPercent: this.product.memberDiscountPercent || 5,
       quantity: this.product.quantity,
       productSpecifications: {
         weight: this.product.productSpecifications.weight,
@@ -338,6 +342,10 @@ export class ProductFormComponent implements OnInit {
   }
   get discountedPrice() {
     return this.form.get('discountedPrice');
+  }
+
+  get memberExclusiveEnabled() {
+    return this.form.get('memberExclusiveEnabled');
   }
 
   get price() {

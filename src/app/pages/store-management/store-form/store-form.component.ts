@@ -221,6 +221,7 @@ export class StoreFormComponent implements OnInit {
       useCache: [false],
       retailer: [false],
       retailerStore: '',
+      memberDiscountMessage: [''],
     });
     if (this.store && (!this.store.id && this.roles.isAdminRetail)) {
       this.form.patchValue({ retailer: false });
@@ -298,6 +299,7 @@ export class StoreFormComponent implements OnInit {
       useCache: this.store.useCache,
       retailer: this.isRetailer,
       retailerStore: this.parentRetailer != null ? this.parentRetailer.code : '',
+      memberDiscountMessage: this.store.memberDiscountMessage || '',
     });
     this.form.controls['address'].patchValue({ searchControl: '' });
     this.form.controls['address'].patchValue({ stateProvince: this.store.address.stateProvince }, { disabled: false });

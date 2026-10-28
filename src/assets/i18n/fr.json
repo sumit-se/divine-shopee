@@ -354,7 +354,10 @@
     "DISCOUNTED_PRICE": "Prix réduit",
     "DISCOUNTED": "Prix réduit",
     "PERCENTAGE_OFF": "Pourcentage de réduction",
-    "REBATE_PRICE": "Prix ​​de remise"
+    "REBATE_PRICE": "Prix ​​de remise",
+    "MEMBER_EXCLUSIVE_PRICE": "Prix exclusif membres",
+    "MEMBER_EXCLUSIVE_DESC": "Exclusif membres - 5% de réduction sur les produits sélectionnés",
+    "MEMBER_EXCLUSIVE_LOGIN_ONLY": "Réservé aux membres connectés"
   },
   "PRODUCT_GROUP": {
     "CREATE_PRODUCT_GROUP": "Ajouter un groupe",

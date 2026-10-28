@@ -10,6 +10,9 @@
   },
   "PRICE": {
     "ORIGINAL_PRICE": "Precio original",
-    "DISCOUNTED_PRICE": "Precio con descuento"
+    "DISCOUNTED_PRICE": "Precio con descuento",
+    "MEMBER_EXCLUSIVE_PRICE": "Precio exclusivo para miembros",
+    "MEMBER_EXCLUSIVE_DESC": "Exclusivo para miembros - 5% de descuento en productos seleccionados",
+    "MEMBER_EXCLUSIVE_LOGIN_ONLY": "Solo para miembros registrados"
   }
 }

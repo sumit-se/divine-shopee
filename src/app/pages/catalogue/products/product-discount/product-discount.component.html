@@ -43,6 +43,24 @@
                     <input type="number" class="form-control inputText" id="rebatePrice" formControlName='rebatePrice'
                       placeholder="{{ 'PRICE.REBATE_PRICE'|translate}}">
                   </div>
+
+                  <div class="form-group">
+                    <nb-radio-group formControlName="memberExclusiveRadio" name="memberExclusiveRadio" (valueChange)="memberExclusiveSelected($event)">
+                      <nb-radio class="shipping-radio" [value]="4">{{ 'PRICE.MEMBER_EXCLUSIVE_PRICE'|translate}}</nb-radio>
+                    </nb-radio-group>
+                    <span class="text-muted small">
+                      <nb-icon icon="lock-outline"></nb-icon>
+                      {{ 'PRICE.MEMBER_EXCLUSIVE_LOGIN_ONLY'|translate }}
+                    </span>
+                    <span *ngIf="discountForm.controls.memberExclusiveRadio.value==4">*</span>
+                  </div>
+                  <div [ngClass]="discountForm.controls.memberExclusiveRadio.value==4 ? 'member-exclusive': 'disabled-member-exclusive'">
+                    <div class="alert alert-info" *ngIf="discountForm.controls.memberExclusiveRadio.value==4">
+                      {{ 'PRICE.MEMBER_EXCLUSIVE_DESC'|translate }}
+                    </div>
+                    <input type="number" class="form-control inputText" id="memberExclusivePrice" formControlName='memberExclusivePrice'
+                      [readOnly]="true" placeholder="{{ 'PRICE.MEMBER_EXCLUSIVE_PRICE'|translate}}">
+                  </div>
                   <br />
                   <div class="form-group">
                     <div>

@@ -328,6 +328,28 @@
                 </div>
               </div>
               <div class="form-group">
+                <div>
+                  <nb-checkbox formControlName='memberExclusiveEnabled'>
+                    {{ 'PRICE.MEMBER_EXCLUSIVE_PRICE' | translate }}
+                  </nb-checkbox>
+                </div>
+                <div *ngIf="form.controls.memberExclusiveEnabled.value" class="mt-2">
+                  <div class="d-flex align-items-center" style="gap:10px;">
+                    <label class="col-form-label inputLabel mb-0" style="white-space:nowrap;">
+                      Member discount %
+                    </label>
+                    <input type="number" class="form-control inputText" formControlName='memberDiscountPercent'
+                      min="1" max="99" style="width:90px;"
+                      placeholder="5">
+                    <span class="text-muted" style="font-size:0.85em;">% off for logged-in members</span>
+                  </div>
+                  <div class="alert alert-info mt-1 mb-0 py-1 px-2" style="font-size:0.85em;">
+                    <nb-icon icon="lock-outline"></nb-icon>
+                    {{ 'PRICE.MEMBER_EXCLUSIVE_LOGIN_ONLY' | translate }} — {{ 'PRICE.MEMBER_EXCLUSIVE_DESC' | translate }}
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
                 <label class="col-form-label inputLabel">{{ 'Quantity' | translate}}<span
                     class="mandatory">*</span></label>
                 <div>

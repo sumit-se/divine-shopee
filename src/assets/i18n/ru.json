@@ -10,6 +10,9 @@
   },
   "PRICE": {
     "ORIGINAL_PRICE": "Первоначальная цена",
-    "DISCOUNTED_PRICE": "Цена со скидкой"
+    "DISCOUNTED_PRICE": "Цена со скидкой",
+    "MEMBER_EXCLUSIVE_PRICE": "Цена для членов клуба",
+    "MEMBER_EXCLUSIVE_DESC": "Эксклюзивно для членов клуба - скидка 5% на выбранные товары",
+    "MEMBER_EXCLUSIVE_LOGIN_ONLY": "Только для авторизованных участников"
   }
 }

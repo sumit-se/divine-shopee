@@ -186,18 +186,30 @@ export class ProductsListComponent implements OnInit {
   /** */
 
   getStore() {
-    // Was hardcoded to 'DEFAULT'. A non-superadmin belonging to another
-    // merchant gets 401 on that store, and the auth interceptor treats the
-    // 401 as an expired session and signs them out -- which surfaced as
-    // "edit product is broken" on this page. Scope to the user's own store.
-    const storeCode = this.storageService.getMerchant() || 'DEFAULT';
-    this.storeService.getListOfStores({ code: storeCode })
+    // Fetch all stores for the dropdown. When the user is a superadmin whose
+    // merchant is DEFAULT and DEFAULT has no products, auto-select the first
+    // non-DEFAULT store so the list is not empty on arrival.
+    this.storeService.getListOfStores({})
       .subscribe(res => {
         let storeData = []
         res.data.forEach((store) => {
           storeData.push(store.code);
         });
         this.stores = storeData;
+
+        // If the current params are pointing at DEFAULT and a non-DEFAULT
+        // store exists, switch to it automatically so products are visible.
+        if (this.params.store === 'DEFAULT') {
+          const other = storeData.find(s => s !== 'DEFAULT');
+          if (other) {
+            this.params.store = other;
+            this.selectedStore = other;
+            // Persist so that getMerchant() returns the correct store for
+            // product edit, create, and all other API calls in this session.
+            localStorage.setItem('merchant', other);
+            this.getList();
+          }
+        }
       });
   }
 
@@ -229,7 +241,7 @@ export class ProductsListComponent implements OnInit {
         sort: true,
         custom: [
           { name: 'edit', title: '<i class="nb-edit"></i>' },
-          { name: 'copy', title: '<i class="nb-copy"></i>' },
+          { name: 'copy', title: '<i class="nb-arrow-retweet" title="Duplicate"></i>' },
           { name: 'remove', title: '<i class="nb-trash"></i>' }
         ],
       },
@@ -332,8 +344,8 @@ export class ProductsListComponent implements OnInit {
 
   choseStore(event) {
     this.params.store = event;
+    localStorage.setItem('merchant', event);
     this.getList();
-
   }
 
   // paginator

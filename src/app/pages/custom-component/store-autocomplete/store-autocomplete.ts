@@ -24,9 +24,9 @@ export class storeAutoCompleteComponent implements OnInit {
     ngOnInit() { }
 
     searchStore() {
-        // same 401-then-signout trap as products-list: scope to the user's store
-        const storeCode = this.storageService.getMerchant() || 'DEFAULT';
-        this.storeService.getListOfStores({ code: storeCode })
+        // No code filter — return all stores so a superadmin can select any of them.
+        // 'store' (the auth context) is added by getListOfStores automatically.
+        this.storeService.getListOfStores({})
             .subscribe(res => {
                 let storeData = []
                 res.data.forEach((store) => {
