@@ -192,13 +192,16 @@ export class PriceFormComponent implements OnInit {
   save() {
     const formValue = this.form.value;
 
-    // Validate: at least one description must have name + friendlyUrl
-    const tmpObj = { name: '', friendlyUrl: '' };
-    (formValue.descriptions || []).forEach((el) => {
-      if (tmpObj.name === '' && el.name) tmpObj.name = el.name;
-      if (tmpObj.friendlyUrl === '' && el.friendlyUrl) tmpObj.friendlyUrl = el.friendlyUrl;
-    });
-    if (!tmpObj.name || !tmpObj.friendlyUrl) {
+    // PRODUCT_PRICE_DESCRIPTION has no FRIENDLY_URL column; auto-generate it from
+    // name so existing prices (which never stored a friendlyUrl) can be saved.
+    const descriptions = (formValue.descriptions || []).map((el: any) => ({
+      ...el,
+      friendlyUrl: el.friendlyUrl || slugify(el.name || ''),
+    }));
+
+    // Validate: at least one description must have a name
+    const firstName = descriptions.find((el: any) => el.name);
+    if (!firstName) {
       this.toastr.error(this.translate.instant('COMMON.FILL_REQUIRED_FIELDS'));
       return;
     }
@@ -211,7 +214,7 @@ export class PriceFormComponent implements OnInit {
       price: this.stripCurrency(formValue.originalPrice) || this.stripCurrency(formValue.finalPrice),
       discountedPrice: formValue.discountedPrice ? this.stripCurrency(formValue.discountedPrice) : null,
       code: (this.price && this.price.code) ? this.price.code : 'DEFAULT',
-      descriptions: formValue.descriptions,
+      descriptions,
     };
     if (this.priceId && this.price) {
       newPrice.id = this.price.id;
