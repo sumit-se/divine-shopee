@@ -183,6 +183,9 @@ public class MerchantStore extends SalesManagerEntity<Integer, MerchantStore> im
 	@Column(name = "CURRENCY_FORMAT_NATIONAL")
 	private boolean currencyFormatNational;
 
+	@Column(name = "MEMBER_DISCOUNT_MSG", length = 500)
+	private String memberDiscountMessage;
+
 	public MerchantStore() {
 	}
 
@@ -386,6 +389,14 @@ public class MerchantStore extends SalesManagerEntity<Integer, MerchantStore> im
 
 	public boolean isCurrencyFormatNational() {
 		return currencyFormatNational;
+	}
+
+	public String getMemberDiscountMessage() {
+		return memberDiscountMessage;
+	}
+
+	public void setMemberDiscountMessage(String memberDiscountMessage) {
+		this.memberDiscountMessage = memberDiscountMessage;
 	}
 
 	@Override

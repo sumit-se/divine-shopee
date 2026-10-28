@@ -163,6 +163,11 @@ public class ProductFacadeImpl implements ProductFacade {
 	
 	@Override
 	public ReadableProduct getProductByCode(MerchantStore store, String uniqueCode, Language language) {
+		return getProductByCode(store, uniqueCode, language, false);
+	}
+
+	@Override
+	public ReadableProduct getProductByCode(MerchantStore store, String uniqueCode, Language language, boolean customerAuthenticated) {
 
 		Product product = null;
 		try {

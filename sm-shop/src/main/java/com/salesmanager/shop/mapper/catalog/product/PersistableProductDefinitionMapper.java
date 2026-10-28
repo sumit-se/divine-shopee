@@ -27,6 +27,7 @@ import com.salesmanager.core.model.catalog.product.description.ProductDescriptio
 import com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer;
 import com.salesmanager.core.model.catalog.product.price.ProductPrice;
 import com.salesmanager.core.model.catalog.product.price.ProductPriceDescription;
+import com.salesmanager.core.model.catalog.product.price.ProductPriceType;
 import com.salesmanager.core.model.catalog.product.type.ProductType;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
@@ -224,6 +225,36 @@ public class PersistableProductDefinitionMapper implements Mapper<PersistablePro
                 }
 			}
 			
+			// Member exclusive price — configurable per product, default 5% off
+			if (source.isMemberExclusiveEnabled() && source.getPrice() != null) {
+				ProductPrice memberPrice = null;
+				for (ProductPrice p : productAvailability.getPrices()) {
+					if (ProductPriceType.MEMBER_EXCLUSIVE.equals(p.getProductPriceType())) {
+						memberPrice = p;
+						break;
+					}
+				}
+				int pct = source.getMemberDiscountPercent();
+				if (pct <= 0 || pct >= 100) pct = 5; // guard against nonsense values
+				BigDecimal multiplier = BigDecimal.ONE.subtract(
+						new BigDecimal(pct).divide(new BigDecimal("100"), 4, java.math.RoundingMode.HALF_UP));
+				BigDecimal memberAmount = source.getPrice()
+						.multiply(multiplier)
+						.setScale(2, java.math.RoundingMode.HALF_UP);
+				if (memberPrice == null) {
+					memberPrice = new ProductPrice();
+					memberPrice.setDefaultPrice(false);
+					memberPrice.setCode("member_exclusive");
+					memberPrice.setProductPriceType(ProductPriceType.MEMBER_EXCLUSIVE);
+					memberPrice.setProductAvailability(productAvailability);
+					productAvailability.getPrices().add(memberPrice);
+				}
+				memberPrice.setProductPriceAmount(memberAmount);
+			} else if (!source.isMemberExclusiveEnabled()) {
+				productAvailability.getPrices()
+						.removeIf(p -> ProductPriceType.MEMBER_EXCLUSIVE.equals(p.getProductPriceType()));
+			}
+
 			if(source.getProductSpecifications()!=null) {
 				destination.setProductHeight(source.getProductSpecifications().getHeight());
 				destination.setProductLength(source.getProductSpecifications().getLength());

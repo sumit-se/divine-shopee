@@ -27,6 +27,8 @@ public class PersistableProductDefinition extends ProductDefinition {
 	 * means there is no discount and the item sells at `price`.
 	 */
 	private BigDecimal discountedPrice;
+	private boolean memberExclusiveEnabled = false;
+	private int memberDiscountPercent = 5;
 	private int quantity;
 	public List<ProductDescription> getDescriptions() {
 		return descriptions;
@@ -69,6 +71,18 @@ public class PersistableProductDefinition extends ProductDefinition {
 	}
 	public void setDiscountedPrice(BigDecimal discountedPrice) {
 		this.discountedPrice = discountedPrice;
+	}
+	public boolean isMemberExclusiveEnabled() {
+		return memberExclusiveEnabled;
+	}
+	public void setMemberExclusiveEnabled(boolean memberExclusiveEnabled) {
+		this.memberExclusiveEnabled = memberExclusiveEnabled;
+	}
+	public int getMemberDiscountPercent() {
+		return memberDiscountPercent;
+	}
+	public void setMemberDiscountPercent(int memberDiscountPercent) {
+		this.memberDiscountPercent = memberDiscountPercent;
 	}
 	public int getQuantity() {
 		return quantity;

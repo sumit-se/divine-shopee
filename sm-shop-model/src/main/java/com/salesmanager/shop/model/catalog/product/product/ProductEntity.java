@@ -46,9 +46,40 @@ public class ProductEntity extends Product implements Serializable {
 
 	/**
 	 * End RENTAL fields
-	 * 
+	 *
 	 * @return
 	 */
+
+	/** True when this product has a MEMBER_EXCLUSIVE price — always set, regardless of authentication. */
+	private boolean memberExclusiveEnabled = false;
+	/** Discount percentage applied to get the member exclusive price (e.g. 10 = 10% off). */
+	private int memberDiscountPercent = 0;
+	/** Formatted member exclusive price string, e.g. "₹4,788.90" (discount applied on top of sale price). */
+	private String memberExclusivePrice;
+
+	public boolean isMemberExclusiveEnabled() {
+		return memberExclusiveEnabled;
+	}
+
+	public void setMemberExclusiveEnabled(boolean memberExclusiveEnabled) {
+		this.memberExclusiveEnabled = memberExclusiveEnabled;
+	}
+
+	public int getMemberDiscountPercent() {
+		return memberDiscountPercent;
+	}
+
+	public void setMemberDiscountPercent(int memberDiscountPercent) {
+		this.memberDiscountPercent = memberDiscountPercent;
+	}
+
+	public String getMemberExclusivePrice() {
+		return memberExclusivePrice;
+	}
+
+	public void setMemberExclusivePrice(String memberExclusivePrice) {
+		this.memberExclusivePrice = memberExclusivePrice;
+	}
 
 	public BigDecimal getPrice() {
 		return price;

@@ -1,5 +1,6 @@
 package com.salesmanager.shop.mapper.catalog;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -14,7 +15,10 @@ import com.salesmanager.core.business.services.catalog.pricing.PricingService;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.description.ProductDescription;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
+import com.salesmanager.core.model.catalog.product.availability.ProductAvailability;
 import com.salesmanager.core.model.catalog.product.price.FinalPrice;
+import com.salesmanager.core.model.catalog.product.price.ProductPrice;
+import com.salesmanager.core.model.catalog.product.price.ProductPriceType;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.mapper.Mapper;
@@ -144,9 +148,46 @@ public class ReadableMinimalProductMapper implements Mapper<Product, ReadableMin
 			destination
 			.setImages(imageList);
 		}
-		
 
-		return null;
+		for (ProductAvailability avail : source.getAvailabilities()) {
+			ProductPrice defaultPrice = null;
+			ProductPrice memberPrice = null;
+			for (ProductPrice p : avail.getPrices()) {
+				if (p.isDefaultPrice()) defaultPrice = p;
+				if (ProductPriceType.MEMBER_EXCLUSIVE.equals(p.getProductPriceType())) memberPrice = p;
+			}
+			if (memberPrice != null) {
+				destination.setMemberExclusiveEnabled(true);
+				if (defaultPrice != null && defaultPrice.getProductPriceAmount() != null
+						&& memberPrice.getProductPriceAmount() != null
+						&& defaultPrice.getProductPriceAmount().compareTo(BigDecimal.ZERO) > 0) {
+					BigDecimal ratio = memberPrice.getProductPriceAmount()
+							.divide(defaultPrice.getProductPriceAmount(), 4, java.math.RoundingMode.HALF_UP);
+					int pct = BigDecimal.ONE.subtract(ratio)
+							.multiply(new BigDecimal("100"))
+							.setScale(0, java.math.RoundingMode.HALF_UP)
+							.intValue();
+					if (pct > 0 && pct < 100) {
+						destination.setMemberDiscountPercent(pct);
+						// Apply member % on top of the current discounted (final) price
+						BigDecimal finalAmt = destination.getPrice();
+						if (finalAmt != null && finalAmt.compareTo(BigDecimal.ZERO) > 0) {
+							BigDecimal memberAmt = finalAmt
+									.multiply(BigDecimal.ONE.subtract(
+											new BigDecimal(pct).divide(new BigDecimal("100"))))
+									.setScale(2, java.math.RoundingMode.HALF_UP);
+							try {
+								destination.setMemberExclusivePrice(
+										pricingService.getDisplayAmount(memberAmt, store));
+							} catch (Exception ignore) {}
+						}
+					}
+				}
+				break;
+			}
+		}
+
+		return destination;
 	}
 
 	private ReadableDescription description(ProductDescription description) {

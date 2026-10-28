@@ -5,6 +5,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -342,14 +343,12 @@ public class ProductApiV2 {
 	@ResponseBody
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ReadableProduct get(@PathVariable final String sku, 
+	public ReadableProduct get(@PathVariable final String sku,
 			@RequestParam(value = "lang", required = false) String lang,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
-		ReadableProduct product = productFacadeV2.getProductByCode(merchantStore, sku, language);
-
-
-
-		return product;
+			@ApiIgnore MerchantStore merchantStore,
+			@ApiIgnore Language language,
+			HttpServletRequest request) {
+		boolean authenticated = request.getUserPrincipal() != null;
+		return productFacadeV2.getProductByCode(merchantStore, sku, language, authenticated);
 	}
 }

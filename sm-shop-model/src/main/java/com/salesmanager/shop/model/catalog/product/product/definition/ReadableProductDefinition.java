@@ -35,6 +35,8 @@ public class ReadableProductDefinition extends ProductDefinition {
 	 */
 	private BigDecimal price;
 	private BigDecimal discountedPrice;
+	private boolean memberExclusiveEnabled = false;
+	private int memberDiscountPercent = 5;
 	private Integer quantity;
 
 
@@ -94,6 +96,18 @@ public class ReadableProductDefinition extends ProductDefinition {
 	}
 	public void setDiscountedPrice(BigDecimal discountedPrice) {
 		this.discountedPrice = discountedPrice;
+	}
+	public boolean isMemberExclusiveEnabled() {
+		return memberExclusiveEnabled;
+	}
+	public void setMemberExclusiveEnabled(boolean memberExclusiveEnabled) {
+		this.memberExclusiveEnabled = memberExclusiveEnabled;
+	}
+	public int getMemberDiscountPercent() {
+		return memberDiscountPercent;
+	}
+	public void setMemberDiscountPercent(int memberDiscountPercent) {
+		this.memberDiscountPercent = memberDiscountPercent;
 	}
 	public Integer getQuantity() {
 		return quantity;

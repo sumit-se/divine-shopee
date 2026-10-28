@@ -25,6 +25,9 @@ import com.salesmanager.core.business.services.catalog.product.relationship.Prod
 import com.salesmanager.core.business.services.catalog.product.variant.ProductVariantService;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.ProductCriteria;
+import com.salesmanager.core.model.catalog.product.availability.ProductAvailability;
+import com.salesmanager.core.model.catalog.product.price.ProductPrice;
+import com.salesmanager.core.model.catalog.product.price.ProductPriceType;
 import com.salesmanager.core.model.catalog.product.relationship.ProductRelationship;
 import com.salesmanager.core.model.catalog.product.relationship.ProductRelationshipType;
 import com.salesmanager.core.model.catalog.product.variant.ProductVariant;
@@ -88,8 +91,12 @@ public class ProductFacadeV2Impl implements ProductFacade {
 
 	@Override
 	public ReadableProduct getProductByCode(MerchantStore store, String sku, Language language) {
+		return getProductByCode(store, sku, language, false);
+	}
 
-		
+	@Override
+	public ReadableProduct getProductByCode(MerchantStore store, String sku, Language language, boolean customerAuthenticated) {
+
 		Product product = null;
 		try {
 			product = productService.getBySku(sku, store, language);
@@ -100,16 +107,33 @@ public class ProductFacadeV2Impl implements ProductFacade {
 		if (product == null) {
 			throw new ResourceNotFoundException("Product [" + sku + "] not found for merchant [" + store.getCode() + "]");
 		}
-		
+
 		if (product.getMerchantStore().getId() != store.getId()) {
 			throw new ResourceNotFoundException("Product [" + sku + "] not found for merchant [" + store.getCode() + "]");
 		}
-		
 
 		ReadableProduct readableProduct = readableProductMapper.convert(product, store, language);
 
+		outer:
+		for (ProductAvailability availability : product.getAvailabilities()) {
+			for (ProductPrice price : availability.getPrices()) {
+				if (ProductPriceType.MEMBER_EXCLUSIVE.equals(price.getProductPriceType())) {
+					readableProduct.setMemberExclusiveEnabled(true);
+					if (customerAuthenticated) {
+						try {
+							String formattedPrice = pricingService.getDisplayAmount(price.getProductPriceAmount(), store);
+							readableProduct.setMemberExclusivePrice(formattedPrice);
+						} catch (Exception e) {
+							// non-fatal: skip member price if formatting fails
+						}
+					}
+					break outer;
+				}
+			}
+		}
+
 		return readableProduct;
-		
+
 	}
 	
 	private ReadableProductVariant productVariant(ProductVariant instance, MerchantStore store, Language language) {

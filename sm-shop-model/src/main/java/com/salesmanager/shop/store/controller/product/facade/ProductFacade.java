@@ -36,6 +36,12 @@ public interface ProductFacade {
   ReadableProduct getProductByCode(MerchantStore store, String uniqueCode, Language language);
 
   /**
+   * Reads a product by code, enriching the response with member-exclusive pricing
+   * when the customer is authenticated.
+   */
+  ReadableProduct getProductByCode(MerchantStore store, String uniqueCode, Language language, boolean customerAuthenticated);
+
+  /**
    * Get a product by sku and store
    *
    * @param store

@@ -1,5 +1,6 @@
 package com.salesmanager.shop.mapper.catalog.product;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,7 @@ import com.salesmanager.core.model.catalog.product.availability.ProductAvailabil
 import com.salesmanager.core.model.catalog.product.description.ProductDescription;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
 import com.salesmanager.core.model.catalog.product.price.ProductPrice;
+import com.salesmanager.core.model.catalog.product.price.ProductPriceType;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.mapper.Mapper;
@@ -183,6 +185,26 @@ public class ReadableProductDefinitionMapper implements Mapper<Product, Readable
 			if(defaultPrice != null) {
 				returnDestination.setPrice(defaultPrice.getProductPriceAmount());
 				returnDestination.setDiscountedPrice(defaultPrice.getProductPriceSpecialAmount());
+			}
+			for (ProductPrice p : availability.getPrices()) {
+				if (ProductPriceType.MEMBER_EXCLUSIVE.equals(p.getProductPriceType())) {
+					returnDestination.setMemberExclusiveEnabled(true);
+					// Derive the stored discount % from the member price vs the regular price
+					if (defaultPrice != null && defaultPrice.getProductPriceAmount() != null
+							&& p.getProductPriceAmount() != null
+							&& defaultPrice.getProductPriceAmount().compareTo(BigDecimal.ZERO) > 0) {
+						BigDecimal ratio = p.getProductPriceAmount()
+								.divide(defaultPrice.getProductPriceAmount(), 4, java.math.RoundingMode.HALF_UP);
+						int pct = BigDecimal.ONE.subtract(ratio)
+								.multiply(new BigDecimal("100"))
+								.setScale(0, java.math.RoundingMode.HALF_UP)
+								.intValue();
+						if (pct > 0 && pct < 100) {
+							returnDestination.setMemberDiscountPercent(pct);
+						}
+					}
+					break;
+				}
 			}
 		}
 		

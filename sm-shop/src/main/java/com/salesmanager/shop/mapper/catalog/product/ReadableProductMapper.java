@@ -1,5 +1,6 @@
 package com.salesmanager.shop.mapper.catalog.product;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -30,6 +31,7 @@ import com.salesmanager.core.model.catalog.product.image.ProductImage;
 import com.salesmanager.core.model.catalog.product.price.FinalPrice;
 import com.salesmanager.core.model.catalog.product.price.ProductPrice;
 import com.salesmanager.core.model.catalog.product.price.ProductPriceDescription;
+import com.salesmanager.core.model.catalog.product.price.ProductPriceType;
 import com.salesmanager.core.model.catalog.product.variant.ProductVariant;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
@@ -423,6 +425,40 @@ public class ReadableProductMapper implements Mapper<Product, ReadableProduct> {
 
 						Optional<ProductPrice> pr = prices.stream()
 								.filter(p -> p.getCode().equals(ProductPrice.DEFAULT_PRICE_CODE)).findFirst();
+
+						Optional<ProductPrice> memberPriceOpt = prices.stream()
+								.filter(p -> ProductPriceType.MEMBER_EXCLUSIVE.equals(p.getProductPriceType()))
+								.findFirst();
+						if (memberPriceOpt.isPresent()) {
+							destination.setMemberExclusiveEnabled(true);
+							BigDecimal memberAmount = memberPriceOpt.get().getProductPriceAmount();
+							// Derive the discount percent from the stored member price vs. the BASE price
+							if (pr.isPresent() && pr.get().getProductPriceAmount() != null
+									&& memberAmount != null
+									&& pr.get().getProductPriceAmount().compareTo(BigDecimal.ZERO) > 0) {
+								BigDecimal ratio = memberAmount
+										.divide(pr.get().getProductPriceAmount(), 4, java.math.RoundingMode.HALF_UP);
+								int pct = BigDecimal.ONE.subtract(ratio)
+										.multiply(new BigDecimal("100"))
+										.setScale(0, java.math.RoundingMode.HALF_UP)
+										.intValue();
+								if (pct > 0 && pct < 100) {
+									destination.setMemberDiscountPercent(pct);
+									// Apply the member % on top of the current discounted (final) price
+									BigDecimal finalPriceAmt = price.getFinalPrice();
+									if (finalPriceAmt != null && finalPriceAmt.compareTo(BigDecimal.ZERO) > 0) {
+										BigDecimal memberFinalPrice = finalPriceAmt
+												.multiply(BigDecimal.ONE.subtract(
+														new BigDecimal(pct).divide(new BigDecimal("100"))))
+												.setScale(2, java.math.RoundingMode.HALF_UP);
+										try {
+											destination.setMemberExclusivePrice(
+													pricingService.getDisplayAmount(memberFinalPrice, store));
+										} catch (Exception ignore) {}
+									}
+								}
+							}
+						}
 
 						destination.setProductPrice(readableProductPrice);
 
