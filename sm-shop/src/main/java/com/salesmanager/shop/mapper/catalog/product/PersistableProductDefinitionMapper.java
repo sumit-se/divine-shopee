@@ -169,6 +169,10 @@ public class PersistableProductDefinitionMapper implements Mapper<PersistablePro
 		    ProductPrice defaultPrice = null;
 		    if(!CollectionUtils.isEmpty(destination.getAvailabilities())) {
 		      for(ProductAvailability avail : destination.getAvailabilities()) {
+		        // Variant availabilities belong to their own variant and must never be
+		        // modified when saving the parent product's pricing or member-exclusive
+		        // settings. Skip them here so the product-level changes stay isolated.
+		        if(avail.getProductVariant() != null) continue;
 			        Set<ProductPrice> prices = avail.getPrices();
 			        for(ProductPrice p : prices) {
 			          if(p.isDefaultPrice()) {
