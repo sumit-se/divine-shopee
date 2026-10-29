@@ -45,7 +45,8 @@ export class StoreService {
   }
 
   createStore(store: any): Observable<any> {
-    return this.crudService.post(`/v1/private/store`, store);
+    // POST /v1/private/store returns HTTP 200 with an empty body.
+    return this.crudService.post(`/v1/private/store`, store, { responseType: 'text' as 'json' });
   }
 
   deleteStore(storeCode: any): Observable<any> {
@@ -53,7 +54,8 @@ export class StoreService {
   }
 
   updateStore(store: any): Observable<any> {
-    return this.crudService.put(`/v1/private/store/${ store.code }`, store);
+    // PUT /v1/private/store/{code} returns HTTP 200 with an empty body.
+    return this.crudService.put(`/v1/private/store/${ store.code }`, store, { responseType: 'text' as 'json' });
   }
 
   // PAGE CONTENT
