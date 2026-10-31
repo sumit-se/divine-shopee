@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { multilanguage } from "redux-multilanguage";
 import { connect } from "react-redux";
 
@@ -38,6 +38,19 @@ const toColumns = (items, n) => {
   return columns;
 };
 const NavMenu = ({ props, strings, menuWhiteClass, sidebarMenu, categories, contents, setCategoryID, setContent }) => {
+  const navRef = useRef(null);
+  const location = useLocation();
+
+  // After SPA navigation the cursor may still hover over the nav, keeping the
+  // dropdown open even though the page changed. Briefly disabling pointer-events
+  // forces the browser to recalculate :hover and collapse the menu.
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    el.style.pointerEvents = 'none';
+    const id = requestAnimationFrame(() => { if (el) el.style.pointerEvents = ''; });
+    return () => cancelAnimationFrame(id);
+  }, [location.pathname]);
 
   const onClickCategory = (item) => {
     setCategoryID(item.id)
@@ -48,6 +61,7 @@ const NavMenu = ({ props, strings, menuWhiteClass, sidebarMenu, categories, cont
   const pageLinksFor = (item) => CATEGORY_PAGE_LINKS[item.code] || [];
   return (
     <div
+      ref={navRef}
       className={` ${
         sidebarMenu
           ? "sidebar-menu"

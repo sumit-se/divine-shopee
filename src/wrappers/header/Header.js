@@ -15,6 +15,11 @@ import { setMerchant } from "../../redux/actions/storeAction";
 import { getCurrentLocation } from "../../redux/actions/userAction";
 import { visibleCategories } from "../../helpers/category";
 import { fetchCategoryTree } from "../../util/categoryTree";
+
+// Module-level cache: survives Header remounts within a browser session so we
+// never re-fetch categories or content when the user navigates between pages.
+const _navCache = { categories: [], content: [] };
+
 const Header = ({
   setMerchant,
   merchant,
@@ -31,15 +36,25 @@ const Header = ({
   const history = useHistory();
   const [scroll, setScroll] = useState(0);
   const [headerTop, setHeaderTop] = useState(0);
-  const [categoryData, setCategoryData] = useState([]);
-  const [contentData, setContentData] = useState([]);
+  const [categoryData, setCategoryData] = useState(() => _navCache.categories);
+  const [contentData, setContentData] = useState(() => _navCache.content);
 
   useEffect(() => {
-    checkServerHealth();
-
     const header = document.querySelector(".sticky-bar");
     setHeaderTop(header.offsetTop);
     window.addEventListener("scroll", handleScroll);
+
+    if (_navCache.categories.length) {
+      // Nav data already fetched in this browser session — restore from the
+      // module-level cache and skip all API calls. This branch runs on every
+      // SPA navigation after the first page load; the cache is reset to empty
+      // on hard refresh, so fresh page loads always fall through to checkServerHealth.
+      setCategoryData(_navCache.categories);
+      setContentData(_navCache.content);
+    } else {
+      checkServerHealth();
+    }
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -89,7 +104,9 @@ const Header = ({
       let response = await fetchCategoryTree(storeCode, currentLanguageCode);
       if (response) {
         // the API returns hidden categories too, flagged rather than omitted
-        setCategoryData(visibleCategories(response.categories));
+        const cats = visibleCategories(response.categories);
+        _navCache.categories = cats;
+        setCategoryData(cats);
       }
     } catch (error) {
       // console.log(error.messages)
@@ -107,7 +124,8 @@ const Header = ({
     try {
       let response = await WebService.get(action);
       if (response) {
-        setContentData(response.items)
+        _navCache.content = response.items;
+        setContentData(response.items);
       }
     } catch (error) {
     }

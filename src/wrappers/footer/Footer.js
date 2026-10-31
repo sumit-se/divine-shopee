@@ -26,7 +26,8 @@ const USEFUL_LINKS = [
   // The storefront has a real contact form at /contact, which beats a static
   // CMS page, so this one link diverges from the source site's /contact-us/.
   { key: "Contact us", to: "/contact" },
-  { key: "Latest Blogs", to: "/content/blog-feed" }
+  { key: "Latest Blogs", to: "/content/blog-feed" },
+  { key: "Return Policy", to: "/content/return-policy" }
 ];
 
 const Footer = ({

@@ -12,7 +12,7 @@ import { canonicalUrl } from "../../util/seo";
 import Breadcrumb from '../../wrappers/breadcrumb/Breadcrumb';
 import CategoryBanner from '../../wrappers/category/CategoryBanner';
 import ShopSidebar from '../../wrappers/product/ShopSidebar';
-import { PRICE_BANDS, bandById, bandParams } from '../../helpers/priceBands';
+import { PRICE_BANDS, bandById, bandParams, inBand } from '../../helpers/priceBands';
 import ShopTopbar from '../../wrappers/product/ShopTopbar';
 import ShopProducts from '../../wrappers/product/ShopProducts';
 import WebService from '../../util/webService';
@@ -40,7 +40,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
     const [totalProduct, setTotalProduct] = useState(0);
     const [productDetails, setProductDetails] = useState('');
     const [subCategory, setSubCategory] = useState([]);
-    // the chosen price band, and the per-band counts for this category
+    // the chosen price band
     const [activePriceBand, setActivePriceBand] = useState(null);
     const [priceBandCounts, setPriceBandCounts] = useState({});
     // id for the category named in the URL, once the slug has been resolved
@@ -55,8 +55,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
 
     const { pathname } = location;
     const priceBands = PRICE_BANDS
-        .map(band => ({ ...band, count: priceBandCounts[band.id] || 0 }))
-        .filter(band => band.count > 0 || band.id === activePriceBand);
+        .filter(band => (priceBandCounts[band.id] || 0) > 0 || band.id === activePriceBand);
     const hasActiveFilters = activePriceBand !== null || selectedOption.length > 0 || selectedManufature.length > 0;
     // the sidebar only has content when at least one facet is populated
     const hasSidebar =
@@ -130,6 +129,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         // fetched for the previous category while the new slug resolves.
         setOffset(0);
         setActiveCategoryId(null);
+        setActivePriceBand(null);
         setProductData([]);
         setTotalProduct(0);
         setCurrentPage(0);
@@ -202,15 +202,6 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         setOffset(0);
     }
 
-    /**
-     * How many products each band holds in this category.
-     *
-     * One small request per band rather than one big one: this page never has
-     * the whole category in hand -- the server pages it -- so the only honest
-     * count is the one the server gives for that band. `count=1` is asked for
-     * because only recordsTotal is read; the single product that comes back is
-     * discarded.
-     */
     useEffect(() => {
         if (!activeCategoryId) return;
         let cancelled = false;
@@ -246,7 +237,9 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
             if (requestId !== latestProductRequest.current) return;
             if (response) {
                 setCurrentPage(response.totalPages)
-                setProductData(response.products);
+                const band = bandById(activePriceBand);
+                const products = (response.products || []).filter(p => !band || inBand(p, band));
+                setProductData(products);
                 setTotalProduct(response.recordsTotal)
             }
             setLoader(false)

@@ -31,7 +31,6 @@ const ShopPrice = ({ bands, activeBandId, getPriceParams, string }) => {
                   onClick={() => getPriceParams(band.id)}
                 >
                   {" "}{band.label}{" "}
-                  <span className="sidebar-widget-count">({band.count})</span>
                 </button>
               </div>
             </li>

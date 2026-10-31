@@ -3,6 +3,7 @@ import React, { Fragment, useState, useEffect } from 'react';
 import MetaTags from 'react-meta-tags';
 import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic';
 import { connect } from 'react-redux';
+import ReactPaginate from 'react-paginate';
 import Layout from '../../layouts/Layout';
 import Breadcrumb from '../../wrappers/breadcrumb/Breadcrumb';
 import ShopSidebar from '../../wrappers/product/ShopSidebar';
@@ -13,127 +14,109 @@ import constant from '../../util/constant';
 import { setLoader } from "../../redux/actions/loaderActions";
 import { setCategoryID } from "../../redux/actions/productActions";
 import { multilanguage } from "redux-multilanguage";
-import { PRICE_BANDS, inBand } from "../../helpers/priceBands";
+import { PRICE_BANDS, bandById, bandParams, inBand } from "../../helpers/priceBands";
 
-// No pagination on this page, so take one generous page of matches.
-const SEARCH_RESULT_LIMIT = 100;
-
+// Products per page — matches the category page limit.
+const PAGE_SIZE = 15;
 
 const SearchProduct = ({ strings, location, defaultStore, currentLanguageCode, setLoader, searchID, setCategoryID, merchant }) => {
     const [layout, setLayout] = useState('grid three-column');
-
-    // Everything the term matched. The facet narrows what is shown without
-    // going back to the server, and the facet list itself is built from this
-    // rather than from the narrowed set -- otherwise picking a category would
-    // collapse the list to the one just picked, with no way back to the others.
-    const [allProducts, setAllProducts] = useState([]);
+    const [productData, setProductData] = useState([]);
     const [totalProduct, setTotalProduct] = useState(0);
-    const [activeCategory, setActiveCategory] = useState(null);
+    // pageIndex: 0-based current page (matches ReactPaginate's `selected`)
+    const [pageIndex, setPageIndex] = useState(0);
     const [activePriceBand, setActivePriceBand] = useState(null);
+    // Counts from 5 parallel count=1 probes — same pattern as Category.js
+    const [priceBandCounts, setPriceBandCounts] = useState({});
 
     const { pathname } = location;
-    const getLayout = (layout) => {
-        setLayout(layout)
-    }
-
-    /**
-     * Narrow the results to one category, or clear it by picking it again.
-     *
-     * This used to push /category/:slug, which read as a filter and behaved as
-     * an exit: searching "rudraksha" and choosing 5 Mukhi abandoned the search
-     * and showed the whole 5 Mukhi category instead -- more products than the
-     * search had found, and none of them matched on the term any more.
-     */
-    const getCategoryParams = (sortType, sortValue) => {
-        setActiveCategory(prev => (prev && prev === sortValue.id ? null : sortValue.id));
-    }
+    const getLayout = (layout) => { setLayout(layout); };
 
     const getPriceParams = (bandId) => {
         setActivePriceBand(prev => (prev === bandId ? null : bandId));
-    }
+        setPageIndex(0);
+    };
 
-    // Re-runs when the term changes: searching again from the header while
-    // already on /search/:id previously left the old results on screen,
-    // because this only ever fired on mount.
+    // Reset pagination + filter when the search term changes. Both resets and
+    // the fetch below depend on [searchID, …], so they run in the same pass;
+    // the fetch starts with the old pageIndex/activePriceBand, but its cleanup
+    // fires immediately on the re-render caused by the state updates here,
+    // cancelling the stale request before it can write state.
     useEffect(() => {
-        getProductList()
+        setPageIndex(0);
+        setActivePriceBand(null);
+        setProductData([]);
+        setTotalProduct(0);
+        setPriceBandCounts({});
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchID, defaultStore, currentLanguageCode]);
 
-    /**
-     * Distinct categories across the result set, so the sidebar facet still has
-     * something to show. POST /search used to return categoryFacets; the
-     * products endpoint does not, but every product carries its categories
-     * (with sortOrder), which is enough to rebuild the same list.
-     */
-    const categoriesFrom = (products) => {
-        const seen = new Map();
-        (products || []).forEach(product => {
-            (product.categories || []).forEach(category => {
-                // a hidden category is not offered as a filter: its page is
-                // gone, so filtering by it would strand the shopper
-                if (category && category.visible === false) return;
-                if (category && category.id && !seen.has(category.id)) {
-                    seen.set(category.id, category);
-                }
-            });
-        });
-        return [...seen.values()];
-    }
-
-    // Derived below categoriesFrom rather than beside the other handlers: it
-    // is a const arrow function, so reading it higher up is a dead-zone
-    // ReferenceError rather than a hoisted call.
-    const matchesCategory = product => !activeCategory
-        || (product.categories || []).some(category => category.id === activeCategory);
-    const band = PRICE_BANDS.find(b => b.id === activePriceBand);
-    const matchesPrice = product => !band || inBand(product, band);
-
-    // Each facet is counted against the results the *other* facet leaves, so
-    // the number beside a band is what picking it would actually give you.
-    // Counting both against the raw result set instead would promise 12
-    // products in a band and then show 2 once a category was also on.
-    const priceBands = PRICE_BANDS
-        .map(b => ({ ...b, count: allProducts.filter(p => matchesCategory(p) && inBand(p, b)).length }))
-        .filter(b => b.count > 0 || b.id === activePriceBand);
-
-    // and the mirror of that: the categories offered are the ones still
-    // represented once the price band is applied
-    const subCategory = categoriesFrom(allProducts.filter(matchesPrice));
-
-    const productData = allProducts.filter(p => matchesCategory(p) && matchesPrice(p));
-
-    const getProductList = async () => {
+    // Paginated product fetch. Re-runs when term, page, or price filter changes.
+    useEffect(() => {
         if (!searchID) return;
-        setLoader(true)
-        // Shopizer's POST /search is backed by OpenSearch. There is no search
-        // node running (and search.noindex=true is set to dodge the
-        // ResourceUtils.getFile() bug reading search/MAPPINGS.json out of a
-        // jar), so it failed with "searchClient is null" and this page showed
-        // 0 results for every term -- including terms that plainly match the
-        // catalogue. /products?name= is answered from the database and does a
-        // case-insensitive partial match on the product name.
-        let action = `${constant.ACTION.PRODUCTS}?store=${defaultStore}` +
-            `&lang=${currentLanguageCode}&count=${SEARCH_RESULT_LIMIT}` +
-            `&name=${encodeURIComponent(searchID)}`;
-        try {
-            let response = await WebService.get(action);
-            const products = (response && response.products) || [];
-            setAllProducts(products);
-            setTotalProduct((response && response.recordsTotal) || products.length);
-            // a facet from the previous term almost certainly does not apply
-            // to this one, and leaving it on would show an empty page
-            setActiveCategory(null);
-            setActivePriceBand(null);
-            setLoader(false)
-        } catch (error) {
-            setAllProducts([]);
-            setTotalProduct(0);
-            setActiveCategory(null);
-            setActivePriceBand(null);
-            setLoader(false)
-        }
-    }
+        let cancelled = false;
+        const doFetch = async () => {
+            setLoader(true);
+            const band = bandById(activePriceBand);
+            // Shopizer's POST /search requires OpenSearch which is not running
+            // (search.noindex=true). /products?name= hits the database directly
+            // and does a case-insensitive partial match on the product name.
+            const action = `${constant.ACTION.PRODUCTS}?store=${defaultStore}` +
+                `&lang=${currentLanguageCode}&count=${PAGE_SIZE}&page=${pageIndex}` +
+                `&name=${encodeURIComponent(searchID)}${bandParams(band)}`;
+            try {
+                const response = await WebService.get(action);
+                if (!cancelled) {
+                    const band = bandById(activePriceBand);
+                    const products = ((response && response.products) || []).filter(p => !band || inBand(p, band));
+                    setProductData(products);
+                    setTotalProduct((response && response.recordsTotal) || 0);
+                }
+            } catch {
+                if (!cancelled) { setProductData([]); setTotalProduct(0); }
+            } finally {
+                if (!cancelled) setLoader(false);
+            }
+        };
+        doFetch();
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchID, defaultStore, currentLanguageCode, pageIndex, activePriceBand]);
+
+    // Price band availability: 5 parallel count=1 probes, re-run when term changes.
+    // Does not re-run on price filter change — the band list stays stable while
+    // on one term, same as on the category page.
+    useEffect(() => {
+        if (!searchID) return;
+        let cancelled = false;
+        const loadCounts = async () => {
+            const counts = {};
+            await Promise.all(PRICE_BANDS.map(async band => {
+                const action = `${constant.ACTION.PRODUCTS}?store=${defaultStore}` +
+                    `&lang=${currentLanguageCode}&count=1&page=0` +
+                    `&name=${encodeURIComponent(searchID)}${bandParams(band)}`;
+                try {
+                    const res = await WebService.get(action);
+                    counts[band.id] = (res && res.recordsTotal) || 0;
+                } catch { counts[band.id] = 0; }
+            }));
+            if (!cancelled) setPriceBandCounts(counts);
+        };
+        loadCounts();
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchID, defaultStore, currentLanguageCode]);
+
+    // Only show bands that have matching products (or the currently active one).
+    const priceBands = PRICE_BANDS
+        .filter(band => (priceBandCounts[band.id] || 0) > 0 || band.id === activePriceBand);
+
+    const pageCount = Math.ceil(totalProduct / PAGE_SIZE);
+
+    const handlePageChange = ({ selected }) => {
+        setPageIndex(selected);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
         <Fragment>
@@ -148,37 +131,66 @@ const SearchProduct = ({ strings, location, defaultStore, currentLanguageCode, s
             <Layout headerContainerClass="container-fluid"
                 headerPaddingClass="header-padding-2"
                 headerTop="visible">
-                {/* breadcrumb */}
                 <Breadcrumb />
 
                 <div className="shop-area pt-95 pb-100">
                     <div className="container">
                         <div className="row">
                             <div className="col-lg-3 order-2 order-lg-1">
-
-                                <ShopSidebar string={strings} getCategoryParams={getCategoryParams} uniqueCategories={subCategory} activeCategoryId={activeCategory} priceBands={priceBands} activePriceBandId={activePriceBand} getPriceParams={getPriceParams} uniqueColors={[]} uniqueSizes={[]} uniqueManufacture={[]} sideSpaceClass="mr-30" />
+                                <ShopSidebar
+                                    string={strings}
+                                    getCategoryParams={() => {}}
+                                    uniqueCategories={[]}
+                                    activeCategoryId={null}
+                                    priceBands={priceBands}
+                                    activePriceBandId={activePriceBand}
+                                    getPriceParams={getPriceParams}
+                                    uniqueColors={[]}
+                                    uniqueSizes={[]}
+                                    uniqueManufacture={[]}
+                                    sideSpaceClass="mr-30"
+                                />
                             </div>
                             <div className="col-lg-9 order-1 order-lg-2">
+                                <ShopTopbar
+                                    strings={strings}
+                                    getLayout={getLayout}
+                                    productCount={totalProduct}
+                                    offset={pageIndex + 1}
+                                    pageLimit={PAGE_SIZE}
+                                    sortedProductCount={productData.length}
+                                />
 
-                                <ShopTopbar strings={strings} getLayout={getLayout} productCount={totalProduct} offset={1} sortedProductCount={productData.length} />
-
-                                {/* shop page content default */}
                                 <ShopProducts strings={strings} layout={layout} products={productData} />
 
-
+                                {pageCount > 1 && (
+                                    <div className="pro-pagination-style text-center mt-30">
+                                        <ReactPaginate
+                                            previousLabel={'«'}
+                                            nextLabel={'»'}
+                                            breakLabel={'...'}
+                                            breakClassName={'break-me'}
+                                            pageCount={pageCount}
+                                            forcePage={pageIndex}
+                                            onPageChange={handlePageChange}
+                                            containerClassName={'mb-0 mt-0'}
+                                            activeClassName={'page-item active'}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             </Layout>
         </Fragment>
-    )
-}
+    );
+};
 
 SearchProduct.propTypes = {
     location: PropTypes.object,
     products: PropTypes.array
-}
+};
 
 const mapStateToProps = (state, ownProps) => {
     const searchID = ownProps.match.params.id;
@@ -189,16 +201,12 @@ const mapStateToProps = (state, ownProps) => {
         defaultStore: state.merchantData.defaultStore || window._env_.APP_MERCHANT,
         searchID: searchID,
         merchant: state.merchantData.merchant
-    }
-}
-const mapDispatchToProps = dispatch => {
-    return {
-        setLoader: (value) => {
-            dispatch(setLoader(value));
-        },
-        setCategoryID: (value) => {
-            dispatch(setCategoryID(value));
-        }
     };
 };
+
+const mapDispatchToProps = dispatch => ({
+    setLoader: (value) => { dispatch(setLoader(value)); },
+    setCategoryID: (value) => { dispatch(setCategoryID(value)); }
+});
+
 export default connect(mapStateToProps, mapDispatchToProps)(multilanguage(SearchProduct));
