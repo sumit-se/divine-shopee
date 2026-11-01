@@ -168,7 +168,7 @@ export class ProductFormComponent implements OnInit {
           this.manufacturers.push({ value: option.code, label: name || option.code });
         });
 
-        this.productTypes.push({ value: '', label: '— None —' });
+        this.productTypes.push({ value: '__NONE__', label: '— None —' });
         productTypes.list.forEach((option) => {
           this.productTypes.push({ value: option.code, label: option.code });
         });
@@ -266,7 +266,7 @@ export class ProductFormComponent implements OnInit {
       canBePurchased: this.product.canBePurchased,
       dateAvailable: new Date(this.product.dateAvailable),
       manufacturer: this.product.manufacturer == null ? '' : this.product.manufacturer.code,
-      type: this.product.type == null ? '' : this.product.type.code,
+      type: this.product.type == null ? '__NONE__' : this.product.type.code,
       price: this.product.price,
       // null when the product carries no discount, and an empty field is how
       // that has to read -- a 0 here would be saved as a 0 discount
@@ -530,6 +530,9 @@ export class ProductFormComponent implements OnInit {
         }
       });
       delete productObject.selectedLanguage;
+      if (productObject.type === '__NONE__') {
+        productObject.type = '';
+      }
       if (this.product.id) {
         this.productService.updateProduct(this.product.id, productObject)
           .subscribe(res => {
