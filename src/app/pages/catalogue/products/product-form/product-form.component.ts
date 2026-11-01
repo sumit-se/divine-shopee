@@ -168,6 +168,7 @@ export class ProductFormComponent implements OnInit {
           this.manufacturers.push({ value: option.code, label: name || option.code });
         });
 
+        this.productTypes.push({ value: '', label: '— None —' });
         productTypes.list.forEach((option) => {
           this.productTypes.push({ value: option.code, label: option.code });
         });
