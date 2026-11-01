@@ -30,9 +30,9 @@ public interface PageableProductVariantRepositoty extends PagingAndSortingReposi
 
 			+ "left join fetch pr.merchantStore prm " 
 			+ "where pr.id = ?2 and prm.id = ?1",
-			countQuery = "select p from ProductVariant p "
-			+ "join fetch p.product pr "
-					+ "left join fetch pr.merchantStore prm "
+			countQuery = "select count(p) from ProductVariant p "
+					+ "join p.product pr "
+					+ "join pr.merchantStore prm "
 					+ "where pr.id = ?2 and prm.id = ?1")
 	Page<ProductVariant> findByProductId(Integer storeId, Long productId, Pageable pageable);
 
