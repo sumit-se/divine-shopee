@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
@@ -48,6 +49,7 @@ public class ProductDefinitionFacadeImpl implements ProductDefinitionFacade {
 	private ImageFilePath imageUtils;
 
 	@Override
+	@Transactional
 	public Long saveProductDefinition(MerchantStore store, PersistableProductDefinition product, Language language) {
 		
 
