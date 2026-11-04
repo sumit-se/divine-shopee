@@ -71,6 +71,8 @@ export class ProductToCategoryComponent implements OnInit {
 
     private load() {
         this.loading = true;
+        this.selectedItems = [];
+        this.categories = [];
 
         const p$ = this.categoryService.getCategoryByProductId(this.id)
         const c$ = this.categoryService.getListOfCategories(this.params)
@@ -82,7 +84,7 @@ export class ProductToCategoryComponent implements OnInit {
                 });
                 c$.categories.forEach((value) => {
                     this.getChildren(value);
-    
+
                 })
                 this.loading = false;
         });

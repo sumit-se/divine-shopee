@@ -117,7 +117,7 @@ export class AddPageComponent implements OnInit {
   private createForm() {
     this.form = this.fb.group({
       id: [''],
-      code: ['', [Validators.required, Validators.pattern(validators.alphanumeric)]],
+      code: ['', [Validators.required, Validators.pattern(validators.alphanumericwithhyphen)]],
       visible: [false],
       mainmenu: [false],
       order: [0],
