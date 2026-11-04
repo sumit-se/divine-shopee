@@ -12,7 +12,6 @@ import { canonicalUrl } from "../../util/seo";
 import Breadcrumb from '../../wrappers/breadcrumb/Breadcrumb';
 import CategoryBanner from '../../wrappers/category/CategoryBanner';
 import ShopSidebar from '../../wrappers/product/ShopSidebar';
-import { PRICE_BANDS, bandById, bandParams, inBand } from '../../helpers/priceBands';
 import ShopTopbar from '../../wrappers/product/ShopTopbar';
 import ShopProducts from '../../wrappers/product/ShopProducts';
 import WebService from '../../util/webService';
@@ -40,9 +39,6 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
     const [totalProduct, setTotalProduct] = useState(0);
     const [productDetails, setProductDetails] = useState('');
     const [subCategory, setSubCategory] = useState([]);
-    // the chosen price band
-    const [activePriceBand, setActivePriceBand] = useState(null);
-    const [priceBandCounts, setPriceBandCounts] = useState({});
     // id for the category named in the URL, once the slug has been resolved
     const [activeCategoryId, setActiveCategoryId] = useState(null);
     const [manufacture, setManufacture] = useState([]);
@@ -54,16 +50,13 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
     // const [sortedProducts, setSortedProducts] = useState([]);
 
     const { pathname } = location;
-    const priceBands = PRICE_BANDS
-        .filter(band => (priceBandCounts[band.id] || 0) > 0 || band.id === activePriceBand);
-    const hasActiveFilters = activePriceBand !== null || selectedOption.length > 0 || selectedManufature.length > 0;
+    const hasActiveFilters = selectedOption.length > 0 || selectedManufature.length > 0;
     // the sidebar only has content when at least one facet is populated
     const hasSidebar =
         subCategory.length > 0 ||
         color.length > 0 ||
         size.length > 0 ||
-        manufacture.length > 0 ||
-        priceBands.length > 0;
+        manufacture.length > 0;
 
     const getLayout = (layout) => {
         setLayout(layout)
@@ -129,7 +122,6 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         // fetched for the previous category while the new slug resolves.
         setOffset(0);
         setActiveCategoryId(null);
-        setActivePriceBand(null);
         setProductData([]);
         setTotalProduct(0);
         setCurrentPage(0);
@@ -180,49 +172,14 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         setSelectedOption([])
         getProductList(activeCategoryId, [], [])
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeCategoryId, offset, activePriceBand]);
+    }, [activeCategoryId, offset]);
     const clearFilters = () => {
-        const wasNull = activePriceBand === null;
-        setActivePriceBand(null);
         setSelectedOption([]);
         setSelectedManufature([]);
         setOffset(0);
         setSidebarResetKey(k => k + 1);
-        // If the band was already null the useEffect won't fire, so reload explicitly.
-        // The closure still sees activePriceBand === null, which is correct.
-        if (wasNull) {
-            getProductList(categoryValue, [], []);
-        }
+        getProductList(categoryValue, [], []);
     };
-
-    /** Pick a band, or clear it by picking the one already on. */
-    const getPriceParams = (bandId) => {
-        setActivePriceBand(prev => (prev === bandId ? null : bandId));
-        // the narrowed set is shorter, so page 4 of the old one may not exist
-        setOffset(0);
-    }
-
-    useEffect(() => {
-        if (!activeCategoryId) return;
-        let cancelled = false;
-        const load = async () => {
-            const counts = {};
-            await Promise.all(PRICE_BANDS.map(async band => {
-                const action = `${constant.ACTION.PRODUCTS}?store=${defaultStore}&lang=${currentLanguageCode}`
-                    + `&count=1&page=0&category=${activeCategoryId}${bandParams(band)}`;
-                try {
-                    const res = await WebService.get(action);
-                    counts[band.id] = (res && res.recordsTotal) || 0;
-                } catch (e) {
-                    counts[band.id] = 0;
-                }
-            }));
-            if (!cancelled) setPriceBandCounts(counts);
-        };
-        load();
-        return () => { cancelled = true; };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeCategoryId, defaultStore, currentLanguageCode]);
 
     const getProductList = async (categoryid, size, manufacture) => {
         // Product calls take ~2.5s, so two quick menu clicks can resolve out of
@@ -231,15 +188,13 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         setLoader(true)
         // setProductData([]);
         // let action = `${constant.ACTION.PRODUCTS} + '?store=' + defaultStore + '&lang=' + currentLanguageCode + '&start=' + offset + '&count=' + pageLimit + '&category=' + categoryID`;
-        let action = `${constant.ACTION.PRODUCTS}?${isCheckValueAndSetParams('&store=', defaultStore)}${isCheckValueAndSetParams('&lang=', currentLanguageCode)}${isCheckValueAndSetParams('&page=', offset)}${isCheckValueAndSetParams('&count=', pageLimit)}${isCheckValueAndSetParams('&category=', categoryid)}${isCheckValueAndSetParams('&optionValues=', size.join())}${isCheckValueAndSetParams('&manufacturer=', manufacture.join())}${bandParams(bandById(activePriceBand))}`;
+        let action = `${constant.ACTION.PRODUCTS}?${isCheckValueAndSetParams('&store=', defaultStore)}${isCheckValueAndSetParams('&lang=', currentLanguageCode)}${isCheckValueAndSetParams('&page=', offset)}${isCheckValueAndSetParams('&count=', pageLimit)}${isCheckValueAndSetParams('&category=', categoryid)}${isCheckValueAndSetParams('&optionValues=', size.join())}${isCheckValueAndSetParams('&manufacturer=', manufacture.join())}`;
         try {
             let response = await WebService.get(action);
             if (requestId !== latestProductRequest.current) return;
             if (response) {
                 setCurrentPage(response.totalPages)
-                const band = bandById(activePriceBand);
-                const products = (response.products || []).filter(p => !band || inBand(p, band));
-                setProductData(products);
+                setProductData(response.products || []);
                 setTotalProduct(response.recordsTotal)
             }
             setLoader(false)
@@ -343,7 +298,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
                         <div className="row">
                             {hasSidebar &&
                             <div className="col-lg-3 order-2 order-lg-1">
-                                <ShopSidebar key={sidebarResetKey} string={strings} getSortParams={getSortParams} getCategoryParams={getCategoryParams} uniqueCategories={subCategory} priceBands={priceBands} activePriceBandId={activePriceBand} getPriceParams={getPriceParams} uniqueColors={color} uniqueSizes={size} uniqueManufacture={manufacture} sideSpaceClass="mr-30" hasActiveFilters={hasActiveFilters} clearFilters={clearFilters} />
+                                <ShopSidebar key={sidebarResetKey} string={strings} getSortParams={getSortParams} getCategoryParams={getCategoryParams} uniqueCategories={subCategory} uniqueColors={color} uniqueSizes={size} uniqueManufacture={manufacture} sideSpaceClass="mr-30" hasActiveFilters={hasActiveFilters} clearFilters={clearFilters} />
                             </div>
                             }
                             <div className={`${hasSidebar ? "col-lg-9" : "col-lg-12"} order-1 order-lg-2`}>

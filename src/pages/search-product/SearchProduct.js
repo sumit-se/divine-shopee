@@ -14,7 +14,6 @@ import constant from '../../util/constant';
 import { setLoader } from "../../redux/actions/loaderActions";
 import { setCategoryID } from "../../redux/actions/productActions";
 import { multilanguage } from "redux-multilanguage";
-import { PRICE_BANDS, bandById, bandParams, inBand } from "../../helpers/priceBands";
 
 // Products per page — matches the category page limit.
 const PAGE_SIZE = 15;
@@ -25,51 +24,33 @@ const SearchProduct = ({ strings, location, defaultStore, currentLanguageCode, s
     const [totalProduct, setTotalProduct] = useState(0);
     // pageIndex: 0-based current page (matches ReactPaginate's `selected`)
     const [pageIndex, setPageIndex] = useState(0);
-    const [activePriceBand, setActivePriceBand] = useState(null);
-    // Counts from 5 parallel count=1 probes — same pattern as Category.js
-    const [priceBandCounts, setPriceBandCounts] = useState({});
-
     const { pathname } = location;
     const getLayout = (layout) => { setLayout(layout); };
 
-    const getPriceParams = (bandId) => {
-        setActivePriceBand(prev => (prev === bandId ? null : bandId));
-        setPageIndex(0);
-    };
-
-    // Reset pagination + filter when the search term changes. Both resets and
-    // the fetch below depend on [searchID, …], so they run in the same pass;
-    // the fetch starts with the old pageIndex/activePriceBand, but its cleanup
-    // fires immediately on the re-render caused by the state updates here,
-    // cancelling the stale request before it can write state.
+    // Reset pagination when the search term changes.
     useEffect(() => {
         setPageIndex(0);
-        setActivePriceBand(null);
         setProductData([]);
         setTotalProduct(0);
-        setPriceBandCounts({});
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchID, defaultStore, currentLanguageCode]);
 
-    // Paginated product fetch. Re-runs when term, page, or price filter changes.
+    // Paginated product fetch. Re-runs when term or page changes.
     useEffect(() => {
         if (!searchID) return;
         let cancelled = false;
         const doFetch = async () => {
             setLoader(true);
-            const band = bandById(activePriceBand);
             // Shopizer's POST /search requires OpenSearch which is not running
             // (search.noindex=true). /products?name= hits the database directly
             // and does a case-insensitive partial match on the product name.
             const action = `${constant.ACTION.PRODUCTS}?store=${defaultStore}` +
                 `&lang=${currentLanguageCode}&count=${PAGE_SIZE}&page=${pageIndex}` +
-                `&name=${encodeURIComponent(searchID)}${bandParams(band)}`;
+                `&name=${encodeURIComponent(searchID)}`;
             try {
                 const response = await WebService.get(action);
                 if (!cancelled) {
-                    const band = bandById(activePriceBand);
-                    const products = ((response && response.products) || []).filter(p => !band || inBand(p, band));
-                    setProductData(products);
+                    setProductData((response && response.products) || []);
                     setTotalProduct((response && response.recordsTotal) || 0);
                 }
             } catch {
@@ -81,35 +62,7 @@ const SearchProduct = ({ strings, location, defaultStore, currentLanguageCode, s
         doFetch();
         return () => { cancelled = true; };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchID, defaultStore, currentLanguageCode, pageIndex, activePriceBand]);
-
-    // Price band availability: 5 parallel count=1 probes, re-run when term changes.
-    // Does not re-run on price filter change — the band list stays stable while
-    // on one term, same as on the category page.
-    useEffect(() => {
-        if (!searchID) return;
-        let cancelled = false;
-        const loadCounts = async () => {
-            const counts = {};
-            await Promise.all(PRICE_BANDS.map(async band => {
-                const action = `${constant.ACTION.PRODUCTS}?store=${defaultStore}` +
-                    `&lang=${currentLanguageCode}&count=1&page=0` +
-                    `&name=${encodeURIComponent(searchID)}${bandParams(band)}`;
-                try {
-                    const res = await WebService.get(action);
-                    counts[band.id] = (res && res.recordsTotal) || 0;
-                } catch { counts[band.id] = 0; }
-            }));
-            if (!cancelled) setPriceBandCounts(counts);
-        };
-        loadCounts();
-        return () => { cancelled = true; };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchID, defaultStore, currentLanguageCode]);
-
-    // Only show bands that have matching products (or the currently active one).
-    const priceBands = PRICE_BANDS
-        .filter(band => (priceBandCounts[band.id] || 0) > 0 || band.id === activePriceBand);
+    }, [searchID, defaultStore, currentLanguageCode, pageIndex]);
 
     const pageCount = Math.ceil(totalProduct / PAGE_SIZE);
 
@@ -142,9 +95,6 @@ const SearchProduct = ({ strings, location, defaultStore, currentLanguageCode, s
                                     getCategoryParams={() => {}}
                                     uniqueCategories={[]}
                                     activeCategoryId={null}
-                                    priceBands={priceBands}
-                                    activePriceBandId={activePriceBand}
-                                    getPriceParams={getPriceParams}
                                     uniqueColors={[]}
                                     uniqueSizes={[]}
                                     uniqueManufacture={[]}
