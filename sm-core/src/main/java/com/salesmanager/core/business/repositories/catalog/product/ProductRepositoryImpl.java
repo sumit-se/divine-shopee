@@ -610,37 +610,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			countBuilderWhere.append(" and manuf.id = :manufid");
 		}
 
-		// Price band, for the storefront facet. Joining availabilities and
-		// prices multiplies the rows -- a bead priced at three weights matches
-		// three times -- which is why this is safe only because both queries
-		// built from these two builders are distinct on the product: the count
-		// is count(distinct p) and the id query selects distinct p.id.
-		//
-		// Lower bound inclusive, upper exclusive, so a product on a boundary is
-		// claimed by one band rather than two.
-		//
-		// Matched on the price the shopper pays: the discounted (special) price
-		// while its offer is on, else the regular one -- the same rules as
-		// ProductPriceUtils.finalPrice. Matching the regular price put a ₹321
-		// special-offer bead (₹1,799 before discount) in "₹1,000 – ₹5,000".
-		if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
-			countBuilderSelect.append(" INNER JOIN p.availabilities pavail");
-			countBuilderSelect.append(" INNER JOIN pavail.prices pprice");
-			String paid = "(case when"
-					+ " (pprice.productPriceSpecialStartDate is null and pprice.productPriceSpecialEndDate is null and pprice.productPriceSpecialAmount > 0)"
-					+ " or (pprice.productPriceSpecialStartDate is not null and pprice.productPriceSpecialStartDate < :priceToday"
-					+ " and pprice.productPriceSpecialEndDate is not null and pprice.productPriceSpecialEndDate > :priceToday)"
-					+ " or (pprice.productPriceSpecialStartDate is null and pprice.productPriceSpecialEndDate is not null"
-					+ " and pprice.productPriceSpecialEndDate > :priceToday)"
-					+ " then pprice.productPriceSpecialAmount else pprice.productPriceAmount end)";
-			if (criteria.getMinPrice() != null) {
-				countBuilderWhere.append(" and ").append(paid).append(" >= :minPrice");
-			}
-			if (criteria.getMaxPrice() != null) {
-				countBuilderWhere.append(" and ").append(paid).append(" < :maxPrice");
-			}
-		}
-		
 		// todo type
 
 		// sku
@@ -719,18 +688,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			countQ.setParameter("cid", criteria.getCategoryIds());
 		}
 
-		// bound on countQ only: the id query below is built from the same two
-		// builders and copies every parameter off this query
-		if (criteria.getMinPrice() != null) {
-			countQ.setParameter("minPrice", criteria.getMinPrice());
-		}
-		if (criteria.getMaxPrice() != null) {
-			countQ.setParameter("maxPrice", criteria.getMaxPrice());
-		}
-		if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
-			countQ.setParameter("priceToday", new Date());
-		}
-		
 		/**/
 		if(criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP) 
 				&& CollectionUtils.isNotEmpty(criteria.getOptionValueIds())) {

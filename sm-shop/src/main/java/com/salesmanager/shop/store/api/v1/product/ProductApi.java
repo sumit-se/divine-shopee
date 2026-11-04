@@ -206,10 +206,6 @@ public class ProductApi {
 			@RequestParam(value = "count", required = false, defaultValue = "100") Integer count, // count
 			@RequestParam(value = "slug", required = false) String slug, // category slug
 			@RequestParam(value = "available", required = false) Boolean available,
-			// price band for the storefront facet; either may be omitted for an
-			// open-ended band. Lower inclusive, upper exclusive.
-			@RequestParam(value = "minPrice", required = false) java.math.BigDecimal minPrice,
-			@RequestParam(value = "maxPrice", required = false) java.math.BigDecimal maxPrice,
 			// per
 			// page
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, HttpServletRequest request,
@@ -252,13 +248,6 @@ public class ProductApi {
 
 		if (manufacturer != null) {
 			criteria.setManufacturerId(manufacturer);
-		}
-
-		if (minPrice != null) {
-			criteria.setMinPrice(minPrice);
-		}
-		if (maxPrice != null) {
-			criteria.setMaxPrice(maxPrice);
 		}
 
 		if (CollectionUtils.isNotEmpty(optionValueIds)) {
