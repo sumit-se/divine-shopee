@@ -19,6 +19,19 @@ import NotifyWhenAvailable from "./NotifyWhenAvailable";
 const SPECIAL_CATEGORY_CODE = "special";
 const SPECIAL_MAX_QUANTITY = 10;
 
+// Category-specific labels for the LAB_REPORT variant selector
+const LAB_REPORT_OPTION_CODE = "LAB_REPORT";
+const LAB_REPORT_CATEGORY_LABELS = {
+  "sphatik-products": "Choose your crystal",
+  "mala":             "Choose your mala",
+  "rudraksh-malla":   "Choose your mala",
+  "bracelets":        "Choose your bracelet",
+  "gemstones":        "Choose your stone",
+  "poojaproducts":    "Select your item",
+  "shankh":           "Select your piece",
+  "shivalingajalahari": "Select your piece",
+};
+
 const ProductDescriptionInfo = ({
   product,
   // currency,
@@ -291,6 +304,21 @@ const ProductDescriptionInfo = ({
   const visibleProductCategories = (product.categories || [])
     .filter(category => category.visible !== false);
 
+  // Returns the right selector label for an option. For LAB_REPORT, picks
+  // by category so e.g. Sphatik shows "Choose your crystal" not "Choose your bead".
+  const optionLabel = (option) => {
+    if (option.code !== LAB_REPORT_OPTION_CODE) return option.name;
+    const categoryCodes = (product.categories || []).map(c => c.code);
+    // Rudraksha and all its sub-categories (codes end with or equal "rudraksha"/"rudraksh")
+    if (categoryCodes.some(c => c === 'rudraksha' || c.endsWith('-rudraksha') || c === 'rudraksh-malla')) {
+      return option.name; // keep "Choose your bead"
+    }
+    for (const code of categoryCodes) {
+      if (LAB_REPORT_CATEGORY_LABELS[code]) return LAB_REPORT_CATEGORY_LABELS[code];
+    }
+    return "Select your piece"; // safe fallback for any unlisted category
+  };
+
   /*
    * A variant option is shown as compact chips -- price, size, weight -- when
    * that is what tells the choices apart: each value is a variant with its own
@@ -486,7 +514,7 @@ const ProductDescriptionInfo = ({
               return (
                 option.type === 'select' && beads &&
                 <div className="pro-details-beads" key={'beads-' + index}>
-                  <span>{option.name}</span>
+                  <span>{optionLabel(option)}</span>
                   <div className="bead-chips">
                     {beads.map(({ value, pricing, stock, size, weight }) => {
                       const selected = checkedOrNot(value);
@@ -522,7 +550,7 @@ const ProductDescriptionInfo = ({
               return (
                 option.type === 'select' && !beadChoices(option) &&
                 <div className="pro-details-size" key={index}>
-                  <span>{option.name}</span>
+                  <span>{optionLabel(option)}</span>
                   <div className="pro-details-size-content">
                     {
                       <select
