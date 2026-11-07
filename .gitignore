@@ -42,3 +42,4 @@ build.log
 run.log
 
 .mvnw/*.jar
+.claude/
