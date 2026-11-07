@@ -24,6 +24,11 @@ import ReactPaginate from 'react-paginate';
 import { visibleCategories } from '../../helpers/category';
 
 const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, currentLanguageCode, categoryID, routeSlug, setLoader, }) => {
+    // defaultStore arrives from redux via setMerchant(), which may not have
+    // resolved yet on a direct URL load or page refresh. Fall back to the
+    // runtime config (always correct) so the first API calls never go out with
+    // an empty store parameter and silently hit the wrong (DEFAULT) merchant.
+    const storeCode = defaultStore || window._env_.APP_MERCHANT;
     const [layout, setLayout] = useState('grid three-column');
     const history = useHistory();
     // const [sortType, setSortType] = useState('');
@@ -128,7 +133,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         let cancelled = false;
         const resolveSlug = async () => {
             const action = constant.ACTION.CATEGORY + 'friendly/' +
-                encodeURIComponent(routeSlug) + '?store=' + defaultStore +
+                encodeURIComponent(routeSlug) + '?store=' + storeCode +
                 '&lang=' + currentLanguageCode;
             try {
                 const response = await WebService.get(action);
@@ -155,7 +160,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         resolveSlug();
         return () => { cancelled = true; };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [routeSlug, defaultStore, currentLanguageCode]);
+    }, [routeSlug, storeCode, currentLanguageCode]);
 
     // Keyed on the id resolved FROM THE URL, never on redux directly. Redux is
     // persisted to localStorage, so on a cold load of /category/12-mukhi it
@@ -188,7 +193,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         setLoader(true)
         // setProductData([]);
         // let action = `${constant.ACTION.PRODUCTS} + '?store=' + defaultStore + '&lang=' + currentLanguageCode + '&start=' + offset + '&count=' + pageLimit + '&category=' + categoryID`;
-        let action = `${constant.ACTION.PRODUCTS}?${isCheckValueAndSetParams('&store=', defaultStore)}${isCheckValueAndSetParams('&lang=', currentLanguageCode)}${isCheckValueAndSetParams('&page=', offset)}${isCheckValueAndSetParams('&count=', pageLimit)}${isCheckValueAndSetParams('&category=', categoryid)}${isCheckValueAndSetParams('&optionValues=', size.join())}${isCheckValueAndSetParams('&manufacturer=', manufacture.join())}`;
+        let action = `${constant.ACTION.PRODUCTS}?${isCheckValueAndSetParams('&store=', storeCode)}${isCheckValueAndSetParams('&lang=', currentLanguageCode)}${isCheckValueAndSetParams('&page=', offset)}${isCheckValueAndSetParams('&count=', pageLimit)}${isCheckValueAndSetParams('&category=', categoryid)}${isCheckValueAndSetParams('&optionValues=', size.join())}${isCheckValueAndSetParams('&manufacturer=', manufacture.join())}`;
         try {
             let response = await WebService.get(action);
             if (requestId !== latestProductRequest.current) return;
@@ -205,7 +210,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         getCategoryDetails(categoryid)
     }
     const getCategoryDetails = async (categoryid) => {
-        let action = constant.ACTION.CATEGORY + categoryid + '?store=' + defaultStore + '&lang=' + currentLanguageCode;
+        let action = constant.ACTION.CATEGORY + categoryid + '?store=' + storeCode + '&lang=' + currentLanguageCode;
         try {
             let response = await WebService.get(action);
             // console.log(response.children);
@@ -229,7 +234,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         getManufacturers(categoryid)
     }
     const getManufacturers = async (categoryid) => {
-        let action = constant.ACTION.CATEGORY + categoryid + '/' + constant.ACTION.MANUFACTURERS + '?store=' + defaultStore + '&lang=' + currentLanguageCode
+        let action = constant.ACTION.CATEGORY + categoryid + '/' + constant.ACTION.MANUFACTURERS + '?store=' + storeCode + '&lang=' + currentLanguageCode
         try {
             let response = await WebService.get(action);
             //console.log(JSON.stringify(response));
@@ -241,7 +246,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         getVariants(categoryid)
     }
     const getVariants = async (categoryid) => {
-        let action = constant.ACTION.CATEGORY + categoryid + '/' + constant.ACTION.VARIANTS + '?store=' + defaultStore + '&lang=' + currentLanguageCode;
+        let action = constant.ACTION.CATEGORY + categoryid + '/' + constant.ACTION.VARIANTS + '?store=' + storeCode + '&lang=' + currentLanguageCode;
         try {
             let response = await WebService.get(action);
             // console.log(response);

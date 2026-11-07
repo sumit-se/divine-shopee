@@ -114,3 +114,4 @@ build/
 
 # Local backup files from edits
 backups/
+.claude/
