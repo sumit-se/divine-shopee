@@ -10,3 +10,4 @@ backups/
 # Environment
 .env
 *.env.local
+.claude/
