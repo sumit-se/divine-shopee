@@ -453,13 +453,9 @@
 			<artifactId>ehcache</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/javax.mail/javax.mail-api -->
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>javax.mail-api</artifactId>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/javax.mail/mail -->
+		<!-- javax.mail:mail:1.4.7 is the complete Sun JavaMail bundle (API + implementation).
+		     javax.mail-api is intentionally excluded: mixing it with mail:1.4.7 causes
+		     NoSuchMethodError on LineOutputStream when sending HTML email over SSL. -->
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
