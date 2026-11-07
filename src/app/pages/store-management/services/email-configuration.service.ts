@@ -33,8 +33,10 @@ export class EmailConfigurationService {
 
   /** Saving without a password keeps the one already stored. */
   saveEmailConfiguration(config: any): Observable<any> {
+    // POST /v1/private/configurations/email returns HTTP 200 with an empty body.
     return this.crudService.postWithStoreParam(
-      `/v1/private/configurations/email`, config, this.storageService.getMerchant());
+      `/v1/private/configurations/email`, config, this.storageService.getMerchant(),
+      { responseType: 'text' as 'json' });
   }
 
 }
