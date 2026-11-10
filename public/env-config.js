@@ -32,4 +32,6 @@ window._env_ = {
   APP_THEME_COLOR: "#7f0000",
   APP_BEAD_SIZE_UNIT: "mm",
   APP_BEAD_WEIGHT_UNIT: "g",
+  // Google Analytics 4 Measurement ID. Leave blank to disable GA (e.g. in dev).
+  APP_GA_MEASUREMENT_ID: "",
 }

@@ -24,6 +24,7 @@
 		"react-custom-scrollbars-2": "^4.4.0",
 		"react-dom": "^16.6.0",
 		"react-fullpage": "^0.1.19",
+		"react-ga4": "^3.0.1",
 		"react-geocode": "^0.2.2",
 		"react-hook-form": "^6.13.1",
 		"react-id-swiper": "^4.0.0",

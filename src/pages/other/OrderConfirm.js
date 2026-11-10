@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
+import ReactGA from "react-ga4";
 import { Link } from "react-router-dom";
 import MetaTags from "react-meta-tags";
 import { BreadcrumbsItem } from "react-breadcrumbs-dynamic";
@@ -10,6 +11,15 @@ import { multilanguage } from "redux-multilanguage";
 import { getLocalData } from "../../util/helper";
 const OrderConfirm = ({ location, orderID, strings, merchant }) => {
   const { pathname } = location;
+
+  useEffect(() => {
+    if (orderID && window._env_?.APP_GA_MEASUREMENT_ID) {
+      ReactGA.event("purchase", {
+        transaction_id: String(orderID),
+        currency: "INR",
+      });
+    }
+  }, [orderID]);
   // how the order was paid, saved by the checkout; a bank transfer / UPI order
   // still has to be paid, so the details are repeated here with the order id
   const payment = (() => {

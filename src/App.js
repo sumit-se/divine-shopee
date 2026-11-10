@@ -10,6 +10,8 @@ import { BreadcrumbsProvider } from "react-breadcrumbs-dynamic";
 import Loader from "./components/loader/loader"
 import Cookie from "./components/consent/Cookie"
 import Cookies from 'universal-cookie';
+import ReactGA from "react-ga4";
+import GAPageTracker from "./components/analytics/GAPageTracker";
 
 
 import {
@@ -53,6 +55,13 @@ const App = (props) => {
 
 
   useEffect(() => {
+    const measurementId = window._env_?.APP_GA_MEASUREMENT_ID;
+    if (measurementId) {
+      ReactGA.initialize(measurementId);
+    }
+  }, []);
+
+  useEffect(() => {
     var cart_cookie = window._env_.APP_MERCHANT + '_shopizer_cart';
     const cookies = new Cookies();
     let cookie = cookies.get(cart_cookie);
@@ -81,6 +90,7 @@ const App = (props) => {
       <BreadcrumbsProvider>
         <Router>
 
+          <GAPageTracker />
           <Loader></Loader>
           <Cookie></Cookie>
           <ScrollToTop>
