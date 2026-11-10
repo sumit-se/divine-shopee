@@ -175,7 +175,12 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         setSize([])
         setSelectedManufature([])
         setSelectedOption([])
+        // Fire all four requests in parallel: products are independent of the
+        // sidebar data (details, manufacturers, variants) and vice-versa.
         getProductList(activeCategoryId, [], [])
+        getCategoryDetails(activeCategoryId)
+        getManufacturers(activeCategoryId)
+        getVariants(activeCategoryId)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeCategoryId, offset]);
     const clearFilters = () => {
@@ -191,8 +196,6 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         // order; only the most recent request may write to the page.
         const requestId = ++latestProductRequest.current;
         setLoader(true)
-        // setProductData([]);
-        // let action = `${constant.ACTION.PRODUCTS} + '?store=' + defaultStore + '&lang=' + currentLanguageCode + '&start=' + offset + '&count=' + pageLimit + '&category=' + categoryID`;
         let action = `${constant.ACTION.PRODUCTS}?${isCheckValueAndSetParams('&store=', storeCode)}${isCheckValueAndSetParams('&lang=', currentLanguageCode)}${isCheckValueAndSetParams('&page=', offset)}${isCheckValueAndSetParams('&count=', pageLimit)}${isCheckValueAndSetParams('&category=', categoryid)}${isCheckValueAndSetParams('&optionValues=', size.join())}${isCheckValueAndSetParams('&manufacturer=', manufacture.join())}`;
         try {
             let response = await WebService.get(action);
@@ -206,16 +209,12 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         } catch (error) {
             setLoader(false)
         }
-
-        getCategoryDetails(categoryid)
     }
     const getCategoryDetails = async (categoryid) => {
         let action = constant.ACTION.CATEGORY + categoryid + '?store=' + storeCode + '&lang=' + currentLanguageCode;
         try {
             let response = await WebService.get(action);
-            // console.log(response.children);
             if (response) {
-                //console.log(response);
                 // No history.push here. It used to rewrite the address bar to
                 // response.description.friendlyUrl -- a bare slug, not a path,
                 // so /category/rudraksha became /rudraksha -- and once the id
@@ -223,27 +222,22 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
                 // redirecting a cold load to whatever category redux had cached.
                 // Clicks already push their own URL in getCategoryParams.
                 setProductDetails(response);
-                // let temp = response.children;
-                // console.log(temp)
                 // the sidebar lists these as filters, so a hidden one would
                 // put the category back into the navigation by another door
                 setSubCategory(visibleCategories(response.children));
             }
         } catch (error) {
         }
-        getManufacturers(categoryid)
     }
     const getManufacturers = async (categoryid) => {
         let action = constant.ACTION.CATEGORY + categoryid + '/' + constant.ACTION.MANUFACTURERS + '?store=' + storeCode + '&lang=' + currentLanguageCode
         try {
             let response = await WebService.get(action);
-            //console.log(JSON.stringify(response));
             if (response) {
                 setManufacture(response.sort())
             }
         } catch (error) {
         }
-        getVariants(categoryid)
     }
     const getVariants = async (categoryid) => {
         let action = constant.ACTION.CATEGORY + categoryid + '/' + constant.ACTION.VARIANTS + '?store=' + storeCode + '&lang=' + currentLanguageCode;
