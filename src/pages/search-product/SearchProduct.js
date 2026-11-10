@@ -14,6 +14,7 @@ import constant from '../../util/constant';
 import { setLoader } from "../../redux/actions/loaderActions";
 import { setCategoryID } from "../../redux/actions/productActions";
 import { multilanguage } from "redux-multilanguage";
+import ReactGA from "react-ga4";
 
 // Products per page — matches the category page limit.
 const PAGE_SIZE = 15;
@@ -52,6 +53,9 @@ const SearchProduct = ({ strings, location, defaultStore, currentLanguageCode, s
                 if (!cancelled) {
                     setProductData((response && response.products) || []);
                     setTotalProduct((response && response.recordsTotal) || 0);
+                    if (window._env_?.APP_GA_MEASUREMENT_ID) {
+                      ReactGA.event("search", { search_term: searchID });
+                    }
                 }
             } catch {
                 if (!cancelled) { setProductData([]); setTotalProduct(0); }

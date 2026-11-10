@@ -16,6 +16,7 @@ import { productRedirect } from '../../util/redirects';
 import { setLoader } from "../../redux/actions/loaderActions";
 import { multilanguage } from "redux-multilanguage";
 import { Link } from "react-router-dom";
+import ReactGA from "react-ga4";
 const ProductDetails = ({ strings, location, productID, currentLanguageCode, setLoader, defaultStore }) => {
   const { pathname } = location;
   const [productDetails, setProductDetails] = useState();
@@ -57,6 +58,17 @@ const ProductDetails = ({ strings, location, productID, currentLanguageCode, set
       if (response) {
         setProductDetails(response)
         setLoader(false)
+        if (window._env_?.APP_GA_MEASUREMENT_ID) {
+          ReactGA.event("view_item", {
+            currency: "INR",
+            value: response.price || 0,
+            items: [{
+              item_id: String(response.sku || response.id),
+              item_name: response.description?.name || "",
+              price: response.price || 0,
+            }],
+          });
+        }
         return response;
       }
     } catch (error) {

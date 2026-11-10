@@ -25,6 +25,7 @@ import {
 } from "../../redux/actions/cartActions";
 import Script from 'react-load-script';
 import { multilanguage } from "redux-multilanguage";
+import ReactGA from "react-ga4";
 
 
 
@@ -329,6 +330,12 @@ const Checkout = ({shipStateData, isLoading, currentLanguageCode, merchant, stri
       }))
       .catch(() => setBankTransfer({ active: false, details: null }));
   }, [defaultStore]);
+  useEffect(() => {
+    if (window._env_?.APP_GA_MEASUREMENT_ID) {
+      ReactGA.event("begin_checkout");
+    }
+  }, []);
+
   useEffect(() => {
     getSummaryOrder()
     // getNuviePayment()

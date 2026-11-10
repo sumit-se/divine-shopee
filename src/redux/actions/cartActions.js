@@ -1,5 +1,6 @@
 import WebService from '../../util/webService';
 import constant from '../../util/constant';
+import ReactGA from "react-ga4";
 
 import { setLoader } from "../actions/loaderActions";
 import { setLocalData, getLocalData } from '../../util/helper';
@@ -56,6 +57,18 @@ export const addToCart = (item, addToast, cartId, quantityCount, defaultStore, u
          * before it landed.
          */
         dispatch({ type: GET_CART, payload: response });
+        if (window._env_?.APP_GA_MEASUREMENT_ID) {
+          ReactGA.event("add_to_cart", {
+            currency: "INR",
+            value: (item.price || 0) * quantityCount,
+            items: [{
+              item_id: String(item.sku || item.id),
+              item_name: item.description?.name || item.name || "",
+              price: item.price || 0,
+              quantity: quantityCount,
+            }],
+          });
+        }
         if (userData) {
           setTimeout(() => {
             dispatch(getCart(response.code, userData));
