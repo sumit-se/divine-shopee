@@ -171,9 +171,9 @@ export class CategoryFormComponent implements OnInit {
       control.push(
         this.fb.group({
           language: [lang.code, [Validators.required]],
-          name: ['', [Validators.required]],
+          name: [''],
           highlights: [''],
-          friendlyUrl: ['', [Validators.required]],
+          friendlyUrl: [''],
           description: [''],
           title: [''],
           metaDescription: [''],
