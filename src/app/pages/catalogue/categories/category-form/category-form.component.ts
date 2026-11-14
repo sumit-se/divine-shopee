@@ -60,6 +60,7 @@ export class CategoryFormComponent implements OnInit {
   //loader image
   loader = false;
   loading = false;
+  rootsLoaded = false;
 
   //category code must be unique
   isCodeUnique = true;
@@ -118,6 +119,7 @@ export class CategoryFormComponent implements OnInit {
         });
         //this.roots = [...res.categories];
         //console.log(JSON.stringify(this.roots));
+        this.rootsLoaded = true;
       });
     this.loader = true;
  
@@ -274,6 +276,9 @@ export class CategoryFormComponent implements OnInit {
   private prepareSaveData() {
     const data = this.form.value;
     const category = this.roots.find((el) => el.code === data.parent);
+    if (!category) {
+      return null;
+    }
     data.parent = { id: category.id, code: category.code };
 
     return data;
@@ -282,6 +287,11 @@ export class CategoryFormComponent implements OnInit {
   save() {
     this.loading = true;
     const categoryObject = this.prepareSaveData();
+    if (!categoryObject) {
+      this.loading = false;
+      this.toastr.error(this.translate.instant('COMMON.FILL_REQUIRED_FIELDS'));
+      return;
+    }
 
     if (!this.isSuperAdmin) {
       this.form.patchValue({ store: this.merchant });
