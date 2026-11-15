@@ -128,7 +128,7 @@ export class VariantFormComponent implements OnInit {
   createForm() {
     this.form = this.fb.group({
       // variant
-      sku: ['', [Validators.required, Validators.pattern(validators.alphanumeric)]],
+      sku: ['', [Validators.required, Validators.pattern(validators.alphanumericwithhyphen)]],
       variation: ['', [Validators.required]],
       variationValue: [''],
       dateAvailable: [new Date()],
