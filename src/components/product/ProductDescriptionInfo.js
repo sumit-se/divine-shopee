@@ -552,7 +552,12 @@ const ProductDescriptionInfo = ({
                 <div className="pro-details-beads" key={index}>
                   <span>{optionLabel(option)}</span>
                   <div className="bead-chips">
-                    {option.optionValues.map((value, i) => {
+                    {[...option.optionValues].sort((a, b) => {
+                      const na = Number(a.description?.name);
+                      const nb = Number(b.description?.name);
+                      if (!isNaN(na) && !isNaN(nb)) return na - nb;
+                      return (a.description?.name || '').localeCompare(b.description?.name || '');
+                    }).map((value, i) => {
                       const selected = checkedOrNot(value);
                       const variant = (product.variants || []).find(v => v.id === value.id);
                       const isSoldOut = variant ? variantStock(variant) <= 0 : false;
