@@ -519,7 +519,7 @@ const ProductDescriptionInfo = ({
                     {beads.map(({ value, pricing, stock, size, weight, image }) => {
                       const selected = checkedOrNot(value);
                       const beadSoldOut = stock <= 0;
-                      const isColorChip = option.code === 'COLOR';
+                      const isColorChip = option.code === 'COLOR' || option.code === 'COLOUR';
                       // the lab report number stays one hover or long-press away
                       const code = (option.code === 'LAB_REPORT' ? (strings["Lab report"] || "Lab report") + ": " : "")
                         + value.description.name;
