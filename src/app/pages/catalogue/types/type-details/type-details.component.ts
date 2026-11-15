@@ -62,37 +62,48 @@ export class TypeDetailsComponent implements OnInit {
     const types$ = this.typesService.getType(typeId, param)
     const config$ = this.configService.getListOfSupportedLanguages(localStorage.getItem('merchant'));
     forkJoin([types$, config$])
-      .subscribe(([productType, languages]) => {
+      .subscribe(
+        ([productType, languages]) => {
+          this.type.id = productType.id;
+          this.type.code = productType.code;
+          this.type.allowAddToCart = productType.allowAddToCart;
+          this.type.visible = productType.visible;
+          this.type.description = productType.description;
+          this.type.descriptions = productType.descriptions;
 
-        this.type.id = productType.id;
-        this.type.code = productType.code;
-        this.type.allowAddToCart = productType.allowAddToCart;
-        this.type.visible = productType.visible;
-        this.type.description = productType.description;
-        this.type.descriptions = productType.descriptions;
+          this.isReadonlyCode = true;
+          this.languages = [...languages];
+          this.createForm();
+          this.addFormArray();
+          if(this.type) {
+            this.fillForm();
+          }
 
-        this.isReadonlyCode = true;
-        this.languages = [...languages];
-        this.createForm();
-        this.addFormArray();
-        if(this.type) {
-          this.fillForm();
+          this.loading = false;
+          this.loaded = true;
+        },
+        _err => {
+          this.loading = false;
+          this.toastr.error(this.translate.instant('COMMON.ERROR'));
+          this.router.navigate(['pages/catalogue/types/types-list']);
         }
-
-        this.loading = false;
-        this.loaded = true;
-
-      
-    });
+      );
   } else {
-    const config$ = this.configService.getListOfSupportedLanguages(localStorage.getItem('merchant'))
-      .subscribe((languages) => {
-        this.languages = [...languages];
-        this.createForm();
-        this.addFormArray();
-        this.loading = false;
-        this.loaded = true;
-    });
+    this.configService.getListOfSupportedLanguages(localStorage.getItem('merchant'))
+      .subscribe(
+        (languages) => {
+          this.languages = [...languages];
+          this.createForm();
+          this.addFormArray();
+          this.loading = false;
+          this.loaded = true;
+        },
+        _err => {
+          this.loading = false;
+          this.toastr.error(this.translate.instant('COMMON.ERROR'));
+          this.router.navigate(['pages/catalogue/types/types-list']);
+        }
+      );
   }
 
 

@@ -15,8 +15,7 @@ export class CategoriesHierarchyComponent implements OnInit {
   options = {
     allowDrag: true
   }
-  loader = false;
-  loading: boolean = false;
+  loading = false;
   params = this.loadParams();
 
   constructor(
@@ -41,15 +40,21 @@ export class CategoriesHierarchyComponent implements OnInit {
 
   getList() {
     // TODO need possibility to get all items at once
-    this.loader = true;
+    this.loading = true;
     this.categoryService.getListOfCategories(this.params)
-      .subscribe(res => {
-        res.categories.forEach((el) => {
-          this.transformList(el);
-        });
-        this.nodes = res.categories
-        this.loader = false;
-      });
+      .subscribe(
+        res => {
+          res.categories.forEach((el) => {
+            this.transformList(el);
+          });
+          this.nodes = res.categories;
+          this.loading = false;
+        },
+        _err => {
+          this.loading = false;
+          this.toastr.error(this.translate.instant('COMMON.ERROR'));
+        }
+      );
   }
 
   transformList(node) {
@@ -74,9 +79,14 @@ export class CategoriesHierarchyComponent implements OnInit {
     }
 
     this.categoryService.updateHierarchy(event.node.id, parentId)
-      .subscribe(res => {
-        this.toastr.success(this.translate.instant('CATEGORY.HIERARCHY_UPDATED'));
-      });
+      .subscribe(
+        _res => {
+          this.toastr.success(this.translate.instant('CATEGORY.HIERARCHY_UPDATED'));
+        },
+        _err => {
+          this.toastr.error(this.translate.instant('COMMON.ERROR'));
+        }
+      );
   }
 
 }

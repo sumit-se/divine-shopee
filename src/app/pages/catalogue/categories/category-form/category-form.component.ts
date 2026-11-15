@@ -99,42 +99,56 @@ export class CategoryFormComponent implements OnInit {
     this.merchant = this.storageService.getMerchant();
     //for populating stores dropdown list
     this.storeService.getListOfMerchantStoreNames({ 'store': '' })
-      .subscribe(res => {
-        this.stores = res;
-      });
+      .subscribe(
+        res => {
+          this.stores = res;
+        },
+        _err => {
+          this.toastr.error(this.translate.instant('COMMON.ERROR'));
+        }
+      );
 
     //for selecting parent category - root or child of a parent
     this.categoryService.getListOfCategories(this.params)
-      .subscribe(res => {
-        res.categories.push({ id: 0, code: 'root', children: [] });
-        res.categories.forEach((el) => {
-          this.getChildren(el);
-        });
-        this.roots.sort((a, b) => {
-          if (a.code < b.code)
-            return -1;
-          if (a.code > b.code)
-            return 1;
-          return 0;
-        });
-        //this.roots = [...res.categories];
-        //console.log(JSON.stringify(this.roots));
-        this.rootsLoaded = true;
-      });
+      .subscribe(
+        res => {
+          res.categories.push({ id: 0, code: 'root', children: [] });
+          res.categories.forEach((el) => {
+            this.getChildren(el);
+          });
+          this.roots.sort((a, b) => {
+            if (a.code < b.code)
+              return -1;
+            if (a.code > b.code)
+              return 1;
+            return 0;
+          });
+          this.rootsLoaded = true;
+        },
+        _err => {
+          this.toastr.error(this.translate.instant('COMMON.ERROR'));
+        }
+      );
     this.loader = true;
- 
+
     //determines how many languages should be supported
     this.configService.getListOfSupportedLanguages(localStorage.getItem('merchant'))
-      .subscribe(res => {
-        this.languages = [...res];
-        this.createForm();
-        this.addFormArray();
-        this.fillEmptyForm();
-        if (this.category.id) {
-          this.fillForm();
+      .subscribe(
+        res => {
+          this.languages = [...res];
+          this.createForm();
+          this.addFormArray();
+          this.fillEmptyForm();
+          if (this.category.id) {
+            this.fillForm();
+          }
+          this.loader = false;
+        },
+        _err => {
+          this.loader = false;
+          this.toastr.error(this.translate.instant('COMMON.ERROR'));
         }
-        this.loader = false;
-      });
+      );
   }
 
   getChildren(node) {

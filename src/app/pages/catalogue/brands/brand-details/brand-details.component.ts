@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+import { TranslateService } from '@ngx-translate/core';
 
 import { BrandService } from '../services/brand.service';
 
@@ -10,22 +12,32 @@ import { BrandService } from '../services/brand.service';
 })
 export class BrandDetailsComponent implements OnInit {
   brand: any = {};
-  loadingInfo = false;
+  loading = false;
 
   constructor(
     private brandService: BrandService,
     private activatedRoute: ActivatedRoute,
+    private router: Router,
+    private toastr: ToastrService,
+    private translate: TranslateService,
   ) {
   }
 
   ngOnInit() {
-    this.loadingInfo = true;
+    this.loading = true;
     const id = this.activatedRoute.snapshot.paramMap.get('id');
     this.brandService.getBrandById(id)
-      .subscribe(brand => {
-        this.brand = brand;
-        this.loadingInfo = false;
-      });
+      .subscribe(
+        brand => {
+          this.brand = brand;
+          this.loading = false;
+        },
+        _err => {
+          this.loading = false;
+          this.toastr.error(this.translate.instant('COMMON.ERROR'));
+          this.router.navigate(['pages/catalogue/brands/brands-list']);
+        }
+      );
   }
 
 }
