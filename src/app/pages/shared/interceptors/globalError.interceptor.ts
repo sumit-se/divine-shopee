@@ -7,7 +7,7 @@ import {
 } from '@angular/common/http';
 
 import { Observable, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../auth/services/auth.service';
@@ -27,7 +27,6 @@ export class GlobalHttpInterceptorService implements HttpInterceptor {
     Observable<HttpEvent<any>> {
 
     return next.handle(req).pipe(
-      retry(1),
       catchError((error) => {
         let errorMessage = '';
         console.log('In error ** ' + error.status);
@@ -45,7 +44,7 @@ export class GlobalHttpInterceptorService implements HttpInterceptor {
             ${this.translate.instant('COMMON.MESSAGE')}: ${error.message}`;
           }
           if (error.status !== 404) {
-            this.toastr.error(errorMessage, this.translate.instant('COMMON.ERROR'));
+            // toastr handled at component level to avoid duplicates
             if (error.status === 500)
               this.router.navigate(['/pages/error-500']);
           }
