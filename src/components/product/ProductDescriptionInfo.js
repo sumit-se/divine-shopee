@@ -516,9 +516,10 @@ const ProductDescriptionInfo = ({
                 <div className="pro-details-beads" key={'beads-' + index}>
                   <span>{optionLabel(option)}</span>
                   <div className="bead-chips">
-                    {beads.map(({ value, pricing, stock, size, weight }) => {
+                    {beads.map(({ value, pricing, stock, size, weight, image }) => {
                       const selected = checkedOrNot(value);
                       const beadSoldOut = stock <= 0;
+                      const isColorChip = option.code === 'COLOR';
                       // the lab report number stays one hover or long-press away
                       const code = (option.code === 'LAB_REPORT' ? (strings["Lab report"] || "Lab report") + ": " : "")
                         + value.description.name;
@@ -527,15 +528,24 @@ const ProductDescriptionInfo = ({
                         <button
                           type="button"
                           key={value.id}
-                          className={"bead-chip" + (selected ? " selected" : "") + (beadSoldOut ? " sold-out" : "")}
+                          className={"bead-chip" + (selected ? " selected" : "") + (beadSoldOut ? " sold-out" : "") + (isColorChip ? " color-chip" : "")}
                           aria-pressed={selected}
                           disabled={beadSoldOut}
                           title={beadSoldOut ? code + " – " + (strings["Sold out"] || "Sold out") : code}
                           onClick={() => onChangeOptions(value, option)}>
-                          {pricing && <b>{pricing.final.replace(/\.00$/, '')}</b>}
-                          {details && <span>{details}</span>}
-                          {/* nothing measured to tell it apart: fall back to its name */}
-                          {!details && <span>{value.description.name}</span>}
+                          {isColorChip ? (
+                            <>
+                              {image && <img src={image} alt={value.description.name} className="color-chip-img" />}
+                              <span>{value.description.name}</span>
+                            </>
+                          ) : (
+                            <>
+                              {pricing && <b>{pricing.final.replace(/\.00$/, '')}</b>}
+                              {details && <span>{details}</span>}
+                              {/* nothing measured to tell it apart: fall back to its name */}
+                              {!details && <span>{value.description.name}</span>}
+                            </>
+                          )}
                         </button>
                       );
                     })}

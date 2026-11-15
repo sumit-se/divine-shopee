@@ -967,6 +967,21 @@
       cursor: not-allowed;
       text-decoration: line-through;
     }
+
+    &.color-chip {
+      align-items: center;
+      padding: 5px 12px 5px 5px;
+      gap: 7px;
+    }
+
+    .color-chip-img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      flex-shrink: 0;
+    }
   }
 }
 
