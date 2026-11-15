@@ -549,32 +549,26 @@ const ProductDescriptionInfo = ({
             product.options.map((option, index) => {
               return (
                 option.type === 'select' && !beadChoices(option) &&
-                <div className="pro-details-size" key={index}>
+                <div className="pro-details-beads" key={index}>
                   <span>{optionLabel(option)}</span>
-                  <div className="pro-details-size-content">
-                    {
-                      <select
-                        value={selectedValueFor(option)}
-                        onChange={(e) => {
-                          if (!e.target.value) return;
-                          onChangeOptions(JSON.parse(e.target.value), option)
-                        }}>
-                        {/*
-                          A placeholder first entry. Without it a <select> shows
-                          its first real entry as though it were chosen, while
-                          nothing is actually selected in state -- so the shopper
-                          sees "Variant A" and is then told to pick a variant.
-                        */}
-                        <option value="">{"Select " + option.name}</option>
-                        {
-
-                          option.optionValues.map((singleSize, i) => {
-                            return <option key={i} value={JSON.stringify(singleSize)}>{singleSize.description.name}  {singleSize.price && '(' + singleSize.price + ')'}</option>
-                          })
-                        }
-                      </select>
-
-                    }
+                  <div className="bead-chips">
+                    {option.optionValues.map((value, i) => {
+                      const selected = checkedOrNot(value);
+                      const variant = (product.variants || []).find(v => v.id === value.id);
+                      const isSoldOut = variant ? variantStock(variant) <= 0 : false;
+                      return (
+                        <button
+                          type="button"
+                          key={i}
+                          className={"bead-chip" + (selected ? " selected" : "") + (isSoldOut ? " sold-out" : "")}
+                          aria-pressed={selected}
+                          disabled={isSoldOut}
+                          onClick={() => onChangeOptions(value, option)}>
+                          <span>{value.description.name}</span>
+                          {value.price && <b>{value.price}</b>}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )
