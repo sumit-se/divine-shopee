@@ -35,7 +35,9 @@ export class BrandDetailsComponent implements OnInit {
         _err => {
           this.loading = false;
           this.toastr.error(this.translate.instant('COMMON.ERROR'));
-          this.router.navigate(['pages/catalogue/brands/brands-list']);
+          if (_err.status === 404) {
+            this.router.navigate(['pages/catalogue/brands/brands-list']);
+          }
         }
       );
   }

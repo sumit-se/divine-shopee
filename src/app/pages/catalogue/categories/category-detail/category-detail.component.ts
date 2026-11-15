@@ -35,7 +35,9 @@ export class CategoryDetailComponent implements OnInit {
         _err => {
           this.loading = false;
           this.toastr.error(this.translate.instant('COMMON.ERROR'));
-          this.router.navigate(['pages/catalogue/categories/categories-list']);
+          if (_err.status === 404) {
+            this.router.navigate(['pages/catalogue/categories/categories-list']);
+          }
         }
       );
   }

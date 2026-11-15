@@ -85,7 +85,9 @@ export class TypeDetailsComponent implements OnInit {
         _err => {
           this.loading = false;
           this.toastr.error(this.translate.instant('COMMON.ERROR'));
-          this.router.navigate(['pages/catalogue/types/types-list']);
+          if (_err.status === 404) {
+            this.router.navigate(['pages/catalogue/types/types-list']);
+          }
         }
       );
   } else {
@@ -101,7 +103,6 @@ export class TypeDetailsComponent implements OnInit {
         _err => {
           this.loading = false;
           this.toastr.error(this.translate.instant('COMMON.ERROR'));
-          this.router.navigate(['pages/catalogue/types/types-list']);
         }
       );
   }
