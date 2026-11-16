@@ -177,8 +177,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		/** Update cart in database with line items **/
 		shoppingCartService.saveOrUpdate(cartModel);
 
-		// refresh cart
-		cartModel = shoppingCartService.getById(cartModel.getId(), store);
+		// Skip getById refresh: products are already fully loaded on cartModel line
+		// items from createCartItem (first getBySku) and from getShoppingCartModel for
+		// existing items. getById triggers a second getBySku per item which runs a
+		// 25-join Hibernate query — for products with many combined SIZE+COLOUR
+		// variants this takes 90+ seconds and hangs the request.
+		// cartModel = shoppingCartService.getById(cartModel.getId(), store);
 
 		shoppingCartCalculationService.calculate(cartModel, store, language);
 
