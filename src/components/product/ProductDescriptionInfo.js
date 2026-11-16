@@ -196,17 +196,46 @@ const ProductDescriptionInfo = ({
   //
   // When combined variants exist (variation + variationValue both set), prefer
   // those — the cart then tracks both SIZE (pricing) and COLOUR (display) in one
-  // line. Fall back to single-dimension matching for products without them.
+  // line.
+  //
+  // IMPORTANT: When combined variants are present, Shopizer uses the combined
+  // variant IDs as the option value IDs in product.options (e.g. SIZE S2 → id
+  // 1575 = the S2-Yellow combined variant). The combined variant's own
+  // v.variation.optionValue.id is a different number (the variation entity's
+  // option-value ID). ID-based matching therefore fails; match by NAME instead.
   const selectedVariant = (() => {
     const variants = product.variants || [];
-    const combined = variants.find(v =>
-      v.variationValue &&
-      v.variation && v.variation.optionValue &&
-      v.variationValue.optionValue &&
-      selectedProductColor.some(c => c.id === v.variation.optionValue.id) &&
-      selectedProductColor.some(c => c.id === v.variationValue.optionValue.id)
-    );
-    if (combined) return combined;
+    const opts = product.options || [];
+
+    const getSelectedName = (optCode) => {
+      const opt = opts.find(o => o.code === optCode);
+      if (!opt) return null;
+      const sel = selectedProductColor.find(a => a.name === opt.name);
+      if (!sel) return null;
+      const val = (opt.optionValues || []).find(v => v.id === sel.id);
+      return val && val.description && val.description.name;
+    };
+
+    const sizeName   = getSelectedName('SIZE');
+    const colourName = getSelectedName('COLOR') || getSelectedName('COLOUR');
+
+    if (sizeName && colourName) {
+      const combined = variants.find(v =>
+        v.variationValue &&
+        v.variation && v.variation.optionValue && v.variation.optionValue.name === sizeName &&
+        v.variationValue.optionValue && v.variationValue.optionValue.name === colourName
+      );
+      if (combined) return combined;
+    }
+
+    if (sizeName) {
+      const single = variants.find(v =>
+        !v.variationValue &&
+        v.variation && v.variation.optionValue && v.variation.optionValue.name === sizeName
+      );
+      if (single) return single;
+    }
+
     return variants.find(v => selectedProductColor.some(c => c.id === v.id));
   })();
 
