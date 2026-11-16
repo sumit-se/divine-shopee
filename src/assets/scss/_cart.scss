@@ -81,6 +81,22 @@ h3.cart-page-title {
             color: $theme-color;
           }
         }
+
+        .cart-item-variant {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-top: 4px;
+
+          .cart-item-size,
+          .cart-item-colour {
+            font-size: 12px;
+            color: #666;
+            background: #f4f4f4;
+            border-radius: 3px;
+            padding: 1px 6px;
+          }
+        }
       }
 
       td.product-price-cart {

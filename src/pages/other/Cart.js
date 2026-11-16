@@ -290,6 +290,29 @@ const Cart = ({
                                   <Link to={productLink}>
                                     {cartItem.description.name}
                                   </Link>
+                                  {(() => {
+                                    const v = cartItem.variant;
+                                    const optCode = v && v.option && v.option.code;
+                                    const valueName = v && v.optionValue && v.optionValue.name;
+                                    // After combined variants are created the colour comes from variationValue
+                                    const colourFromApi = cartItem.variationValue && cartItem.variationValue.optionValue && cartItem.variationValue.optionValue.name;
+                                    // Fallback: colour saved to localStorage at add-to-cart time (SIZE only)
+                                    const colourFromStorage = optCode === 'SIZE' && valueName
+                                      ? (() => { try { return localStorage.getItem('cart_colour_' + cartItem.sku + '_' + valueName); } catch (e) { return null; } })()
+                                      : null;
+                                    const colourName = colourFromApi || colourFromStorage;
+                                    if (!valueName && !colourName) return null;
+                                    return (
+                                      <div className="cart-item-variant">
+                                        {valueName && (
+                                          <span className="cart-item-size">
+                                            {optCode === 'SIZE' ? 'Size ' + valueName : valueName}
+                                          </span>
+                                        )}
+                                        {colourName && <span className="cart-item-colour">{colourName}</span>}
+                                      </div>
+                                    );
+                                  })()}
                                   {!userData && cartItem.memberExclusiveEnabled && (
                                     <div className="member-discount-cart-notice">
                                       <span>&#128274;</span>

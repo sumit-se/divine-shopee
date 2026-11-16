@@ -193,9 +193,22 @@ const ProductDescriptionInfo = ({
 
   // Option values built from variants carry the variant's own id, so a chosen
   // value points straight at the variant behind it.
-  const selectedVariant = (product.variants || []).find(variant =>
-    selectedProductColor.some(chosen => chosen.id === variant.id)
-  );
+  //
+  // When combined variants exist (variation + variationValue both set), prefer
+  // those — the cart then tracks both SIZE (pricing) and COLOUR (display) in one
+  // line. Fall back to single-dimension matching for products without them.
+  const selectedVariant = (() => {
+    const variants = product.variants || [];
+    const combined = variants.find(v =>
+      v.variationValue &&
+      v.variation && v.variation.optionValue &&
+      v.variationValue.optionValue &&
+      selectedProductColor.some(c => c.id === v.variation.optionValue.id) &&
+      selectedProductColor.some(c => c.id === v.variationValue.optionValue.id)
+    );
+    if (combined) return combined;
+    return variants.find(v => selectedProductColor.some(c => c.id === v.id));
+  })();
 
   // tell the page which variant is chosen, and whether the shopper chose it,
   // so the gallery can add its images and decide which photo to open on
@@ -840,6 +853,25 @@ const ProductDescriptionInfo = ({
                     );
                     return;
                   }
+
+                  // Store the chosen colour in localStorage so Cart.js can
+                  // display it until combined variants replace this workaround.
+                  try {
+                    const colOpt = (product.options || []).find(o => o.code === 'COLOR' || o.code === 'COLOUR');
+                    const szOpt  = (product.options || []).find(o => o.code === 'SIZE');
+                    const chosenCol = colOpt && selectedProductColor.find(a => a.name === colOpt.name);
+                    const chosenSz  = szOpt  && selectedProductColor.find(a => a.name === szOpt.name);
+                    if (chosenCol && chosenSz) {
+                      const colVal = colOpt.optionValues.find(v => v.id === chosenCol.id);
+                      const szVal  = szOpt.optionValues.find(v => v.id === chosenSz.id);
+                      if (colVal && szVal) {
+                        localStorage.setItem(
+                          'cart_colour_' + product.sku + '_' + szVal.description.name,
+                          colVal.description.name
+                        );
+                      }
+                    }
+                  } catch (_) {}
 
                   addToCart(
                     product,
