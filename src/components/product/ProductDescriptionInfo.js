@@ -868,10 +868,14 @@ const ProductDescriptionInfo = ({
                     // one bead in the cart blocked adding a different bead of
                     // the same product.
                     //
-                    // Matched on `code`: the cart line's variant.id is the id of
-                    // the variation (the option/value pair), not of the variant,
-                    // so the ids on the two sides are different numbers.
+                    // For combined SIZE+COLOUR variants the cart stores only the
+                    // SIZE axis code in line.variant.code, which differs from the
+                    // combined variant's own code. Match on variantSku instead,
+                    // which round-trips correctly. Fall back to code for single-
+                    // axis products that pre-date variantSku.
                     if (!selectedVariant) return true;
+                    if (line.variantSku && selectedVariant.sku)
+                      return line.variantSku === selectedVariant.sku;
                     return (
                       line.variant &&
                       selectedVariant.code &&
@@ -1124,17 +1128,22 @@ const mapDispatchToProps = dispatch => {
 
       // The existing line only counts when it holds the same variant; matching
       // on the product alone sent the other variant's quantity along and the
-      // second variant could never be added as its own line. Variant lines are
-      // compared by code, since the cart reports the variation's id there.
-      const variantCode = (item.variants || []).reduce(
-        (found, v) => (found || (selectedVariant && v.id === selectedVariant ? v.code : null)),
-        null
-      );
+      // second variant could never be added as its own line.
+      //
+      // For combined SIZE+COLOUR variants the cart stores only the SIZE axis
+      // code in cart.variant.code, which differs from the combined variant's
+      // own code. Match on variantSku (ProductVariant.sku) instead, which
+      // survives the round-trip. Fall back to code for older single-axis data.
+      const matchedVariant = selectedVariant != null
+        ? (item.variants || []).find(v => v.id === selectedVariant)
+        : null;
       let index = isValidObject(cartItem)
         ? cartItem.products.findIndex(cart => {
             if (cart.id !== item.id) return false;
-            if (!variantCode) return !cart.variant;
-            return cart.variant && cart.variant.code === variantCode;
+            if (!matchedVariant) return !cart.variantSku && !cart.variant;
+            if (cart.variantSku && matchedVariant.sku)
+              return cart.variantSku === matchedVariant.sku;
+            return cart.variant && cart.variant.code === matchedVariant.code;
           })
         : -1;
       dispatch(
