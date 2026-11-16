@@ -246,7 +246,26 @@ const ProductDescriptionInfo = ({
   // no bead left to buy, so the gallery keeps to the product's own photos)
   const soldOutRef = React.useRef(false);
   useEffect(() => {
-    if (onVariantChange) onVariantChange(soldOutRef.current ? null : (selectedVariant || null), pickedByShopper);
+    if (!onVariantChange) return;
+    let variantForImages = soldOutRef.current ? null : (selectedVariant || null);
+    // Combined variants (SIZE+COLOUR) carry images only on the COLOUR-representative
+    // row (the smallest size for each colour). When the chosen variant has no images,
+    // find a sibling with the same colour that does, so the gallery updates.
+    if (variantForImages && (!variantForImages.images || variantForImages.images.length === 0)) {
+      const colourName = variantForImages.variationValue &&
+                         variantForImages.variationValue.optionValue &&
+                         variantForImages.variationValue.optionValue.name;
+      if (colourName) {
+        const withImage = (product.variants || []).find(v =>
+          v.variationValue &&
+          v.variationValue.optionValue &&
+          v.variationValue.optionValue.name === colourName &&
+          v.images && v.images.length > 0
+        );
+        if (withImage) variantForImages = { ...variantForImages, images: withImage.images };
+      }
+    }
+    onVariantChange(variantForImages, pickedByShopper);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVariantId, pickedByShopper]);
 
