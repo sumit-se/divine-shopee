@@ -59,6 +59,15 @@ public interface ProductRepositoryCustom {
 		
 		Product getById(Long productId, MerchantStore store, Language language);
 
+		/**
+		 * Minimal product load for cart operations: loads only what
+		 * createCartItem needs (merchant, type, availabilities, variants with
+		 * pricing). Descriptions, categories, attributes, images and other
+		 * display data are NOT loaded here — they lazy-load later when accessed.
+		 * Use this instead of getById when only cart validation is required.
+		 */
+		Product getByIdForCart(Long productId, MerchantStore store, Language language);
+
 		List<Product> getProductsForLocale(MerchantStore store,
 				Set<Long> categoryIds, Language language, Locale locale);
 

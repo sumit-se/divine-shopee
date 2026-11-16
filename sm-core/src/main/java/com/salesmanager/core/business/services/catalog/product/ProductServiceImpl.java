@@ -400,6 +400,27 @@ public class ProductServiceImpl extends SalesManagerEntityServiceImpl<Long, Prod
 		} catch (Exception e) {
 			throw new ServiceException("Cannot get product with sku [" + productCode + "]", e);
 		}
+
+	}
+
+	/**
+	 * Lightweight SKU lookup for add-to-cart: loads only what cart validation
+	 * needs (merchantStore, type, availabilities, variants + pricing).
+	 * Descriptions and display data load lazily.  Much faster than getBySku
+	 * for products with many combined SIZE+COLOUR variants.
+	 */
+	public Product getBySkuForCart(String productCode, MerchantStore merchant, Language language) throws ServiceException {
+
+		try {
+			List<Object> products = productRepository.findBySku(productCode, merchant.getId());
+			if (products.isEmpty()) {
+				throw new ServiceException("Cannot get product with sku [" + productCode + "]");
+			}
+			BigInteger id = (BigInteger) products.get(0);
+			return productRepository.getByIdForCart(id.longValue(), merchant, language);
+		} catch (Exception e) {
+			throw new ServiceException("Cannot get product with sku [" + productCode + "]", e);
+		}
 		
 
 

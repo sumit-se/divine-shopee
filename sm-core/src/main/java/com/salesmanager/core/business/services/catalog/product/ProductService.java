@@ -88,6 +88,9 @@ public interface ProductService extends SalesManagerEntityService<Long, Product>
 	
 	Product getBySku(String productCode, MerchantStore merchant) throws ServiceException;
 
+	/** Lightweight cart-only load: variants+pricing only, no descriptions/categories. */
+	Product getBySkuForCart(String productCode, MerchantStore merchant, Language language) throws ServiceException;
+
 	/**
 	 * Find a product for a specific merchant
 	 * @param id

@@ -1252,7 +1252,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			qs.append("left join fetch p.manufacturer manuf ");
 			qs.append("left join fetch manuf.descriptions manufd ");
 			qs.append("left join fetch p.type type ");
-			
+
 			//variants
 			qs.append("left join fetch p.variants pinst ");
 			qs.append("left join fetch pinst.variation pv ");
@@ -1260,13 +1260,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			qs.append("left join fetch pv.productOptionValue pvpov ");
 			qs.append("left join fetch pvpo.descriptions pvpod ");
 			qs.append("left join fetch pvpov.descriptions pvpovd ");
-			
+
 			qs.append("left join fetch pinst.variationValue pvv ");
 			qs.append("left join fetch pvv.productOption pvvpo ");
 			qs.append("left join fetch pvv.productOptionValue pvvpov ");
 			qs.append("left join fetch pvvpo.descriptions povvpod ");
-			qs.append("left join fetch pvpov.descriptions povvpovd ");	
-			
+			qs.append("left join fetch pvpov.descriptions povvpovd ");
+
 			//variant availability and price
 			qs.append("left join fetch pinst.availabilities pinsta ");
 			qs.append("left join fetch pinsta.prices pinstap ");
@@ -1289,7 +1289,53 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		} catch (javax.persistence.NoResultException ers) {
 			return null;
 		}
-		
+
+	}
+
+	/**
+	 * Minimal product load for cart operations. Loads only what createCartItem
+	 * needs: merchantStore, type, product-level availabilities/prices, and
+	 * variants with their option values and per-variant pricing.
+	 *
+	 * Omits descriptions, categories, attributes, images, manufacturer, and
+	 * variant group data — those are LAZY and load on first access via OSIV.
+	 * This avoids the Cartesian-product row explosion caused by the full
+	 * getById query when a product has many combined SIZE+COLOUR variants.
+	 */
+	@Override
+	public Product getByIdForCart(Long id, MerchantStore store, Language language) {
+
+		try {
+
+			StringBuilder qs = new StringBuilder();
+			qs.append("select distinct p from Product as p ");
+			qs.append("join fetch p.merchantStore pm ");
+			qs.append("left join fetch p.availabilities pavail ");
+			qs.append("left join fetch p.type type ");
+			qs.append("left join fetch pavail.prices pavailpr ");
+			// variants
+			qs.append("left join fetch p.variants pinst ");
+			qs.append("left join fetch pinst.variation pv ");
+			qs.append("left join fetch pv.productOption pvpo ");
+			qs.append("left join fetch pv.productOptionValue pvpov ");
+			qs.append("left join fetch pinst.variationValue pvv ");
+			qs.append("left join fetch pvv.productOption pvvpo ");
+			qs.append("left join fetch pvv.productOptionValue pvvpov ");
+			// variant availability and price
+			qs.append("left join fetch pinst.availabilities pinsta ");
+			qs.append("left join fetch pinsta.prices pinstap ");
+			qs.append("where p.id=:productId and pm.id=:id");
+
+			Query q = this.em.createQuery(qs.toString());
+			q.setParameter("productId", id);
+			q.setParameter("id", store.getId());
+
+			return (Product) q.getSingleResult();
+
+		} catch (javax.persistence.NoResultException ers) {
+			return null;
+		}
+
 	}
 
 }
