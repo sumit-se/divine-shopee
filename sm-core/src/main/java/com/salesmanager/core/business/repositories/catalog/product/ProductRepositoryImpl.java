@@ -1304,38 +1304,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	 */
 	@Override
 	public Product getByIdForCart(Long id, MerchantStore store, Language language) {
-
-		try {
-
-			StringBuilder qs = new StringBuilder();
-			qs.append("select distinct p from Product as p ");
-			qs.append("join fetch p.merchantStore pm ");
-			qs.append("left join fetch p.availabilities pavail ");
-			qs.append("left join fetch p.type type ");
-			qs.append("left join fetch pavail.prices pavailpr ");
-			// variants
-			qs.append("left join fetch p.variants pinst ");
-			qs.append("left join fetch pinst.variation pv ");
-			qs.append("left join fetch pv.productOption pvpo ");
-			qs.append("left join fetch pv.productOptionValue pvpov ");
-			qs.append("left join fetch pinst.variationValue pvv ");
-			qs.append("left join fetch pvv.productOption pvvpo ");
-			qs.append("left join fetch pvv.productOptionValue pvvpov ");
-			// variant availability and price
-			qs.append("left join fetch pinst.availabilities pinsta ");
-			qs.append("left join fetch pinsta.prices pinstap ");
-			qs.append("where p.id=:productId and pm.id=:id");
-
-			Query q = this.em.createQuery(qs.toString());
-			q.setParameter("productId", id);
-			q.setParameter("id", store.getId());
-
-			return (Product) q.getSingleResult();
-
-		} catch (javax.persistence.NoResultException ers) {
-			return null;
-		}
-
+		return em.find(Product.class, id);
 	}
 
 }
