@@ -46,7 +46,7 @@ const ProductImageGallery = ({ product, images: galleryImages, startIndex, strin
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [missing]);
-  const yourBead = (strings && strings["Your bead"]) || "Your bead";
+  const yourBead = (strings && strings["Your selection"]) || "Your selection";
 
   /*
    * Hover to zoom: on a desktop, pointing at the main photo magnifies it inside
