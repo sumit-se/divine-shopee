@@ -428,22 +428,19 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		LOGGER.info("Starting merging shopping carts");
 		if (CollectionUtils.isNotEmpty(sessionCart.getLineItems())) {
 			Set<ShoppingCartItem> shoppingCartItemsSet = getShoppingCartItems(sessionCart, store, userShoppingModel);
-			boolean duplicateFound = false;
 			if (CollectionUtils.isNotEmpty(shoppingCartItemsSet)) {
 				for (ShoppingCartItem sessionShoppingCartItem : shoppingCartItemsSet) {
+					boolean duplicateFound = false;
 					if (CollectionUtils.isNotEmpty(userShoppingModel.getLineItems())) {
 						for (ShoppingCartItem cartItem : userShoppingModel.getLineItems()) {
 							if (cartItem.getProduct().getId().longValue() == sessionShoppingCartItem.getProduct()
-									.getId().longValue()) {
-								if (CollectionUtils.isNotEmpty(cartItem.getAttributes())) {
-									if (!duplicateFound) {
-										LOGGER.info("Dupliate item found..updating exisitng product quantity");
-										cartItem.setQuantity(
-												cartItem.getQuantity() + sessionShoppingCartItem.getQuantity());
-										duplicateFound = true;
-										break;
-									}
-								}
+									.getId().longValue()
+									&& java.util.Objects.equals(cartItem.getVariant(), sessionShoppingCartItem.getVariant())) {
+								LOGGER.info("Duplicate item found..updating existing product quantity");
+								cartItem.setQuantity(
+										cartItem.getQuantity() + sessionShoppingCartItem.getQuantity());
+								duplicateFound = true;
+								break;
 							}
 						}
 					}
