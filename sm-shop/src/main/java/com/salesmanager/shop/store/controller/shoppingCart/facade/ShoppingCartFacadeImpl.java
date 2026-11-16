@@ -930,7 +930,10 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	private ReadableShoppingCart readableShoppingCart(ShoppingCart cartModel, PersistableShoppingCartItem item,
 			MerchantStore store, Language language) throws Exception {
 
+		long t0 = System.currentTimeMillis();
 		com.salesmanager.core.model.shoppingcart.ShoppingCartItem itemModel = createCartItem(cartModel, item, store);
+		long t1 = System.currentTimeMillis();
+		LOG.info("PERF createCartItem={}ms sku={}", t1-t0, item.getProduct());
 
 		// need to check if the item is already in the cart
 		boolean duplicateFound = false;
@@ -960,13 +963,27 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 			cartModel.getLineItems().add(itemModel);
 		}
 
+		long t2 = System.currentTimeMillis();
 		saveShoppingCart(cartModel);
+		long t3 = System.currentTimeMillis();
+		LOG.info("PERF saveShoppingCart={}ms", t3-t2);
 
 		// refresh cart
+		long t4 = System.currentTimeMillis();
 		cartModel = shoppingCartService.getById(cartModel.getId(), store);
+		long t5 = System.currentTimeMillis();
+		LOG.info("PERF getById={}ms", t5-t4);
 
+		long t6 = System.currentTimeMillis();
 		shoppingCartCalculationService.calculate(cartModel, store, language);
-		return readableShoppingCartMapper.convert(cartModel, store, language);
+		long t7 = System.currentTimeMillis();
+		LOG.info("PERF calculate={}ms", t7-t6);
+
+		long t8 = System.currentTimeMillis();
+		ReadableShoppingCart result = readableShoppingCartMapper.convert(cartModel, store, language);
+		long t9 = System.currentTimeMillis();
+		LOG.info("PERF convert={}ms total={}ms", t9-t8, t9-t0);
+		return result;
 
 	}
 
