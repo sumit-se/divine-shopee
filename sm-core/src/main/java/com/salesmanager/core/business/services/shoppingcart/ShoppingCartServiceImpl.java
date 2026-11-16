@@ -480,6 +480,7 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 
 				ShoppingCartItem item = populateShoppingCartItem(product, store);
 				item.setQuantity(shoppingCartItem.getQuantity());
+				item.setVariant(shoppingCartItem.getVariant());
 				item.setShoppingCart(cartModel);
 
 				List<ShoppingCartAttributeItem> cartAttributes = new ArrayList<ShoppingCartAttributeItem>();
