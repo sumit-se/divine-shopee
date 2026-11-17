@@ -61,7 +61,7 @@
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
 		"purgecss": "purgecss --config purgecss.config.js",
-		"postbuild": "purgecss --config purgecss.config.js"
+		"postbuild": "purgecss --config purgecss.config.js && ([ -f .env ] && chmod +x ./env.sh && ./env.sh && cp env-config.js ./build/env-config.js || true)"
 	},
 	"eslintConfig": {
 		"extends": "react-app"
