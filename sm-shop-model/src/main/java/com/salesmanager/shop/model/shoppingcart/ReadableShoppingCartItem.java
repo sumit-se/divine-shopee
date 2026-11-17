@@ -31,6 +31,13 @@ public class ReadableShoppingCartItem extends ReadableMinimalProduct implements 
 	 * storefront needs in order to remove one of them.
 	 */
 	private String variantSku = null;
+	/**
+	 * The entity id of the ProductVariant this line represents. The storefront
+	 * must echo this back when modifying quantity so the backend can match the
+	 * correct line (product + variant) rather than falling back to the first
+	 * matching product and pricing it at the wrong variant's price.
+	 */
+	private Long variantId = null;
 
 	public String getVariantSku() {
 		return variantSku;
@@ -38,6 +45,14 @@ public class ReadableShoppingCartItem extends ReadableMinimalProduct implements 
 
 	public void setVariantSku(String variantSku) {
 		this.variantSku = variantSku;
+	}
+
+	public Long getVariantId() {
+		return variantId;
+	}
+
+	public void setVariantId(Long variantId) {
+		this.variantId = variantId;
 	}
 
 	

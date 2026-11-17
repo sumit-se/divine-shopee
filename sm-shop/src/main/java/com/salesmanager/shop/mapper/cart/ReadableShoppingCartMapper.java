@@ -142,6 +142,7 @@ public class ReadableShoppingCartMapper implements Mapper<ShoppingCart, Readable
 						// the line's own handle: two lines of the same product differ
 						// only by this
 						shoppingCartItem.setVariantSku(productVariant.get().getSku());
+						shoppingCartItem.setVariantId(productVariant.get().getId());
 						shoppingCartItem.setVariant(readableProductVariationMapper.convert(productVariant.get().getVariation(), store, language));
 						if(productVariant.get().getVariationValue() != null) {
 							shoppingCartItem.setVariantValue(readableProductVariationMapper.convert(productVariant.get().getVariationValue(), store, language));
