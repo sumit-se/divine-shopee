@@ -626,10 +626,11 @@ const mapDispatchToProps = dispatch => {
       dispatch(setLoader(value));
     },
     decreaseQuantity: (item, addToast, cartId, quantityCount, defaultStore) => {
-      dispatch(addToCart(item, addToast, cartId, quantityCount, defaultStore));
+      if (quantityCount < 1) return;
+      dispatch(addToCart(item, addToast, cartId, quantityCount, defaultStore, undefined, undefined, item.variantId));
     },
     increaseQuantity: (item, addToast, cartId, quantityCount, defaultStore) => {
-      dispatch(addToCart(item, addToast, cartId, quantityCount, defaultStore));
+      dispatch(addToCart(item, addToast, cartId, quantityCount, defaultStore, undefined, undefined, item.variantId));
     },
     // decreaseQuantity: (cartItems, key, item, addToast, cartId, quantityCount, defaultStore) => {
     //   console.log('decreaseQuantity...');
