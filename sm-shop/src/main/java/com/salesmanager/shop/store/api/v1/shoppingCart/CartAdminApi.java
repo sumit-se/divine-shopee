@@ -140,7 +140,7 @@ public class CartAdminApi {
 					.distinct().collect(Collectors.toList());
 			Map<Long, String> variantSkuById = variantIds.isEmpty() ? new HashMap<>()
 					: productVariantService.getByIds(variantIds, merchantStore).stream()
-							.collect(Collectors.toMap(ProductVariant::getId, v -> v.getSku() != null ? v.getSku() : ""));
+							.collect(Collectors.toMap(ProductVariant::getId, v -> v.getSku() != null ? v.getSku() : "", (a, b) -> a));
 
 			BigDecimal total = BigDecimal.ZERO;
 			for (ShoppingCartItem item : cart.getLineItems()) {
